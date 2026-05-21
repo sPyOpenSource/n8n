@@ -1,0 +1,6 @@
+{
+  "name": "Custom n8n Workflow Studio",
+  "description": "Interactive visual workflow automation builder with support for Webhook triggers, HTTP API actions, custom JavaScript routines, Gemini AI executors, and live evaluation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
