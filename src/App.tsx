@@ -18,6 +18,7 @@ import {
   Trash2, 
   RefreshCw, 
   ChevronRight, 
+  ChevronLeft,
   CheckCircle2, 
   XCircle, 
   Settings, 
@@ -52,6 +53,8 @@ export default function App() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'editor' | 'logs'>('editor');
   const [searchQuery, setSearchQuery] = useState('');
+  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
+  const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
   
   // Execution Telemetry
   const [executionState, setExecutionState] = useState<ExecutionState>({
@@ -607,8 +610,24 @@ export default function App() {
       {/* Header Bar */}
       <header className="h-16 border-b border-white/10 backdrop-blur-md bg-white/5 flex items-center justify-between px-6 z-20 relative">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-gradient-to-tr from-indigo-550 to-purple-600 rounded-xl flex items-center justify-center font-bold text-white text-lg tracking-wider shadow-lg shadow-indigo-500/30 font-serif">
-            n8
+          <div className="w-10 h-10 flex items-center justify-center bg-[#741ca1] border border-white/10 rounded-xl shadow-lg shadow-[#741ca1]/30 hover:bg-[#8521b8] transition-colors cursor-pointer select-none">
+            <svg 
+              viewBox="0 0 100 66" 
+              className="w-6.5 h-[18px] text-[#ff637f]" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="7.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <circle cx="20" cy="33" r="8.5" />
+              <circle cx="45" cy="33" r="8.5" />
+              <circle cx="78" cy="20" r="8.5" />
+              <circle cx="78" cy="46" r="8.5" />
+              <path d="M 28.5 33 L 36.5 33" />
+              <path d="M 53.5 33 C 62 33, 62 20, 69.5 20" />
+              <path d="M 53.5 33 C 62 33, 62 46, 69.5 46" />
+            </svg>
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -714,8 +733,9 @@ export default function App() {
       <div className="flex-1 flex overflow-hidden relative z-10">
         
         {/* Left Library Shelf */}
-        <aside className="w-68 border-r border-white/10 backdrop-blur-xl bg-white/2 z-10 flex flex-col relative overflow-hidden">
-          <div className="p-4 border-b border-white/5 bg-white/1">
+        <aside className={`${leftPanelCollapsed ? "w-0 border-r-0" : "w-68 border-r"} border-white/10 backdrop-blur-xl bg-white/2 z-10 flex flex-col relative overflow-hidden transition-all duration-300 ease-in-out`}>
+          <div className="w-68 flex flex-col h-full shrink-0">
+            <div className="p-4 border-b border-white/5 bg-white/1">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-bold uppercase tracking-widest text-[#818cf8]">Node Catalog</span>
               <span className="text-[9px] px-1.5 bg-indigo-500/20 text-indigo-300 rounded border border-indigo-50o/10 font-mono">
@@ -822,10 +842,25 @@ export default function App() {
             </div>
           </div>
 
-          <div className="p-3 bg-white/2 border-t border-white/5 text-[9px] font-mono text-slate-500 text-center uppercase tracking-wide">
-            Server API Grounding Connected
+            <div className="p-3 bg-white/2 border-t border-white/5 text-[9px] font-mono text-slate-500 text-center uppercase tracking-wide">
+              Server API Grounding Connected
+            </div>
           </div>
         </aside>
+
+        {/* Collapsible Panel Handle Button */}
+        <button
+          onClick={() => setLeftPanelCollapsed(!leftPanelCollapsed)}
+          style={{ left: leftPanelCollapsed ? '0px' : '271px' }}
+          className="absolute top-1/2 -translate-y-1/2 w-5 h-10 bg-[#090d16]/95 border-t border-b border-r border-white/10 hover:border-white/20 hover:bg-slate-800 text-slate-400 hover:text-white rounded-r-md flex items-center justify-center cursor-pointer transition-all duration-300 ease-in-out z-20 shadow-md backdrop-blur-md"
+          title={leftPanelCollapsed ? "Expand Catalog" : "Collapse Catalog"}
+        >
+          {leftPanelCollapsed ? (
+            <ChevronRight className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronLeft className="w-3.5 h-3.5" />
+          )}
+        </button>
 
         {/* Visual Flow grid Canvas column holds actual mapping canvas */}
         <div className="flex-1 flex flex-col relative">
@@ -852,7 +887,7 @@ export default function App() {
           />
 
           {/* Bottom Execution Telemetry Drawer Console */}
-          <div className="h-62 border-t border-white/10 backdrop-blur-xl bg-[#020617]/95 flex flex-col z-10">
+          <div className="h-31 border-t border-white/10 backdrop-blur-xl bg-[#020617]/95 flex flex-col z-10">
             <div className="h-10 border-b border-white/5 bg-white/2 flex items-center justify-between px-6">
               <div className="flex items-center gap-2">
                 <Terminal className="w-4 h-4 text-indigo-400 animate-pulse" />
@@ -902,9 +937,24 @@ export default function App() {
           </div>
         </div>
 
+        {/* Collapsible Panel Handle Button Right */}
+        <button
+          onClick={() => setRightPanelCollapsed(!rightPanelCollapsed)}
+          style={{ right: rightPanelCollapsed ? '0px' : '319px' }}
+          className="absolute top-1/2 -translate-y-1/2 w-5 h-10 bg-[#090d16]/95 border-t border-b border-l border-white/10 hover:border-white/20 hover:bg-slate-800 text-slate-400 hover:text-white rounded-l-md flex items-center justify-center cursor-pointer transition-all duration-300 ease-in-out z-20 shadow-md backdrop-blur-md"
+          title={rightPanelCollapsed ? "Expand Properties" : "Collapse Properties"}
+        >
+          {rightPanelCollapsed ? (
+            <ChevronLeft className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronRight className="w-3.5 h-3.5" />
+          )}
+        </button>
+
         {/* Right Configuration Drawer Panel holds details editable config parameters */}
-        <aside className="w-80 border-l border-white/10 backdrop-blur-xl bg-white/2 z-10 flex flex-col overflow-hidden">
-          <div className="p-4 border-b border-white/5 bg-white/1 flex items-center justify-between">
+        <aside className={`${rightPanelCollapsed ? "w-0 border-l-0" : "w-80 border-l"} border-white/10 backdrop-blur-xl bg-white/2 z-10 flex flex-col relative overflow-hidden transition-all duration-300 ease-in-out`}>
+          <div className="w-80 flex flex-col h-full shrink-0">
+            <div className="p-4 border-b border-white/5 bg-white/1 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Settings className="w-4 h-4 text-indigo-400" />
               <h2 className="font-semibold text-sm">Component Properties</h2>
@@ -1182,6 +1232,7 @@ export default function App() {
               </div>
             </div>
           )}
+          </div>
         </aside>
 
       </div>
