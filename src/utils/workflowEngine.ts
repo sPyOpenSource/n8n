@@ -63,6 +63,9 @@ export async function executeNodeOnServer(
   if (configCopy.prompt) {
     configCopy.prompt = interpolateTemplate(configCopy.prompt, allOutputs);
   }
+  if (configCopy.swarmInstructions) {
+    configCopy.swarmInstructions = interpolateTemplate(configCopy.swarmInstructions, allOutputs);
+  }
   if (configCopy.body) {
     configCopy.body = interpolateTemplate(configCopy.body, allOutputs);
   }

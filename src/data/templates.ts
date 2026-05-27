@@ -212,5 +212,201 @@ return {
         }
       ]
     }
+  },
+  {
+    id: 'intelligent_triage_flow',
+    name: 'Multi-Path Ticket Triage Router',
+    description: 'Ingests multi-category customer desk queries, evaluates categories using the Transform Router, and directs tickets across specialized response streams.',
+    workflow: {
+      name: 'Multi-Path Ticket Triage Router',
+      description: 'Intelligent multi-destination customer care triage.',
+      nodes: [
+        {
+          id: 'ticket_trigger',
+          type: 'webhook',
+          name: 'Dynamic Query Ticket Feed',
+          category: 'trigger',
+          position: { x: 50, y: 190 },
+          config: {
+            payload: JSON.stringify({
+              customerName: "Jane Doe",
+              issueType: "billing",
+              description: "I received a duplicate monthly charge of $29 after updating my visa card status. Please check and reverse!"
+            }, null, 2)
+          }
+        },
+        {
+          id: 'router_ticket',
+          type: 'transformRouter',
+          name: 'Triage Router Processor',
+          category: 'ai',
+          position: { x: 300, y: 170 },
+          config: {
+            routingMode: 'rules',
+            routeKey: 'issueType',
+            routeAMatch: 'billing',
+            routeBMatch: 'feedback',
+            routeCMatch: 'technical'
+          }
+        },
+        {
+          id: 'ai_billing_draft',
+          type: 'aiTransform',
+          name: 'Finance Refund Helper',
+          category: 'ai',
+          position: { x: 580, y: 40 },
+          config: {
+            prompt: "Prepare a billing refund ticket confirmation template for customer {{customerName}}. Thank them matching issueType {{issueType}} and guarantee resolution.",
+            systemInstruction: "You are an automated accounting robot."
+          }
+        },
+        {
+          id: 'ai_feedback_draft',
+          type: 'aiTransform',
+          name: 'Feedback Recognition Builder',
+          category: 'ai',
+          position: { x: 580, y: 190 },
+          config: {
+            prompt: "Prepare a warm appreciation draft response thanking {{customerName}} for sharing their customer feedback.",
+            systemInstruction: "You are a customer feedback specialist."
+          }
+        },
+        {
+          id: 'ai_technical_draft',
+          type: 'aiTransform',
+          name: 'Technical Bug Logger',
+          category: 'ai',
+          position: { x: 580, y: 340 },
+          config: {
+            prompt: "Draft a technical ticket escalation notice to engineering for {{customerName}} experiencing difficulty.",
+            systemInstruction: "You are a professional IT sysadmin."
+          }
+        },
+        {
+          id: 'triage_terminal',
+          type: 'outputLog',
+          name: 'Escalated Triage Terminal',
+          category: 'utility',
+          position: { x: 860, y: 190 },
+          config: {}
+        }
+      ],
+      connections: [
+        {
+          id: 'conn_t1',
+          fromId: 'ticket_trigger',
+          fromPort: 'output',
+          toId: 'router_ticket',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_t2',
+          fromId: 'router_ticket',
+          fromPort: 'routeA',
+          toId: 'ai_billing_draft',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_t3',
+          fromId: 'router_ticket',
+          fromPort: 'routeB',
+          toId: 'ai_feedback_draft',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_t4',
+          fromId: 'router_ticket',
+          fromPort: 'routeC',
+          toId: 'ai_technical_draft',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_t5',
+          fromId: 'ai_billing_draft',
+          fromPort: 'output',
+          toId: 'triage_terminal',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_t6',
+          fromId: 'ai_feedback_draft',
+          fromPort: 'output',
+          toId: 'triage_terminal',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_t7',
+          fromId: 'ai_technical_draft',
+          fromPort: 'output',
+          toId: 'triage_terminal',
+          toPort: 'input'
+        }
+      ]
+    }
+  },
+  {
+    id: 'openswarm_copy_refiner',
+    name: 'OpenSwarm Multi-Agent Content Refiner',
+    description: 'Uses a synchronized team of expert swarm agents (Planner, Transformation Writer, and Optimizing Auditor) to review, restructure, and deliver pristine copies.',
+    workflow: {
+      name: 'OpenSwarm Multi-Agent Content Refiner',
+      description: 'Collaborative Multi-Agent Refinement Pipeline.',
+      nodes: [
+        {
+          id: 'swarm_trigger',
+          type: 'webhook',
+          name: 'Draft Article Feed',
+          category: 'trigger',
+          position: { x: 80, y: 160 },
+          config: {
+            payload: JSON.stringify({
+              author: "Marcus Aurelius",
+              mode: "Brutalist Editorial",
+              draftContent: "OpenSwarm integrations is powerful because it allows separate ai profiles representing planner, executor, and reviewer to talk together and make better output than single model. we should implement it for workflow automation"
+            }, null, 2)
+          }
+        },
+        {
+          id: 'swarm_refiner',
+          type: 'openSwarm',
+          name: 'OpenSwarm Collaborative Refiner',
+          category: 'ai',
+          position: { x: 380, y: 140 },
+          config: {
+            swarmInstructions: "Deconstruct the drafting text in draftContent. Have the agents outline editing directives, write a highly professional and refined paragraph embodying mode \"{{mode}}\", correct all formatting, and output the polished final product as a clean JSON layout.",
+            swarmMaxTurns: 3,
+            swarmAgents: JSON.stringify([
+              { "name": "Planner Agent", "instructions": "Deconstruct instructions, formulate execution roadmap." },
+              { "name": "Transformation Writer", "instructions": "Formulate beautiful responses and format them perfectly." },
+              { "name": "Optimizing Auditor", "instructions": "Apply quality reviews, verify data fields, correct errors." }
+            ], null, 2)
+          }
+        },
+        {
+          id: 'swarm_logger',
+          type: 'outputLog',
+          name: 'Refinement Output Terminal',
+          category: 'utility',
+          position: { x: 740, y: 160 },
+          config: {}
+        }
+      ],
+      connections: [
+        {
+          id: 'conn_sw1',
+          fromId: 'swarm_trigger',
+          fromPort: 'output',
+          toId: 'swarm_refiner',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_sw2',
+          fromId: 'swarm_refiner',
+          fromPort: 'output',
+          toId: 'swarm_logger',
+          toPort: 'input'
+        }
+      ]
+    }
   }
 ];

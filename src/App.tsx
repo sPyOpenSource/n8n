@@ -36,7 +36,14 @@ import {
   Compass,
   Code,
   CloudDrizzle,
-  BookOpen
+  BookOpen,
+  Wifi,
+  Server,
+  Sparkles,
+  Bot,
+  GitBranch,
+  Network,
+  Users
 } from 'lucide-react';
 
 export default function App() {
@@ -121,7 +128,14 @@ export default function App() {
       nodeName
     };
     setExecutionState(prev => {
-      const logs = [newLog, ...prev.logs].slice(0, 100);
+      const untrimmed = [newLog, ...prev.logs];
+      const uniqueMap = new Map();
+      for (const item of untrimmed) {
+        if (item && item.id && !uniqueMap.has(item.id)) {
+          uniqueMap.set(item.id, item);
+        }
+      }
+      const logs = Array.from(uniqueMap.values()).slice(0, 100);
       emit('execution:state', { logs });
       return {
         ...prev,
@@ -155,10 +169,18 @@ export default function App() {
             setWorkflow(payload.workflow);
             setCollaborators(payload.presenceList);
             if (payload.logs) {
-              setExecutionState(prev => ({
-                ...prev,
-                logs: payload.logs
-              }));
+              setExecutionState(prev => {
+                const uniqueMap = new Map();
+                for (const item of payload.logs) {
+                  if (item && item.id && !uniqueMap.has(item.id)) {
+                    uniqueMap.set(item.id, item);
+                  }
+                }
+                return {
+                  ...prev,
+                  logs: Array.from(uniqueMap.values())
+                };
+              });
             }
             break;
           }
@@ -196,7 +218,13 @@ export default function App() {
                 updatedState.nodeOutputs = { ...prev.nodeOutputs, ...nodeOutputs };
               }
               if (logs !== undefined) {
-                updatedState.logs = logs;
+                const uniqueMap = new Map();
+                for (const item of logs) {
+                  if (item && item.id && !uniqueMap.has(item.id)) {
+                    uniqueMap.set(item.id, item);
+                  }
+                }
+                updatedState.logs = Array.from(uniqueMap.values());
               }
               return updatedState;
             });
@@ -210,10 +238,19 @@ export default function App() {
           }
 
           case 'chat:message': {
-            setExecutionState(prev => ({
-              ...prev,
-              logs: [payload, ...prev.logs].slice(0, 100)
-            }));
+            setExecutionState(prev => {
+              const untrimmed = [payload, ...prev.logs];
+              const uniqueMap = new Map();
+              for (const item of untrimmed) {
+                if (item && item.id && !uniqueMap.has(item.id)) {
+                  uniqueMap.set(item.id, item);
+                }
+              }
+              return {
+                ...prev,
+                logs: Array.from(uniqueMap.values()).slice(0, 100)
+              };
+            });
             break;
           }
 
@@ -336,6 +373,75 @@ export default function App() {
       defaultConfig: { condition: 'Data implies urgent request.' } as WorkflowNode['config']
     },
     {
+      type: 'chatgptTransform' as NodeType,
+      category: 'ai' as NodeCategory,
+      name: 'ChatGPT AI transform',
+      description: 'Instruct OpenAI model to format or process workflow payloads',
+      icon: <Sparkles className="w-5 h-5 text-pink-400" />,
+      defaultConfig: {
+        openaiModel: 'gpt-4o-mini',
+        prompt: 'Extract names, email addresses, and key topics from the incoming payload.',
+        systemInstruction: 'You are an elite data extraction assistant. Always return valid, beautiful JSON.',
+        openaiApiKey: ''
+      } as WorkflowNode['config']
+    },
+    {
+      type: 'copilotTransform' as NodeType,
+      category: 'ai' as NodeCategory,
+      name: 'Copilot AI transform',
+      description: 'Leverage GitHub Copilot or GitHub model engines directly',
+      icon: <Bot className="w-5 h-5 text-sky-400" />,
+      defaultConfig: {
+        copilotModel: 'gpt-4o',
+        prompt: 'Refactor the input stream structure or generate clean code artifacts.',
+        systemInstruction: 'You are an elite GitHub Copilot programming agent. Return optimal JSON streams.',
+        githubToken: ''
+      } as WorkflowNode['config']
+    },
+    {
+      type: 'ollamaTransform' as NodeType,
+      category: 'ai' as NodeCategory,
+      name: 'Ollama local AI transform',
+      description: 'Interact with locally or privately hosted Ollama models',
+      icon: <Cpu className="w-5 h-5 text-emerald-400" />,
+      defaultConfig: {
+        ollamaUrl: 'http://localhost:11434',
+        ollamaModel: 'llama3',
+        prompt: 'Formulate a summarized highlight of the given text payload.',
+        systemInstruction: 'You are a precise, locally running AI data formatter. Always return valid, compact JSON.',
+      } as WorkflowNode['config']
+    },
+    {
+      type: 'transformRouter' as NodeType,
+      category: 'ai' as NodeCategory,
+      name: 'Intelligent Transform Router',
+      description: 'Route payloads to path A, B, or C based on Rules or AI sentiment classification',
+      icon: <GitBranch className="w-5 h-5 text-indigo-400" />,
+      defaultConfig: {
+        routingMode: 'rules',
+        routeKey: 'status',
+        routeAMatch: 'urgent',
+        routeBMatch: 'feedback',
+        routeCMatch: 'billing'
+      } as WorkflowNode['config']
+    },
+    {
+      type: 'openSwarm' as NodeType,
+      category: 'ai' as NodeCategory,
+      name: 'OpenSwarm AI Orchestrator',
+      description: 'Run collaborative multi-agent swarm choreographies to solve complex multi-step instructions',
+      icon: <Network className="w-5 h-5 text-teal-400" />,
+      defaultConfig: {
+        swarmInstructions: 'Deconstruct, refine and output a highly polished and optimized summary of the payload.',
+        swarmMaxTurns: 3,
+        swarmAgents: JSON.stringify([
+          { "name": "Planner Agent", "instructions": "Deconstruct instruction, formulate execution roadmap" },
+          { "name": "Transformation Writer", "instructions": "Formulate beautiful responses and format them perfectly" },
+          { "name": "Optimizing Auditor", "instructions": "Apply quality reviews, verify data fields, correct errors" }
+        ], null, 2)
+      } as WorkflowNode['config']
+    },
+    {
       type: 'jsCode' as NodeType,
       category: 'utility' as NodeCategory,
       name: 'Custom Javascript routine',
@@ -350,6 +456,22 @@ export default function App() {
       description: 'Print final payload summaries',
       icon: <BookOpen className="w-5 h-5 text-slate-300" />,
       defaultConfig: {} as WorkflowNode['config']
+    },
+    {
+      type: 'wsClient' as NodeType,
+      category: 'action' as NodeCategory,
+      name: 'WebSocket Client',
+      description: 'Connect to external/internal WS servers to send or receive messages',
+      icon: <Wifi className="w-5 h-5 text-cyan-400" />,
+      defaultConfig: { wsUrl: 'ws://localhost:3000/ws/custom', operation: 'send', payload: '{\n  "clientEvent": "node_trigger_dispatch",\n  "status": "online"\n}' } as WorkflowNode['config']
+    },
+    {
+      type: 'wsServer' as NodeType,
+      category: 'trigger' as NodeCategory,
+      name: 'WebSocket Server',
+      description: 'Interact with and inspect custom clients joined to WS server room at /ws/custom',
+      icon: <Server className="w-5 h-5 text-indigo-400" />,
+      defaultConfig: { operation: 'broadcast', payload: '{\n  "message": "Hello from custom server broadcast!"\n}' } as WorkflowNode['config']
     }
   ];
 
@@ -475,6 +597,12 @@ export default function App() {
 
         addLog('success', `✔ [${node.name}] completed. Output generated: ${JSON.stringify(finalOutputResult).slice(0, 100)}...`, node.id, node.name);
 
+        if (node.type === 'openSwarm' && Array.isArray(finalOutputResult?.history)) {
+          finalOutputResult.history.forEach((step: any, index: number) => {
+            addLog('info', `🤖 Turn #${index + 1} [${step.agent}] ${step.action ? '(' + step.action + ')' : ''}: "${step.message}"`, node.id, node.name);
+          });
+        }
+
         setExecutionState(prev => ({
           ...prev,
           executedNodes: { ...prev.executedNodes, [currentNodeId]: 'success' },
@@ -495,6 +623,15 @@ export default function App() {
 
             if (followPath) {
               addLog('info', `Decision router chose branch: [${conn.fromPort.toUpperCase()}] -> to destination [${workflow.nodes.find(n => n.id === conn.toId)?.name}]`, node.id, node.name);
+            }
+          }
+
+          if (node.type === 'transformRouter') {
+            const selectedRoute = finalOutputResult?.selectedRoute || 'routeA';
+            if (conn.fromPort !== selectedRoute) {
+              followPath = false;
+            } else {
+              addLog('info', `Transform Router chose port: [${selectedRoute.toUpperCase()}] (Reason: ${finalOutputResult?.reason || 'Rule match'}) -> to destination [${workflow.nodes.find(n => n.id === conn.toId)?.name}]`, node.id, node.name);
             }
           }
 
@@ -1142,6 +1279,390 @@ export default function App() {
                 </div>
               )}
 
+              {selectedNode.type === 'chatgptTransform' && (
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-pink-400 font-mono">ChatGPT Model Selection</label>
+                    <select
+                      value={selectedNode.config.openaiModel || 'gpt-4o-mini'}
+                      onChange={(e) => updateNodeConfig({ openaiModel: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500 appearance-none cursor-pointer font-mono"
+                    >
+                      <option value="gpt-4o-mini">gpt-4o-mini (Cost-Efficient)</option>
+                      <option value="gpt-4o">gpt-4o (High Intelligence)</option>
+                      <option value="o1-mini">o1-mini (Reasoning Heavy)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#f472b6] font-mono">OpenAI API Key (Optional Override)</label>
+                    <input 
+                      type="password"
+                      value={selectedNode.config.openaiApiKey || ''}
+                      onChange={(e) => updateNodeConfig({ openaiApiKey: e.target.value })}
+                      placeholder="sk-or..."
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-pink-300 font-mono focus:outline-none focus:ring-1 focus:ring-pink-500"
+                    />
+                    <p className="text-[8px] text-slate-500 mt-0.5 leading-relaxed">
+                      Keeps credentials safe. If left blank, it defaults to the platform standard <code>OPENAI_API_KEY</code>.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-pink-400 font-mono">System Instructions</label>
+                    <input 
+                      type="text"
+                      value={selectedNode.config.systemInstruction || ''}
+                      onChange={(e) => updateNodeConfig({ systemInstruction: e.target.value })}
+                      placeholder="e.g. You are a helpful ChatGPT assistant."
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-slate-200"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-pink-400 font-mono">Prompt Instructions</label>
+                    <textarea
+                      rows={5}
+                      value={selectedNode.config.prompt || ''}
+                      onChange={(e) => updateNodeConfig({ prompt: e.target.value })}
+                      placeholder="e.g. Structure the incoming billing metrics into summarized quarters."
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none resize-none h-28"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-pink-500/10 border border-pink-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-pink-300 uppercase tracking-widest font-mono">ChatGPT AI Node</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed">
+                      Leverages OpenAI's deep language models directly. Interpolates parent workspace context payloads dynamically before execution.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.type === 'copilotTransform' && (
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-sky-400 font-mono">Copilot AI Model Selection</label>
+                    <select
+                      value={selectedNode.config.copilotModel || 'gpt-4o'}
+                      onChange={(e) => updateNodeConfig({ copilotModel: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-sky-500 appearance-none cursor-pointer font-mono"
+                    >
+                      <option value="gpt-4o">copilot-gpt-4o (Latest Omni)</option>
+                      <option value="claude-3.5-sonnet">copilot-claude-3.5-sonnet</option>
+                      <option value="o1-mini">copilot-o1-mini (Complex Reasoning)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#38bdf8] font-mono">GitHub Token (Optional Override)</label>
+                    <input 
+                      type="password"
+                      value={selectedNode.config.githubToken || ''}
+                      onChange={(e) => updateNodeConfig({ githubToken: e.target.value })}
+                      placeholder="ghp_..."
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-sky-300 font-mono focus:outline-none focus:ring-1 focus:ring-sky-500"
+                    />
+                    <p className="text-[8px] text-slate-500 mt-0.5 leading-relaxed">
+                      Configures a personal GitHub access token or GitHub model credential. Defaults to the workspace standard <code>GITHUB_COPILOT_TOKEN</code>.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-sky-400 font-mono">System Prompt Instructions</label>
+                    <input 
+                      type="text"
+                      value={selectedNode.config.systemInstruction || ''}
+                      onChange={(e) => updateNodeConfig({ systemInstruction: e.target.value })}
+                      placeholder="e.g. You are GitHub Copilot's automated code & context helper."
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-slate-200"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-sky-400 font-mono">Refactoring & Transform Rule</label>
+                    <textarea
+                      rows={5}
+                      value={selectedNode.config.prompt || ''}
+                      onChange={(e) => updateNodeConfig({ prompt: e.target.value })}
+                      placeholder="e.g. Translate context streams into fully commented typescript functions."
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none resize-none h-28"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-sky-500/10 border border-sky-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-sky-300 uppercase tracking-widest font-mono">Copilot AI Node</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed">
+                      Connects directly to Microsoft GitHub Copilot & GitHub Models cloud endpoints to perform structural transformations.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.type === 'ollamaTransform' && (
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-emerald-400 font-mono">Ollama Host URL</label>
+                    <input 
+                      type="text"
+                      value={selectedNode.config.ollamaUrl || ''}
+                      onChange={(e) => updateNodeConfig({ ollamaUrl: e.target.value })}
+                      placeholder="e.g. http://localhost:11434"
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-emerald-300 font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                    <p className="text-[8px] text-slate-500 mt-0.5 leading-relaxed">
+                      Point to your local or private gateway instance. Defaults to <code>http://localhost:11434</code>.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-emerald-400 font-mono">Model Name</label>
+                    <input 
+                      type="text"
+                      value={selectedNode.config.ollamaModel || ''}
+                      onChange={(e) => updateNodeConfig({ ollamaModel: e.target.value })}
+                      placeholder="e.g. llama3, mistral, gemma"
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-white font-mono focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-emerald-400 font-mono">System Prompt Instructions</label>
+                    <input 
+                      type="text"
+                      value={selectedNode.config.systemInstruction || ''}
+                      onChange={(e) => updateNodeConfig({ systemInstruction: e.target.value })}
+                      placeholder="e.g. You are a precise local AI data formatter."
+                      className="w-full bg-[#030712] border border-[#10b981]/20 rounded-lg p-2 text-xs text-slate-200"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-emerald-400 font-mono">Transformation & Prompt Rule</label>
+                    <textarea
+                      rows={5}
+                      value={selectedNode.config.prompt || ''}
+                      onChange={(e) => updateNodeConfig({ prompt: e.target.value })}
+                      placeholder="e.g. Highlight anomalous events or summarize critical logs in details."
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none resize-none h-28"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-emerald-300 uppercase tracking-widest font-mono">Ollama AI Node</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed">
+                      Leverages any offline/online Ollama instance running locally or on a private network. Uses JSON mode structure streaming format constraints.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.type === 'transformRouter' && (
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-indigo-400 font-mono">Routing Strategy Mode</label>
+                    <select
+                      value={selectedNode.config.routingMode || 'rules'}
+                      onChange={(e) => updateNodeConfig({ routingMode: e.target.value as 'rules' | 'ai' })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 appearance-none cursor-pointer font-mono"
+                    >
+                      <option value="rules">Standard Keyword / Pattern Rules</option>
+                      <option value="ai">AI-Driven Semantic Router (Gemini)</option>
+                    </select>
+                  </div>
+
+                  {(!selectedNode.config.routingMode || selectedNode.config.routingMode === 'rules') && (
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-indigo-400 font-mono">Evaluating Target Field/Key</label>
+                      <input 
+                        type="text"
+                        value={selectedNode.config.routeKey || ''}
+                        onChange={(e) => updateNodeConfig({ routeKey: e.target.value })}
+                        placeholder="e.g. status or {{ticketCategory}}"
+                        className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-indigo-300 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      />
+                      <p className="text-[8px] text-slate-500 leading-relaxed">
+                        Evaluates context variables. Matches text matches to designated outputs.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="space-y-3 bg-[#0a0f1d]/50 p-3 rounded-lg border border-white/5">
+                    <div className="flex items-center space-x-2 text-indigo-300 text-[10px] font-bold uppercase font-mono tracking-wider">
+                      <GitBranch className="w-3 h-3 text-indigo-400" />
+                      <span>Route Port Definitions & Targets</span>
+                    </div>
+
+                    <div className="space-y-2 mt-2">
+                      <div className="space-y-1">
+                        <span className="text-[8px] font-bold text-emerald-400 uppercase tracking-wider font-mono">ROUTE A (Top Port) Matcher</span>
+                        <input
+                          type="text"
+                          value={selectedNode.config.routeAMatch || ''}
+                          onChange={(e) => updateNodeConfig({ routeAMatch: e.target.value })}
+                          placeholder={selectedNode.config.routingMode === 'ai' ? 'e.g. Critical support requests, payments, refund complaints' : 'e.g. urgent'}
+                          className="w-full bg-[#030712] border border-white/10 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="text-[8px] font-bold text-sky-400 uppercase tracking-wider font-mono">ROUTE B (Middle Port) Matcher</span>
+                        <input
+                          type="text"
+                          value={selectedNode.config.routeBMatch || ''}
+                          onChange={(e) => updateNodeConfig({ routeBMatch: e.target.value })}
+                          placeholder={selectedNode.config.routingMode === 'ai' ? 'e.g. Regular feedback, compliments, neutral rating logs' : 'e.g. feedback'}
+                          className="w-full bg-[#030712] border border-white/10 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <span className="text-[8px] font-bold text-amber-400 uppercase tracking-wider font-mono">ROUTE C (Bottom Port) Matcher</span>
+                        <input
+                          type="text"
+                          value={selectedNode.config.routeCMatch || ''}
+                          onChange={(e) => updateNodeConfig({ routeCMatch: e.target.value })}
+                          placeholder={selectedNode.config.routingMode === 'ai' ? 'e.g. General billing queries, subscription updates' : 'e.g. billing'}
+                          className="w-full bg-[#030712] border border-white/10 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest font-mono">Dynamic Multi-Path Router</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed">
+                      This node divides dynamic work streams between Route ports A, B, or C. Unmatched workflows route to Route A as a default fallback.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.type === 'openSwarm' && (
+                <div className="space-y-4 font-sans">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-teal-400 font-mono">Collective Objective / Prompt</label>
+                    <textarea
+                      rows={4}
+                      value={selectedNode.config.swarmInstructions || ''}
+                      onChange={(e) => updateNodeConfig({ swarmInstructions: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-teal-500 h-24 font-sans leading-relaxed"
+                      placeholder="Specify the collective task objective for the swarm. High level directions go here."
+                    />
+                    <p className="text-[8px] text-slate-500 leading-relaxed">
+                      All agents in the swarm will cooperate sequentially to achieve this final objective. Supports template tags like <code className="text-teal-400 font-mono">{"{{input}}"}</code>.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-teal-400 font-mono">Maximum Orchestration Rounds</label>
+                      <span className="text-[10px] text-teal-300 font-mono font-bold bg-teal-500/10 px-2 py-0.5 rounded border border-teal-500/20">
+                        {selectedNode.config.swarmMaxTurns || 3} Turns
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max="5"
+                      step="1"
+                      value={selectedNode.config.swarmMaxTurns || 3}
+                      onChange={(e) => updateNodeConfig({ swarmMaxTurns: parseInt(e.target.value, 10) })}
+                      className="w-full accent-teal-500 bg-[#030712] cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[8px] text-slate-500 font-mono font-sans">
+                      <span>1 Turn (Simple)</span>
+                      <span>5 Turns (Complex)</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 bg-[#0a0f1d]/50 p-3 rounded-lg border border-white/5">
+                    <div className="flex items-center justify-between text-teal-300 text-[10px] font-bold uppercase font-mono tracking-wider">
+                      <div className="flex items-center space-x-2">
+                        <Users className="w-3.5 h-3.5 text-teal-400" />
+                        <span>Active Swarm Agent Members</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 mt-2">
+                      {(() => {
+                        let parsedAgents = [];
+                        try {
+                          parsedAgents = JSON.parse(selectedNode.config.swarmAgents || "[]");
+                        } catch {
+                          parsedAgents = [];
+                        }
+
+                        const handleAgentChange = (index: number, field: string, value: string) => {
+                          const updated = [...parsedAgents];
+                          updated[index] = { ...updated[index], [field]: value };
+                          updateNodeConfig({ swarmAgents: JSON.stringify(updated, null, 2) });
+                        };
+
+                        const addAgent = () => {
+                          const updated = [...parsedAgents, { name: "New Agent", instructions: "Agent guidelines here" }];
+                          updateNodeConfig({ swarmAgents: JSON.stringify(updated, null, 2) });
+                        };
+
+                        const removeAgent = (index: number) => {
+                          const updated = parsedAgents.filter((_: any, i: number) => i !== index);
+                          updateNodeConfig({ swarmAgents: JSON.stringify(updated, null, 2) });
+                        };
+
+                        return (
+                          <>
+                            {parsedAgents.map((agent: any, index: number) => (
+                              <div key={index} className="bg-[#030712]/60 p-2.5 rounded border border-white/10 space-y-2 relative group md:group-hover:border-teal-500/30 transition duration-150">
+                                <button
+                                  type="button"
+                                  onClick={() => removeAgent(index)}
+                                  className="absolute top-2 right-2 text-slate-500 hover:text-rose-400 opacity-60 hover:opacity-100 transition duration-150"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                                <div className="space-y-1">
+                                  <span className="text-[8px] font-bold text-teal-400 uppercase tracking-wider font-mono">Agent {index + 1} Name</span>
+                                  <input
+                                    type="text"
+                                    value={agent.name || ''}
+                                    onChange={(e) => handleAgentChange(index, 'name', e.target.value)}
+                                    className="w-full bg-[#030712] border border-white/10 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-teal-500 font-semibold"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider font-mono">Target Agent Instructions</span>
+                                  <textarea
+                                    value={agent.instructions || ''}
+                                    onChange={(e) => handleAgentChange(index, 'instructions', e.target.value)}
+                                    rows={2}
+                                    className="w-full bg-[#030712] border border-white/10 rounded px-2 py-1 text-xs text-slate-300 focus:outline-none focus:border-teal-500 font-mono"
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={addAgent}
+                              className="w-full py-1.5 border border-dashed border-teal-500/20 rounded text-[10px] text-teal-400 hover:bg-teal-500/10 hover:border-teal-500/40 font-mono uppercase font-bold transition duration-150 flex items-center justify-center space-x-1"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>Enlist Custom Agent</span>
+                            </button>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-teal-500/10 border border-teal-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-teal-300 uppercase tracking-widest font-mono text-center">OpenSwarm Protocol</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed text-center">
+                      Executes concurrent agent choreographies with intelligent state locks and hand-off loops.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {selectedNode.type === 'aiFilter' && (
                 <div className="space-y-4">
                   <div className="space-y-1.5">
@@ -1188,6 +1709,102 @@ export default function App() {
                     <span className="text-xs font-semibold">Logging Endpoint</span>
                   </div>
                   <p className="text-[10px] text-slate-400 leading-relaxed">This node displays compiled logs and outputs evaluated dynamically at the end of the workspace branch trace.</p>
+                </div>
+              )}
+
+              {selectedNode.type === 'wsClient' && (
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-[#22d3ee]">WebSocket Target URL</label>
+                    <input 
+                      type="text"
+                      value={selectedNode.config.wsUrl || 'ws://localhost:3000/ws/custom'}
+                      onChange={(e) => updateNodeConfig({ wsUrl: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-cyan-300 font-mono focus:outline-none"
+                      placeholder="ws://localhost:3000/ws/custom"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-slate-500 font-mono">Select Client Operation</label>
+                    <select
+                      value={selectedNode.config.operation || 'send'}
+                      onChange={(e) => updateNodeConfig({ operation: e.target.value as any })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 appearance-none cursor-pointer"
+                    >
+                      <option value="send">Send Message to Server</option>
+                      <option value="listen">Listen for Response Event</option>
+                    </select>
+                  </div>
+
+                  {selectedNode.config.operation === 'send' && (
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Payload to Send</label>
+                      <textarea
+                        rows={6}
+                        value={selectedNode.config.payload || ''}
+                        onChange={(e) => updateNodeConfig({ payload: e.target.value })}
+                        className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-[10px] font-mono text-cyan-300 focus:outline-none resize-none h-36"
+                        placeholder='{\n  "msg": "Hello world"\n}'
+                      />
+                    </div>
+                  )}
+
+                  <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-cyan-300 uppercase tracking-widest font-mono">Dynamic Websocket Client</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed">
+                      Connects directly during execution. You can connect it to the workflow's internal listener server: <code className="text-cyan-200">ws://localhost:3000/ws/custom</code> or external echoing test networks.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.type === 'wsServer' && (
+                <div className="space-y-4">
+                  <div className="p-3 bg-indigo-500/10 border border-indigo-505/20 rounded-lg">
+                    <h5 className="text-[11px] font-bold text-indigo-300 flex items-center gap-1.5 font-mono">
+                      <Server className="w-3.5 h-3.5" />
+                      Server: <code className="text-[10px] bg-slate-900 px-1 py-0.5 rounded text-pink-400 select-all">/ws/custom</code>
+                    </h5>
+                    <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                      External websockets can join real-time via: <br />
+                      <code className="text-[10px] font-bold text-indigo-200 select-all block mt-1 font-mono">
+                        ws://localhost:3000/ws/custom
+                      </code>
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-slate-500 font-mono">Server Operation</label>
+                    <select
+                      value={selectedNode.config.operation || 'broadcast'}
+                      onChange={(e) => updateNodeConfig({ operation: e.target.value as any })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500 appearance-none cursor-pointer"
+                    >
+                      <option value="broadcast">Broadcast Message to All Linked Clients</option>
+                      <option value="listen">Listen and Fetch Client Snapshot</option>
+                    </select>
+                  </div>
+
+                  {selectedNode.config.operation === 'broadcast' && (
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Broadcast Message Payload</label>
+                      <textarea
+                        rows={5}
+                        value={selectedNode.config.payload || ''}
+                        onChange={(e) => updateNodeConfig({ payload: e.target.value })}
+                        className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-[10px] font-mono text-indigo-300 focus:outline-none resize-none h-32"
+                        placeholder="Hello all clients!"
+                      />
+                    </div>
+                  )}
+
+                  <div className="p-3 bg-indigo-500/5 border border-white/5 rounded-lg space-y-2">
+                    <h6 className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Connect external CLI client:</h6>
+                    <pre className="p-2 bg-slate-950 text-indigo-300 text-[9px] font-mono rounded overflow-x-auto select-all">
+                      wscat -c ws://localhost:3000/ws/custom
+                    </pre>
+                  </div>
                 </div>
               )}
 

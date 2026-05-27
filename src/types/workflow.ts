@@ -1,4 +1,4 @@
-export type NodeType = 'webhook' | 'interval' | 'httpReq' | 'aiTransform' | 'aiFilter' | 'jsCode' | 'customFetch' | 'outputLog';
+export type NodeType = 'webhook' | 'interval' | 'httpReq' | 'aiTransform' | 'aiFilter' | 'jsCode' | 'customFetch' | 'outputLog' | 'wsClient' | 'wsServer' | 'chatgptTransform' | 'copilotTransform' | 'ollamaTransform' | 'transformRouter' | 'openSwarm';
 
 export type NodeCategory = 'trigger' | 'action' | 'utility' | 'ai';
 
@@ -24,6 +24,30 @@ export interface WorkflowNode {
     inputField?: string;
     systemInstruction?: string;
     
+    // ChatGPT Transform
+    openaiApiKey?: string;
+    openaiModel?: string;
+
+    // GitHub Copilot Transform
+    githubToken?: string;
+    copilotModel?: string;
+
+    // Ollama Transform
+    ollamaUrl?: string;
+    ollamaModel?: string;
+
+    // Transform Router
+    routingMode?: 'rules' | 'ai';
+    routeKey?: string;
+    routeAMatch?: string;
+    routeBMatch?: string;
+    routeCMatch?: string;
+
+    // OpenSwarm Agent Orchestrator
+    swarmAgents?: string;
+    swarmInstructions?: string;
+    swarmMaxTurns?: number;
+    
     // aiFilter
     condition?: string;
     
@@ -32,13 +56,17 @@ export interface WorkflowNode {
     
     // customFetch
     source?: 'weather' | 'news' | 'quote' | 'bitcoin';
+
+    // WebSocket client & server
+    wsUrl?: string;
+    operation?: 'listen' | 'send' | 'broadcast';
   };
 }
 
 export interface Connection {
   id: string;
   fromId: string;
-  fromPort: 'output' | 'true' | 'false';
+  fromPort: 'output' | 'true' | 'false' | 'routeA' | 'routeB' | 'routeC';
   toId: string;
   toPort: 'input';
 }

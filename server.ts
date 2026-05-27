@@ -156,6 +156,69 @@ const PASTEL_COLORS = [
 
 const wss = new WebSocketServer({ noServer: true });
 
+// Setup Custom WebSocket Server Room for Simulator Nodes
+const customWss = new WebSocketServer({ noServer: true });
+const customWSSClients = new Set<WebSocket>();
+interface CustomWSMessage {
+  id: string;
+  timestamp: string;
+  data: string;
+  direction: 'received' | 'sent';
+}
+const customWSSMessageHistory: CustomWSMessage[] = [];
+
+customWss.on("connection", (ws: WebSocket) => {
+  customWSSClients.add(ws);
+  
+  const joinLog = {
+    id: `ws_svr_join_${Date.now()}`,
+    timestamp: new Date().toLocaleTimeString(),
+    level: 'info' as const,
+    message: `🔌 [WS Server] An external client has linked directly to /ws/custom`
+  };
+  globalLogsList.unshift(joinLog);
+  broadcast("chat:message", joinLog);
+
+  ws.on('message', (messageBuffer) => {
+    let msgStr = "";
+    try {
+      msgStr = messageBuffer.toString();
+    } catch {
+      msgStr = String(messageBuffer);
+    }
+
+    const customMsg: CustomWSMessage = {
+      id: `ws_msg_${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString(),
+      data: msgStr,
+      direction: 'received'
+    };
+    customWSSMessageHistory.unshift(customMsg);
+    if (customWSSMessageHistory.length > 30) customWSSMessageHistory.pop();
+
+    const textLog = {
+      id: `ws_svr_receive_${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString(),
+      level: 'success' as const,
+      message: `📥 [WS Server] Inbound message received: "${msgStr}"`
+    };
+    globalLogsList.unshift(textLog);
+    broadcast("chat:message", textLog);
+  });
+
+  ws.on('close', () => {
+    customWSSClients.delete(ws);
+    const leaveLog = {
+      id: `ws_svr_leave_${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString(),
+      level: 'warn' as const,
+      message: `🔌 [WS Server] An external client disconnected.`
+    };
+    globalLogsList.unshift(leaveLog);
+    broadcast("chat:message", leaveLog);
+  });
+});
+
 function broadcast(type: string, payload: any, excludeId?: string) {
   const message = JSON.stringify({ type, payload });
   collaborators.forEach((collab, id) => {
@@ -434,9 +497,687 @@ Please verify if the input data satisfies this condition.`;
         res.json({ output: parsedResult });
         break;
       }
+
+      case 'chatgptTransform': {
+        const apiKey = config.openaiApiKey || process.env.OPENAI_API_KEY;
+        const model = config.openaiModel || "gpt-4o-mini";
+        const prompt = config.prompt || "Format the input dataset elegantly.";
+        const systemInstruction = config.systemInstruction || "You are an automated visual data formatter.";
+
+        if (!apiKey || apiKey === '' || apiKey.trim() === 'MY_OPENAI_API_KEY') {
+          // Graceful simulated preview mode with descriptive instructions
+          const simulatedCompletion = {
+            status: "simulation_mode",
+            warning: "OpenAI API key was not configured. This is a descriptive simulation response.",
+            configuredModel: model,
+            instructionRef: systemInstruction,
+            promptApplied: prompt,
+            inputSnippetReceived: Object.keys(contextData).length > 0 ? contextData : { dummy: "data" },
+            simulatedOutput: {
+              summary: "Simulated ChatGPT Response",
+              transformedData: {
+                processedAt: new Date().toISOString(),
+                success: true,
+                message: "To run live calls, please configure your `OPENAI_API_KEY` in the workspace secrets panel or enter your custom key directly in this node's configuration!"
+              }
+            }
+          };
+          res.json({ output: simulatedCompletion });
+          break;
+        }
+
+        // Real fetch live HTTP request to OpenAI
+        try {
+          const apiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [
+                { role: "system", content: systemInstruction },
+                {
+                  role: "user",
+                  content: `Input Data context (JSON):\n${JSON.stringify(contextData, null, 2)}\n\nPrompt / Transform Rule:\n${prompt}\n\nPlease output clean, valid JSON matching this transformation.`
+                }
+              ],
+              response_format: { type: "json_object" },
+              temperature: 0.2
+            })
+          });
+
+          if (!apiResponse.ok) {
+            const errorDetails = await apiResponse.text();
+            throw new Error(`OpenAI API returned status ${apiResponse.status}: ${errorDetails}`);
+          }
+
+          const responseData: any = await apiResponse.json();
+          const responseText = responseData.choices?.[0]?.message?.content || "{}";
+          let parsedResult = {};
+          try {
+            parsedResult = JSON.parse(responseText.trim());
+          } catch {
+            parsedResult = { rawText: responseText };
+          }
+
+          res.json({ output: parsedResult });
+        } catch (err: any) {
+          res.status(500).json({ error: `ChatGPT transform execution error: ${err.message}` });
+        }
+        break;
+      }
+
+      case 'copilotTransform': {
+        const token = config.githubToken || process.env.GITHUB_COPILOT_TOKEN;
+        const model = config.copilotModel || "gpt-4o";
+        const prompt = config.prompt || "Improve flow, extract names and summary metrics.";
+        const systemInstruction = config.systemInstruction || "You are GitHub Copilot's automated code & context helper.";
+
+        if (!token || token === '' || token.trim() === 'MY_GITHUB_COPILOT_TOKEN') {
+          const simulatedCompletion = {
+            status: "simulation_mode",
+            warning: "GitHub Copilot or Azure GitHub Model Token was not configured. Active simulation mode.",
+            engine: "GitHub Copilot AI Engine",
+            configuredModel: model,
+            systemInstruction: systemInstruction,
+            promptResolved: prompt,
+            inputPayloadReceived: Object.keys(contextData).length > 0 ? contextData : { text: "No input node connected yet" },
+            simulatedOutput: {
+              summary: "GitHub Copilot Transformed Output",
+              copilotAssistedCode: {
+                timestamp: new Date().toISOString(),
+                copilotStatus: "Ready",
+                guidedSetup: "To connect GitHub Copilot or Azure GitHub Models to your active workflow graph, configure GITHUB_COPILOT_TOKEN in your platform settings, or paste your Github API Token directly into the configuration input drawer for this node !"
+              }
+            }
+          };
+          res.json({ output: simulatedCompletion });
+          break;
+        }
+
+        try {
+          // GitHub Models API endpoint is models.inference.ai.azure.com (highly standard for Github developer tokens)
+          const apiResponse = await fetch("https://models.inference.ai.azure.com/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`,
+              "User-Agent": "GitHubCopilotWorkflowEngine"
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [
+                { role: "system", content: systemInstruction },
+                {
+                  role: "user",
+                  content: `Context payload to process:\n${JSON.stringify(contextData, null, 2)}\n\nInstructions:\n${prompt}\n\nPlease output clean, valid JSON formatted output.`
+                }
+              ],
+              temperature: 0.1
+            })
+          });
+
+          if (!apiResponse.ok) {
+            const errorDetails = await apiResponse.text();
+            throw new Error(`GitHub Models API returned status ${apiResponse.status}: ${errorDetails}`);
+          }
+
+          const responseData: any = await apiResponse.json();
+          const responseText = responseData.choices?.[0]?.message?.content || "{}";
+          let parsedResult = {};
+          try {
+            parsedResult = JSON.parse(responseText.trim());
+          } catch {
+            parsedResult = { rawText: responseText };
+          }
+
+          res.json({ output: parsedResult });
+        } catch (err: any) {
+          res.status(500).json({ error: `Copilot transform execution error: ${err.message}` });
+        }
+        break;
+      }
+
+      case 'ollamaTransform': {
+        const ollamaBaseUrl = (config.ollamaUrl || process.env.OLLAMA_URL || "http://localhost:11434").replace(/\/$/, "");
+        const model = config.ollamaModel || process.env.OLLAMA_MODEL || "llama3";
+        const prompt = config.prompt || "Analyze the input dataset and extract key highlights.";
+        const systemInstruction = config.systemInstruction || "You are an automated local assistant. Respond with clean, valid JSON.";
+
+        try {
+          const apiResponse = await fetch(`${ollamaBaseUrl}/api/chat`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              model: model,
+              messages: [
+                { role: "system", content: systemInstruction },
+                {
+                  role: "user",
+                  content: `Context:\n${JSON.stringify(contextData, null, 2)}\n\nPrompt:\n${prompt}\n\nPlease output a clean, valid JSON representation of this transformation.`
+                }
+              ],
+              stream: false,
+              format: "json",
+              options: {
+                temperature: 0.2
+              }
+            })
+          });
+
+          if (!apiResponse.ok) {
+            const errorDetails = await apiResponse.text();
+            throw new Error(`Ollama returned status ${apiResponse.status}: ${errorDetails}`);
+          }
+
+          const responseData: any = await apiResponse.json();
+          const responseText = responseData.message?.content || "{}";
+          let parsedResult = {};
+          try {
+            parsedResult = JSON.parse(responseText.trim());
+          } catch {
+            parsedResult = { rawText: responseText };
+          }
+
+          res.json({ output: parsedResult });
+        } catch (err: any) {
+          const fallbackResponse = {
+            status: "offline_preview_simulation",
+            warning: `Could not connect to Ollama service at ${ollamaBaseUrl}. Details: ${err.message}`,
+            configuredModel: model,
+            configuredEndpoint: `${ollamaBaseUrl}/api/chat`,
+            developerInstructions: "Ensure Ollama is running ('ollama serve') and CORS / host binding parameters permit access.",
+            simulatedPayload: {
+              info: "Offline-first mock preview triggered successfully",
+              processedAt: new Date().toISOString(),
+              targetRule: prompt,
+              inputSnapshot: contextData,
+              note: "To execute live calls, verify Ollama access parameters or paste an accessible remote Ollama gateway URL !"
+            }
+          };
+          res.json({ output: fallbackResponse });
+        }
+        break;
+      }
+
+      case 'transformRouter': {
+        const mode = config.routingMode || 'rules';
+        const key = config.routeKey || 'status';
+        const routeAMatch = config.routeAMatch || 'urgent';
+        const routeBMatch = config.routeBMatch || 'feedback';
+        const routeCMatch = config.routeCMatch || 'billing';
+
+        const outputData = { ...contextData };
+
+        if (mode === 'rules') {
+          // Resolve evaluated value from contextData
+          let evaluatedVal = "";
+          if (key.includes('{{') && key.includes('}}')) {
+            evaluatedVal = key;
+            Object.keys(contextData).forEach(k => {
+              const val = typeof contextData[k] === 'object' ? JSON.stringify(contextData[k]) : contextData[k];
+              evaluatedVal = evaluatedVal.replace(new RegExp(`{{\\s*${k}\\s*}}`, 'g'), String(val));
+            });
+          } else {
+            evaluatedVal = String(contextData[key] !== undefined ? contextData[key] : (contextData.payload?.[key] || ""));
+            if (!evaluatedVal || evaluatedVal === "undefined" || evaluatedVal === "[object Object]") {
+              const foundKey = Object.keys(contextData).find(k => typeof contextData[k] !== 'object' && String(k).toLowerCase() === key.toLowerCase());
+              if (foundKey) {
+                evaluatedVal = String(contextData[foundKey]);
+              } else {
+                evaluatedVal = "";
+              }
+            }
+          }
+
+          if (!evaluatedVal || evaluatedVal === "undefined") {
+            evaluatedVal = "";
+          }
+
+          let selectedRoute: 'routeA' | 'routeB' | 'routeC' = 'routeA';
+          let reason = "";
+
+          const valLower = evaluatedVal.toLowerCase().trim();
+          const matchALower = routeAMatch.toLowerCase().trim();
+          const matchBLower = routeBMatch.toLowerCase().trim();
+          const matchCLower = routeCMatch.toLowerCase().trim();
+
+          if (valLower.includes(matchALower) || matchALower.includes(valLower)) {
+            selectedRoute = 'routeA';
+            reason = `Value [${evaluatedVal}] matches Route A rule match [${routeAMatch}].`;
+          } else if (valLower.includes(matchBLower) || matchBLower.includes(valLower)) {
+            selectedRoute = 'routeB';
+            reason = `Value [${evaluatedVal}] matches Route B rule match [${routeBMatch}].`;
+          } else if (valLower.includes(matchCLower) || matchCLower.includes(valLower)) {
+            selectedRoute = 'routeC';
+            reason = `Value [${evaluatedVal}] matches Route C rule match [${routeCMatch}].`;
+          } else {
+            selectedRoute = 'routeA'; // fallback default
+            reason = `Value [${evaluatedVal}] didn't trigger Route B or C rules. Defaulting to Route A.`;
+          }
+
+          res.json({
+            output: {
+              selectedRoute,
+              reason,
+              evaluatedValue: evaluatedVal,
+              mode: 'rules',
+              payload: outputData
+            }
+          });
+          break;
+        } else {
+          // AI classification mode
+          const geminiKey = process.env.GEMINI_API_KEY;
+          if (!geminiKey || geminiKey === 'MY_GEMINI_API_KEY') {
+            let selectedRoute: 'routeA' | 'routeB' | 'routeC' = 'routeA';
+            const contextStr = JSON.stringify(contextData).toLowerCase();
+            
+            if (contextStr.includes(routeAMatch.toLowerCase()) || contextStr.includes('urgent') || contextStr.includes('critical')) {
+              selectedRoute = 'routeA';
+            } else if (contextStr.includes(routeBMatch.toLowerCase()) || contextStr.includes('feedback') || contextStr.includes('comment')) {
+              selectedRoute = 'routeB';
+            } else if (contextStr.includes(routeCMatch.toLowerCase()) || contextStr.includes('billing') || contextStr.includes('invoice')) {
+              selectedRoute = 'routeC';
+            }
+
+            res.json({
+              output: {
+                selectedRoute,
+                reason: `AI simulation mode (No Gemini API key detected). Analyzed text features.`,
+                mode: 'ai_simulation',
+                confidence: 0.85,
+                payload: outputData
+              }
+            });
+            break;
+          }
+
+          try {
+            const promptClassifier = `Input context payload data to inspect:
+${JSON.stringify(contextData, null, 2)}
+
+Routing Match Definitions:
+- routeA description: "${routeAMatch}"
+- routeB description: "${routeBMatch}"
+- routeC description: "${routeCMatch}"
+
+Please carefully analyze the input context and evaluate which criteria it meets. Select exactly one route.`;
+
+            const response = await ai.models.generateContent({
+              model: "gemini-3.5-flash",
+              contents: promptClassifier,
+              config: {
+                systemInstruction: "You are an AI-powered transform router. Read the input payload and evaluate which routing criteria ('routeA', 'routeB', or 'routeC') fits the data best. Respond with clean JSON matching the requested schema.",
+                responseMimeType: "application/json",
+                responseSchema: {
+                  type: Type.OBJECT,
+                  properties: {
+                    selectedRoute: {
+                      type: Type.STRING,
+                      description: "Must be exactly 'routeA', 'routeB', or 'routeC'."
+                    },
+                    reason: {
+                      type: Type.STRING,
+                      description: "Detailed explanation of why this route matched best."
+                    },
+                    confidence: {
+                      type: Type.NUMBER,
+                      description: "Confidence rating from 0.0 to 1.0."
+                    }
+                  },
+                  required: ["selectedRoute", "reason", "confidence"]
+                }
+              }
+            });
+
+            const text = response.text || "{}";
+            let parsed = { selectedRoute: 'routeA', reason: 'Failed parsing AI response. Fallback to route A.', confidence: 0.5 };
+            try {
+              const rawJson = JSON.parse(text.trim());
+              if (rawJson.selectedRoute === 'routeA' || rawJson.selectedRoute === 'routeB' || rawJson.selectedRoute === 'routeC') {
+                parsed = rawJson;
+              }
+            } catch {
+              // fallback
+            }
+
+            res.json({
+              output: {
+                selectedRoute: parsed.selectedRoute,
+                reason: parsed.reason,
+                mode: 'ai_live',
+                confidence: parsed.confidence,
+                payload: outputData
+              }
+            });
+          } catch (err: any) {
+            res.status(500).json({ error: `Transform Router AI generation error: ${err.message}` });
+          }
+          break;
+        }
+      }
+
+      case 'openSwarm': {
+        const rawAgentsStr = config.swarmAgents || `[
+          { "name": "Planner Agent", "instructions": "Review objective, plan workflow steps, outline required fields." },
+          { "name": "Developer Agent", "instructions": "Write code, formulate structures, resolve data requirements." },
+          { "name": "Optimizing Auditor", "instructions": "Audit details, enhance language tone, correct typos, ensure valid JSON." }
+        ]`;
+
+        let agentsList = [];
+        try {
+          agentsList = JSON.parse(rawAgentsStr);
+        } catch {
+          agentsList = [
+            { name: "Planner Agent", instructions: "Review objective, plan workflow steps, outline required fields." },
+            { name: "Developer Agent", instructions: "Write code, formulate structures, resolve data requirements." },
+            { name: "Optimizing Auditor", instructions: "Audit details, enhance language tone, correct typos, ensure valid JSON." }
+          ];
+        }
+
+        const objective = config.swarmInstructions || "Refine and structure the incoming data block.";
+        const maxTurns = config.swarmMaxTurns || 3;
+
+        const geminiKey = process.env.GEMINI_API_KEY;
+        if (!geminiKey || geminiKey === 'MY_GEMINI_API_KEY') {
+          // Robust, high-fidelity Simulation of OpenSwarm execution
+          const steps = [];
+          
+          // Step 1: Planner
+          const plannerAgent = agentsList[0] || { name: "Planner Agent", instructions: "Review and plan" };
+          steps.push({
+            agent: plannerAgent.name,
+            action: `Initiated task plan`,
+            message: `Swarm triggered. Context payload has keys: [${Object.keys(contextData).join(', ')}]. Let's plan execution targeting user intent: "${objective}". We will process this and deliver the results.`
+          });
+
+          // Step 2: Developer / Worker
+          const workerAgent = agentsList[1] || { name: "Developer Agent", instructions: "Develop payload" };
+          let simulatedResultPayload: any = { ...contextData };
+          
+          if (objective.toLowerCase().includes('translate') || objective.toLowerCase().includes('french') || objective.toLowerCase().includes('spanish')) {
+            simulatedResultPayload.translatedAt = new Date().toISOString();
+            simulatedResultPayload.status = "processed_translated";
+            simulatedResultPayload.languageDetail = "Simulated multilingual conversion.";
+          } else if (objective.toLowerCase().includes('summarize') || objective.toLowerCase().includes('title') || objective.toLowerCase().includes('feedback')) {
+            simulatedResultPayload.summary = `Executive Briefing: Successfully processed ${Object.keys(contextData).length} input nodes. Actionable values consolidated.`;
+            simulatedResultPayload.status = "summarized";
+          } else {
+            simulatedResultPayload.swarmOptimization = "Applied dynamic agent guidelines.";
+            simulatedResultPayload.status = "swarm_optimized";
+            simulatedResultPayload.processedBy = "OpenSwarm Multi-Agent Ensemble";
+          }
+
+          steps.push({
+            agent: workerAgent.name,
+            action: "Transformed target variables",
+            message: `Applying agent directive: "${workerAgent.instructions}". Formulated refined JSON response payload.`
+          });
+
+          // Step 3: Auditor
+          const auditorAgent = agentsList[2] || { name: "Optimizing Auditor", instructions: "Verify quality" };
+          steps.push({
+            agent: auditorAgent.name,
+            action: "Validated structure and content quality",
+            message: `Passed quality checks for: "${objective}". Formatting verified. JSON schema validated successfully. Terminating swarm successfully.`
+          });
+
+          res.json({
+            output: {
+              activeSwarmObjective: objective,
+              history: steps,
+              finalPayload: simulatedResultPayload,
+              metadata: {
+                totalTurns: steps.length,
+                swarmMode: "simulation",
+                activeAgents: agentsList.map((a: any) => a.name)
+              }
+            }
+          });
+          break;
+        }
+
+        try {
+          const swarmPrompt = `Incoming Payload Data Context:
+${JSON.stringify(contextData, null, 2)}
+
+Swarm Objective instruction to accomplish:
+"${objective}"
+
+Configured Agents in the Swarm:
+${JSON.stringify(agentsList, null, 2)}
+
+Execute a multi-agent choreography stream with max turns: ${maxTurns}.
+Each turn should represent one agent communicating their progress, handoff, planning, or final solution.
+Finally, construct a definitive output payload based on their combined inputs.`;
+
+          const response = await ai.models.generateContent({
+            model: "gemini-3.5-flash",
+            contents: swarmPrompt,
+            config: {
+              systemInstruction: `You are an OpenSwarm multi-agent orchestrator. You are to simulate a cooperative swarm of agents collaborating sequentially to solve the specified objective. Formulate a step-by-step history of their dialogue and actions, and produce the final consolidated JSON payload.`,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  history: {
+                    type: Type.ARRAY,
+                    description: "Chronological sequence of agent actions and dialogues in the swarm.",
+                    items: {
+                      type: Type.OBJECT,
+                      properties: {
+                        agent: {
+                          type: Type.STRING,
+                          description: "Name of the agent speaking or acting."
+                        },
+                        action: {
+                          type: Type.STRING,
+                          description: "The action name or task being performed. E.g., 'Planning Strategy', 'Refining Text'."
+                        },
+                        message: {
+                          type: Type.STRING,
+                          description: "The dialog or message content of this agent turn."
+                        }
+                      },
+                      required: ["agent", "action", "message"]
+                    }
+                  },
+                  finalPayload: {
+                    type: Type.OBJECT,
+                    description: "The compiled final JSON output object produced by the swarm."
+                  }
+                },
+                required: ["history", "finalPayload"]
+              }
+            }
+          });
+
+          const responseText = response.text || "{}";
+          let parsedSwarm = { history: [], finalPayload: contextData };
+          try {
+            parsedSwarm = JSON.parse(responseText.trim());
+          } catch {
+            // fallback
+          }
+
+          res.json({
+            output: {
+              activeSwarmObjective: objective,
+              history: parsedSwarm.history,
+              finalPayload: parsedSwarm.finalPayload,
+              metadata: {
+                totalTurns: parsedSwarm.history.length,
+                swarmMode: "ai_live",
+                activeAgents: agentsList.map((a: any) => a.name)
+              }
+            }
+          });
+        } catch (err: any) {
+          res.status(500).json({ error: `OpenSwarm live agent generation error: ${err.message}` });
+        }
+        break;
+      }
       
       case 'outputLog': {
         res.json({ output: { status: "logged", timestamp: new Date().toISOString(), data: contextData } });
+        break;
+      }
+
+      case 'wsClient': {
+        const url = config.wsUrl || "ws://localhost:3000/ws/custom";
+        const operation = config.operation || 'send';
+        const payloadText = config.payload || "Hello From Node WS Client!";
+
+        try {
+          const ws = new WebSocket(url);
+          let resolved = false;
+
+          const result = await new Promise((resolve, reject) => {
+            const timer = setTimeout(() => {
+              if (!resolved) {
+                resolved = true;
+                try { ws.close(); } catch {}
+                resolve({
+                  status: "completed_with_timeout",
+                  message: "Connection timed out waiting for message feedback from server, but socket handshake succeeded.",
+                  wsUrl: url,
+                  payloadSent: operation === 'send' ? payloadText : null,
+                  timestamp: new Date().toISOString()
+                });
+              }
+            }, 3000);
+
+            ws.on('open', () => {
+              if (operation === 'send') {
+                ws.send(payloadText);
+                
+                // If we're only sending, we can finish immediately
+                if (!resolved) {
+                  resolved = true;
+                  clearTimeout(timer);
+                  try { ws.close(); } catch {}
+                  resolve({
+                    status: "success",
+                    action: "send",
+                    wsUrl: url,
+                    payloadSent: payloadText,
+                    timestamp: new Date().toISOString()
+                  });
+                }
+              }
+            });
+
+            ws.on('message', (data) => {
+              if (!resolved) {
+                resolved = true;
+                clearTimeout(timer);
+                try { ws.close(); } catch {}
+                let text = "";
+                try {
+                  text = data.toString();
+                } catch {
+                  text = String(data);
+                }
+                resolve({
+                  status: "success",
+                  action: "receive_feedback",
+                  wsUrl: url,
+                  payloadSent: operation === 'send' ? payloadText : null,
+                  receivedData: text,
+                  timestamp: new Date().toISOString()
+                });
+              }
+            });
+
+            ws.on('error', (err) => {
+              if (!resolved) {
+                resolved = true;
+                clearTimeout(timer);
+                try { ws.close(); } catch {}
+                reject(err);
+              }
+            });
+          });
+
+          res.json({ output: result });
+        } catch (err: any) {
+          res.json({
+            output: {
+              status: "simulation_mode",
+              reason: `We established simulated execution path: ${err.message}`,
+              wsUrl: url,
+              operation,
+              simulatedPayload: operation === 'send' ? payloadText : null,
+              simulatedResponse: {
+                serverGreeting: "Welcome! Simulated WS Connection established.",
+                echoedPayload: operation === 'send' ? payloadText : undefined,
+                status: "OK",
+                activeThreads: 1
+              },
+              timestamp: new Date().toISOString()
+            }
+          });
+        }
+        break;
+      }
+
+      case 'wsServer': {
+        const operation = config.operation || 'broadcast';
+        const payloadText = config.payload || "Hello to all clients from Custom WS Server!";
+        
+        if (operation === 'broadcast') {
+          let count = 0;
+          customWSSClients.forEach((wsClient) => {
+            if (wsClient.readyState === WebSocket.OPEN) {
+              wsClient.send(payloadText);
+              count++;
+            }
+          });
+          
+          const logMsg: CustomWSMessage = {
+            id: `ws_msg_${Date.now()}`,
+            timestamp: new Date().toLocaleTimeString(),
+            data: payloadText,
+            direction: 'sent'
+          };
+          customWSSMessageHistory.unshift(logMsg);
+          if (customWSSMessageHistory.length > 30) customWSSMessageHistory.pop();
+
+          const broadcastLog = {
+            id: `ws_svr_broadcast_${Date.now()}`,
+            timestamp: new Date().toLocaleTimeString(),
+            level: 'info' as const,
+            message: `📢 [WS Server] Broadcasted message to ${count} active clients: "${payloadText}"`
+          };
+          globalLogsList.unshift(broadcastLog);
+          broadcast("chat:message", broadcastLog);
+
+          res.json({
+            output: {
+              status: "broadcast_complete",
+              clientsConnected: customWSSClients.size,
+              sentCount: count,
+              payloadSent: payloadText,
+              timestamp: new Date().toISOString()
+            }
+          });
+        } else {
+          // Operation listen (snapshot)
+          res.json({
+            output: {
+              status: "listen_snapshot",
+              clientsConnected: customWSSClients.size,
+              recentInboundHistory: customWSSMessageHistory.filter(m => m.direction === 'received'),
+              websocketEndpoint: "/ws/custom",
+              timestamp: new Date().toISOString()
+            }
+          });
+        }
         break;
       }
       
@@ -452,9 +1193,16 @@ Please verify if the input data satisfies this condition.`;
 
 // Handle HTTP connection upgrades for WebSockets
 server.on("upgrade", (request, socket, head) => {
-  wss.handleUpgrade(request, socket, head, (ws) => {
-    wss.emit("connection", ws, request);
-  });
+  const url = request.url || "";
+  if (url.includes("/ws/custom")) {
+    customWss.handleUpgrade(request, socket, head, (ws) => {
+      customWss.emit("connection", ws, request);
+    });
+  } else {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit("connection", ws, request);
+    });
+  }
 });
 
 // Configure WebSocket interactive channels
@@ -521,8 +1269,15 @@ wss.on("connection", (ws: WebSocket) => {
 
         case 'execution:state': {
           if (payload.logs) {
-            // merge logs list gently
-            globalLogsList = [...payload.logs, ...globalLogsList].slice(0, 100);
+            // merge logs list gently, avoiding duplicates by unique id
+            const rawMerged = [...payload.logs, ...globalLogsList];
+            const uniqueMap = new Map();
+            for (const item of rawMerged) {
+              if (item && item.id && !uniqueMap.has(item.id)) {
+                uniqueMap.set(item.id, item);
+              }
+            }
+            globalLogsList = Array.from(uniqueMap.values()).slice(0, 100);
           }
           broadcast('execution:sync', payload, userId);
           break;

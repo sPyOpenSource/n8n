@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import * as d3 from 'd3';
 import { 
   WorkflowNode, 
   Connection, 
@@ -22,7 +23,13 @@ import {
   CornerDownRight, 
   Trash2,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  Wifi,
+  Server,
+  Sparkles,
+  Bot,
+  GitBranch,
+  Network
 } from 'lucide-react';
 
 interface CanvasProps {
@@ -51,22 +58,58 @@ export default function Canvas({
   onNodeDrag,
   onDragEnd,
 }: CanvasProps) {
-  // Canvas viewing coordinates (pan and zoom)
+  // Canvas viewing coordinates (pan and zoom fully synced with D3)
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [isPanning, setIsPanning] = useState(false);
-  const panStart = useRef({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
+  const zoomBehaviorRef = useRef<any>(null);
 
   // Active drag states
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const [activeWire, setActiveWire] = useState<{
     fromId: string;
-    fromPort: 'output' | 'true' | 'false';
+    fromPort: 'output' | 'true' | 'false' | 'routeA' | 'routeB' | 'routeC';
     currentX: number;
     currentY: number;
   } | null>(null);
+
+  // Bind D3.js zoom behavior
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const view = d3.select(canvasRef.current);
+
+    const zoomBehavior = d3.zoom<HTMLDivElement, unknown>()
+      .scaleExtent([0.5, 2.0])
+      .filter((event) => {
+        // Prevent background panning when user drags nodes, ports, links, delete button, or controls
+        return !event.ctrlKey && !event.button && 
+               !event.target.closest('.port-handler') && 
+               !event.target.closest('[id^="node-"]') && 
+               !event.target.closest('[id^="delete-btn-"]') &&
+               !event.target.closest('#canvas-zoom-controls');
+      })
+      .on('zoom', (event) => {
+        setPan({ x: event.transform.x, y: event.transform.y });
+        setZoom(event.transform.k);
+      });
+
+    zoomBehaviorRef.current = zoomBehavior;
+    view.call(zoomBehavior);
+
+    // Initial positioning coordinate system
+    view.call(
+      zoomBehavior.transform,
+      d3.zoomIdentity.translate(pan.x, pan.y).scale(zoom)
+    );
+
+    // Disable double-click-to-zoom default to prevent collision with custom reset
+    view.on('dblclick.zoom', null);
+
+    return () => {
+      view.on('.zoom', null);
+    };
+  }, []);
 
   // Keyboard binding for deleting selected node
   useEffect(() => {
@@ -84,23 +127,16 @@ export default function Canvas({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedNodeId, nodes, connections]);
 
-  // Handle mouse canvas pan events
+  // Handle click on canvas background to deselect active items
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    if (e.button === 1 || e.button === 0 && e.target === canvasRef.current) {
-      setIsPanning(true);
-      panStart.current = { x: e.clientX - pan.x, y: e.clientY - pan.y };
-      e.preventDefault();
+    if (e.target === canvasRef.current) {
+      onSelectNode(null);
     }
   };
 
   const handleCanvasMouseMove = (e: React.MouseEvent) => {
-    if (isPanning) {
-      setPan({
-        x: e.clientX - panStart.current.x,
-        y: e.clientY - panStart.current.y
-      });
-    } else if (draggingNodeId) {
-      // Scale offsets by zoom
+    if (draggingNodeId) {
+      // Scale drag displacement offsets by the inverse of scale zoom
       const clientX = e.clientX;
       const clientY = e.clientY;
       const rect = canvasRef.current?.getBoundingClientRect();
@@ -109,7 +145,7 @@ export default function Canvas({
       const relativeX = (clientX - rect.left - pan.x) / zoom - dragOffset.current.x;
       const relativeY = (clientY - rect.top - pan.y) / zoom - dragOffset.current.y;
 
-      // Restrict node to grid increments of 10px
+      // Restrict node translation alignment to 10px snap increments
       const snappedX = Math.round(relativeX / 10) * 10;
       const snappedY = Math.round(relativeY / 10) * 10;
 
@@ -133,7 +169,6 @@ export default function Canvas({
     if (draggingNodeId && onDragEnd) {
       onDragEnd();
     }
-    setIsPanning(false);
     setDraggingNodeId(null);
     setActiveWire(null);
   };
@@ -142,7 +177,7 @@ export default function Canvas({
   const handlePortMouseDown = (
     e: React.MouseEvent,
     nodeId: string,
-    port: 'output' | 'true' | 'false'
+    port: 'output' | 'true' | 'false' | 'routeA' | 'routeB' | 'routeC'
   ) => {
     e.stopPropagation();
     e.preventDefault();
@@ -154,6 +189,14 @@ export default function Canvas({
 
     if (node.type === 'aiFilter') {
       portY = port === 'true' ? node.position.y + 25 : node.position.y + NODE_HEIGHT - 25;
+    } else if (node.type === 'transformRouter') {
+      if (port === 'routeA') {
+        portY = node.position.y + 20;
+      } else if (port === 'routeB') {
+        portY = node.position.y + 45;
+      } else if (port === 'routeC') {
+        portY = node.position.y + 70;
+      }
     }
 
     setActiveWire({
@@ -193,11 +236,153 @@ export default function Canvas({
     setActiveWire(null);
   };
 
+  // Programmatically change zoom
+  const handleZoomIn = () => {
+    if (!canvasRef.current || !zoomBehaviorRef.current) return;
+    const nextZoom = Math.min(1.5, zoom + 0.1);
+    d3.select(canvasRef.current)
+      .transition()
+      .duration(200)
+      .call(zoomBehaviorRef.current.scaleTo, nextZoom);
+  };
+
+  const handleZoomOut = () => {
+    if (!canvasRef.current || !zoomBehaviorRef.current) return;
+    const nextZoom = Math.max(0.6, zoom - 0.1);
+    d3.select(canvasRef.current)
+      .transition()
+      .duration(200)
+      .call(zoomBehaviorRef.current.scaleTo, nextZoom);
+  };
+
+  const handleZoomReset = () => {
+    if (!canvasRef.current || !zoomBehaviorRef.current) return;
+    d3.select(canvasRef.current)
+      .transition()
+      .duration(300)
+      .call(
+        zoomBehaviorRef.current.transform,
+        d3.zoomIdentity.translate(50, 50).scale(1)
+      );
+  };
+
   // Double click on canvas resets view
   const handleCanvasDoubleClick = (e: React.MouseEvent) => {
     if (e.target === canvasRef.current) {
-      setPan({ x: 50, y: 50 });
-      setZoom(1);
+      handleZoomReset();
+    }
+  };
+
+  // High-performance D3 Force-directed topological workflow alignment algorithm
+  const runAutoLayout = () => {
+    if (nodes.length === 0) return;
+
+    // 1. Map adjacencies and in-degree scores
+    const inDegree: { [id: string]: number } = {};
+    const adjList: { [id: string]: string[] } = {};
+
+    nodes.forEach(node => {
+      inDegree[node.id] = 0;
+      adjList[node.id] = [];
+    });
+
+    connections.forEach(conn => {
+      if (adjList[conn.fromId]) {
+        adjList[conn.fromId].push(conn.toId);
+      }
+      if (inDegree[conn.toId] !== undefined) {
+        inDegree[conn.toId]++;
+      }
+    });
+
+    const depths: { [id: string]: number } = {};
+    const queue: string[] = [];
+
+    // Identify roots/entry nodes starting at depth 0
+    nodes.forEach(node => {
+      if (inDegree[node.id] === 0 || node.category === 'trigger') {
+        depths[node.id] = 0;
+        queue.push(node.id);
+      }
+    });
+
+    // BFS depth assignment to model layers topological sequential order
+    while (queue.length > 0) {
+      const currId = queue.shift()!;
+      const currDepth = depths[currId] || 0;
+      adjList[currId]?.forEach(targetId => {
+        const nextDepth = currDepth + 1;
+        if (depths[targetId] === undefined || nextDepth > depths[targetId]) {
+          depths[targetId] = nextDepth;
+          queue.push(targetId);
+        }
+      });
+    }
+
+    // Default depth for detached components or edge items
+    nodes.forEach(node => {
+      if (depths[node.id] === undefined) {
+        depths[node.id] = 0;
+      }
+    });
+
+    const layerNodes: { [depth: number]: string[] } = {};
+    nodes.forEach(node => {
+      const d = depths[node.id];
+      if (!layerNodes[d]) layerNodes[d] = [];
+      layerNodes[d].push(node.id);
+    });
+
+    // Instantiate temporary coordinates for D3 simulation
+    const simNodes = nodes.map(node => {
+      const depth = depths[node.id];
+      const indexInLayer = layerNodes[depth].indexOf(node.id);
+      return {
+        id: node.id,
+        x: depth * 280 + 100,
+        y: indexInLayer * 140 + 100,
+        nodeCopy: { ...node }
+      };
+    });
+
+    // 2. Perform simultaneous force-directed physics iterations (stops overlapping and keeps flows orderly)
+    const simulation = d3.forceSimulation<any>(simNodes)
+      .force('charge', d3.forceManyBody().strength(-350))
+      .force('collision', d3.forceCollide().radius(130))
+      .force('y', d3.forceY().y((d: any) => {
+        const depth = depths[d.id];
+        const idxInLayer = layerNodes[depth].indexOf(d.id);
+        const total = layerNodes[depth].length;
+        return (idxInLayer - (total - 1) / 2) * 140 + 250;
+      }).strength(0.85))
+      .force('x', d3.forceX().x((d: any) => depths[d.id] * 300 + 100).strength(1.1))
+      .stop();
+
+    // Synchronously iterate graph physics ticks for immediate execution result rendering
+    for (let i = 0; i < 160; i++) simulation.tick();
+
+    // 3. Persist and align layout node coordinates
+    const updatedNodes = simNodes.map(s => {
+      const snapX = Math.max(50, Math.round(s.x / 10) * 10);
+      const snapY = Math.max(50, Math.round(s.y / 10) * 10);
+      return {
+        ...s.nodeCopy,
+        position: { x: snapX, y: snapY }
+      };
+    });
+
+    onUpdateNodes(updatedNodes);
+
+    // Transitions to comfortably center layout inside viewport
+    if (canvasRef.current && zoomBehaviorRef.current) {
+      d3.select(canvasRef.current)
+        .transition()
+        .duration(450)
+        .ease(d3.easeCubicOut)
+        .call(
+          zoomBehaviorRef.current.transform,
+          d3.zoomIdentity.translate(60, 60).scale(1)
+        );
     }
   };
 
@@ -222,10 +407,17 @@ export default function Canvas({
       case 'interval': return <Activity className="w-5 h-5 text-emerald-400" />;
       case 'httpReq': return <Compass className="w-5 h-5 text-blue-400" />;
       case 'aiTransform': return <Cpu className="w-5 h-5 text-purple-400" />;
+      case 'chatgptTransform': return <Sparkles className="w-5 h-5 text-pink-400" />;
+      case 'copilotTransform': return <Bot className="w-5 h-5 text-sky-400" />;
+      case 'ollamaTransform': return <Cpu className="w-5 h-5 text-emerald-400" />;
       case 'aiFilter': return <Settings className="w-5 h-5 text-purple-400" />;
+      case 'transformRouter': return <GitBranch className="w-5 h-5 text-indigo-400" />;
+      case 'openSwarm': return <Network className="w-5 h-5 text-teal-400" />;
       case 'jsCode': return <Code className="w-5 h-5 text-amber-400" />;
       case 'customFetch': return <CloudDrizzle className="w-5 h-5 text-orange-400" />;
       case 'outputLog': return <BookOpen className="w-5 h-5 text-slate-300" />;
+      case 'wsClient': return <Wifi className="w-5 h-5 text-cyan-400" />;
+      case 'wsServer': return <Server className="w-5 h-5 text-indigo-400" />;
       default: return <Cpu className="w-5 h-5 text-slate-400" />;
     }
   };
@@ -244,9 +436,9 @@ export default function Canvas({
   return (
     <div className="flex-1 relative bg-transparent overflow-hidden select-none border-r border-white/10" id="canvas-container">
       {/* Top Controls Overlay */}
-      <div className="absolute top-4 left-4 z-10 flex gap-2" id="canvas-zoom-controls">
+      <div className="absolute top-4 left-4 z-10 flex gap-2 items-center" id="canvas-zoom-controls">
         <button 
-          onClick={() => setZoom(Math.min(1.5, zoom + 0.1))}
+          onClick={handleZoomIn}
           className="p-2 bg-white/5 text-white backdrop-blur-md rounded-lg shadow-lg border border-white/20 hover:bg-white/10 transition duration-150 active:scale-95 cursor-pointer"
           title="Zoom In"
           id="btn-zoom-in"
@@ -254,7 +446,7 @@ export default function Canvas({
           <ZoomIn className="w-4 h-4" />
         </button>
         <button 
-          onClick={() => setZoom(Math.max(0.6, zoom - 0.1))}
+          onClick={handleZoomOut}
           className="p-2 bg-white/5 text-white backdrop-blur-md rounded-lg shadow-lg border border-white/20 hover:bg-white/10 transition duration-150 active:scale-95 cursor-pointer"
           title="Zoom Out"
           id="btn-zoom-out"
@@ -262,12 +454,25 @@ export default function Canvas({
           <ZoomOut className="w-4 h-4" />
         </button>
         <button 
-          onClick={() => { setZoom(1); setPan({ x: 50, y: 50 }); }}
+          onClick={handleZoomReset}
           className="px-3 py-1.5 bg-white/5 text-xs text-white backdrop-blur-md font-semibold rounded-lg shadow-lg border border-white/20 hover:bg-white/10 transition duration-150 cursor-pointer"
           title="Reset View"
           id="btn-zoom-reset"
         >
           Reset ({Math.round(zoom * 100)}%)
+        </button>
+
+        <div className="w-[1px] h-6 bg-white/10 mx-1" />
+
+        {/* Dynamic D3 Layout Trigger */}
+        <button 
+          onClick={runAutoLayout}
+          className="px-3 py-1.5 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-200 hover:text-white backdrop-blur-md font-semibold text-xs rounded-lg shadow-lg border border-indigo-500/30 hover:border-indigo-400/50 hover:from-indigo-500/30 hover:to-purple-500/30 transition duration-150 flex items-center gap-1.5 cursor-pointer"
+          title="Auto-Arrange Workflow with D3 Force Simulation"
+          id="btn-auto-layout"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+          <span>D3 Auto-Layout</span>
         </button>
       </div>
 
@@ -315,14 +520,27 @@ export default function Canvas({
                 startY = conn.fromPort === 'true' 
                   ? fromNode.position.y + 25 
                   : fromNode.position.y + NODE_HEIGHT - 25;
+              } else if (fromNode.type === 'transformRouter') {
+                if (conn.fromPort === 'routeA') {
+                  startY = fromNode.position.y + 20;
+                } else if (conn.fromPort === 'routeB') {
+                  startY = fromNode.position.y + 45;
+                } else if (conn.fromPort === 'routeC') {
+                  startY = fromNode.position.y + 70;
+                }
               }
 
               const endX = toNode.position.x;
               const endY = toNode.position.y + NODE_HEIGHT / 2;
 
-              // Draw bezier curve
-              const controlDist = Math.max(80, Math.abs(endX - startX) / 1.6);
-              const pathData = `M ${startX} ${startY} C ${startX + controlDist} ${startY}, ${endX - controlDist} ${endY}, ${endX} ${endY}`;
+              // Draw bezier curve using D3 link generator
+              const linkGenerator = d3.linkHorizontal<any, [number, number]>()
+                .x(d => d[0])
+                .y(d => d[1]);
+              const pathData = linkGenerator({
+                source: [startX, startY],
+                target: [endX, endY]
+              }) || '';
 
               // Is this connection containing an active executor?
               const isActive = executionState.status === 'running' && 
@@ -390,15 +608,30 @@ export default function Canvas({
                 startY = activeWire.fromPort === 'true' 
                   ? node.position.y + 25 
                   : node.position.y + NODE_HEIGHT - 25;
+              } else if (node.type === 'transformRouter') {
+                if (activeWire.fromPort === 'routeA') {
+                  startY = node.position.y + 20;
+                } else if (activeWire.fromPort === 'routeB') {
+                  startY = node.position.y + 45;
+                } else if (activeWire.fromPort === 'routeC') {
+                  startY = node.position.y + 70;
+                }
               }
 
               const endX = activeWire.currentX;
               const endY = activeWire.currentY;
-              const controlDist = Math.abs(endX - startX) / 1.8;
+
+              const activeLinkGenerator = d3.linkHorizontal<any, [number, number]>()
+                .x(d => d[0])
+                .y(d => d[1]);
+              const linkPath = activeLinkGenerator({
+                source: [startX, startY],
+                target: [endX, endY]
+              }) || '';
 
               return (
                 <path
-                  d={`M ${startX} ${startY} C ${startX + controlDist} ${startY}, ${endX - controlDist} ${endY}, ${endX} ${endY}`}
+                  d={linkPath}
                   fill="none"
                   stroke="#a78bfa"
                   strokeWidth="2"
@@ -420,10 +653,17 @@ export default function Canvas({
             if (node.type === 'interval') summaryText = `Runs every ${node.config.seconds || 10}s`;
             if (node.type === 'httpReq') summaryText = `${node.config.method || 'GET'} ${node.config.url ? node.config.url.replace(/^https?:\/\//, '').slice(0, 20) + (node.config.url.length > 20 ? '...' : '') : 'unconfigured'}`;
             if (node.type === 'aiTransform') summaryText = node.config.prompt ? node.config.prompt.slice(0, 26) + "..." : "Instruct Gemini AI Model";
+            if (node.type === 'chatgptTransform') summaryText = node.config.prompt ? `ChatGPT: ${node.config.prompt.slice(0, 18)}...` : "Extract via Chat API";
+            if (node.type === 'copilotTransform') summaryText = node.config.prompt ? `Copilot: ${node.config.prompt.slice(0, 18)}...` : "Refactor via Copilot";
+            if (node.type === 'ollamaTransform') summaryText = node.config.prompt ? `Ollama: ${node.config.prompt.slice(0, 18)}...` : "Process via Local LLM";
             if (node.type === 'aiFilter') summaryText = node.config.condition ? `Evaluate: ${node.config.condition.slice(0, 20)}...` : "Verify True / False Path";
+            if (node.type === 'transformRouter') summaryText = `Route to A/B/C (${node.config.routingMode === 'ai' ? 'AI' : 'Rules'})`;
+            if (node.type === 'openSwarm') summaryText = `Multi-Agent Swarm (${node.config.swarmMaxTurns || 3} Turns)`;
             if (node.type === 'jsCode') summaryText = "Format & map JSON records";
             if (node.type === 'customFetch') summaryText = `Get live ${node.config.source || 'news'} data`;
             if (node.type === 'outputLog') summaryText = "Save workflow executions logs";
+            if (node.type === 'wsClient') summaryText = `Client: ${node.config.operation || 'send'} to ${node.config.wsUrl ? node.config.wsUrl.replace(/^wss?:\/\//, '').slice(0, 18) : 'custom'}`;
+            if (node.type === 'wsServer') summaryText = `Server: /ws/custom room (${node.config.operation || 'broadcast'})`;
 
             return (
               <div
@@ -537,6 +777,48 @@ export default function Canvas({
                         <div className="w-1.5 h-1.5 bg-rose-400 rounded-full pointer-events-none" />
                         <span className="absolute left-6 text-[8px] font-bold text-rose-300 bg-slate-950/90 px-1 rounded border border-rose-500/20 pointer-events-none">
                           FALSE
+                        </span>
+                      </div>
+                    </>
+                  ) : node.type === 'transformRouter' ? (
+                    // Intelligent Transform Router gets Three customized ports: Route A, B, and C
+                    <>
+                      {/* Route A Port (Upper Right) */}
+                      <div
+                        onMouseDown={(e) => handlePortMouseDown(e, node.id, 'routeA')}
+                        className="absolute -right-2 top-[19px] p-1 bg-slate-900 border border-emerald-500/40 rounded-full cursor-crosshair hover:scale-125 transition duration-150 z-20 group/portport port-handler flex items-center justify-center"
+                        title="Route A Matcher Output"
+                        id={`port-out-${node.id}-routeA`}
+                      >
+                        <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full pointer-events-none" />
+                        <span className="absolute left-6 text-[8px] font-bold text-emerald-300 bg-slate-950/90 px-1.5 py-0.5 rounded border border-emerald-500/20 pointer-events-none whitespace-nowrap">
+                          ROUTE A
+                        </span>
+                      </div>
+                      
+                      {/* Route B Port (Middle Right) */}
+                      <div
+                        onMouseDown={(e) => handlePortMouseDown(e, node.id, 'routeB')}
+                        className="absolute -right-2 top-[44px] p-1 bg-slate-900 border border-sky-500/40 rounded-full cursor-crosshair hover:scale-125 transition duration-150 z-20 group/portport port-handler flex items-center justify-center"
+                        title="Route B Matcher Output"
+                        id={`port-out-${node.id}-routeB`}
+                      >
+                        <div className="w-1.5 h-1.5 bg-sky-400 rounded-full pointer-events-none" />
+                        <span className="absolute left-6 text-[8px] font-bold text-sky-300 bg-slate-950/90 px-1.5 py-0.5 rounded border border-sky-500/20 pointer-events-none whitespace-nowrap">
+                          ROUTE B
+                        </span>
+                      </div>
+
+                      {/* Route C Port (Lower Right) */}
+                      <div
+                        onMouseDown={(e) => handlePortMouseDown(e, node.id, 'routeC')}
+                        className="absolute -right-2 top-[69px] p-1 bg-slate-900 border border-amber-500/45 rounded-full cursor-crosshair hover:scale-125 transition duration-150 z-20 group/portport port-handler flex items-center justify-center"
+                        title="Route C Matcher Output"
+                        id={`port-out-${node.id}-routeC`}
+                      >
+                        <div className="w-1.5 h-1.5 bg-amber-400 rounded-full pointer-events-none" />
+                        <span className="absolute left-6 text-[8px] font-bold text-amber-300 bg-slate-950/90 px-1.5 py-0.5 rounded border border-amber-500/20 pointer-events-none whitespace-nowrap">
+                          ROUTE C
                         </span>
                       </div>
                     </>
