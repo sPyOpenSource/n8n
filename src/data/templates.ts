@@ -408,5 +408,68 @@ return {
         }
       ]
     }
+  },
+  {
+    id: 'hermes_compliance_analyst',
+    name: 'Hermes Deep Reasoning & Compliance Analyst',
+    description: 'Models multi-tier, high-fidelity root cause analyses of transactional and operational system glitches using the custom self-correcting Hermes CoT Engine.',
+    workflow: {
+      name: 'Hermes Compliance Analyst',
+      description: 'Step-wise Cognitive Resolution Workspace.',
+      nodes: [
+        {
+          id: 'complaint_trigger',
+          type: 'webhook',
+          name: 'Inbound Customer Incident',
+          category: 'trigger',
+          position: { x: 80, y: 160 },
+          config: {
+            payload: JSON.stringify({
+              userId: "u_99182",
+              subscriptionTier: "Enterprise VIP",
+              message: "Since 4 days ago, database syncing has completely broken during batch CSV processing. We were dual-charged twice for $4,500. This is blocking our core Q2 deployment pipelines!",
+              region: "EU-West"
+            }, null, 2)
+          }
+        },
+        {
+          id: 'hermes_core',
+          type: 'hermesAgent',
+          name: 'Hermes Incident Analyst',
+          category: 'ai',
+          position: { x: 380, y: 140 },
+          config: {
+            hermesInstructions: "Deconstruct the failure report provided in 'message' from customer 'userId' (tier: 'subscriptionTier'). Plan an incident response roadmap, model a technical root-cause hypotheses, assess billing remediation details for high-value refund demands, and output a detailed executive action blueprint.",
+            hermesPersona: 'reasoning',
+            hermesTemperature: 0.15,
+            hermesStepWise: true
+          }
+        },
+        {
+          id: 'hermes_logger',
+          type: 'outputLog',
+          name: 'Incident Compliance Terminal',
+          category: 'utility',
+          position: { x: 740, y: 160 },
+          config: {}
+        }
+      ],
+      connections: [
+        {
+          id: 'conn_h1',
+          fromId: 'complaint_trigger',
+          fromPort: 'output',
+          toId: 'hermes_core',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_h2',
+          fromId: 'hermes_core',
+          fromPort: 'output',
+          toId: 'hermes_logger',
+          toPort: 'input'
+        }
+      ]
+    }
   }
 ];

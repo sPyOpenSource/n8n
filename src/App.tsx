@@ -343,7 +343,7 @@ export default function App() {
     {
       type: 'customFetch' as NodeType,
       category: 'trigger' as NodeCategory,
-      name: 'Live Client puller',
+      name: 'Live Client Puller',
       description: 'Pull from active weather, bitcoin rates or news API streams',
       icon: <CloudDrizzle className="w-5 h-5 text-emerald-400" />,
       defaultConfig: { source: 'news' } as WorkflowNode['config']
@@ -351,7 +351,7 @@ export default function App() {
     {
       type: 'httpReq' as NodeType,
       category: 'action' as NodeCategory,
-      name: 'HTTP Endpoint request',
+      name: 'HTTP Endpoint Request',
       description: 'Call external web JSON API',
       icon: <Compass className="w-5 h-5 text-blue-400" />,
       defaultConfig: { method: 'GET', url: 'https://jsonplaceholder.typicode.com/posts/1', headers: '{}', body: '' } as WorkflowNode['config']
@@ -359,7 +359,7 @@ export default function App() {
     {
       type: 'aiTransform' as NodeType,
       category: 'ai' as NodeCategory,
-      name: 'Gemini AI transform',
+      name: 'Gemini AI Transform',
       description: 'Instruct smart generative model directly',
       icon: <Cpu className="w-5 h-5 text-purple-400" />,
       defaultConfig: { prompt: 'Format customer context dynamically standard response.', systemInstruction: 'You are professional Customer Success Lead' } as WorkflowNode['config']
@@ -367,7 +367,7 @@ export default function App() {
     {
       type: 'aiFilter' as NodeType,
       category: 'ai' as NodeCategory,
-      name: 'Gemini AI filter',
+      name: 'Gemini AI Filter',
       description: 'Evaluate conditions to route paths (True/False)',
       icon: <Settings className="w-5 h-5 text-purple-400" />,
       defaultConfig: { condition: 'Data implies urgent request.' } as WorkflowNode['config']
@@ -375,7 +375,7 @@ export default function App() {
     {
       type: 'chatgptTransform' as NodeType,
       category: 'ai' as NodeCategory,
-      name: 'ChatGPT AI transform',
+      name: 'ChatGPT AI Transform',
       description: 'Instruct OpenAI model to format or process workflow payloads',
       icon: <Sparkles className="w-5 h-5 text-pink-400" />,
       defaultConfig: {
@@ -388,7 +388,7 @@ export default function App() {
     {
       type: 'copilotTransform' as NodeType,
       category: 'ai' as NodeCategory,
-      name: 'Copilot AI transform',
+      name: 'Copilot AI Transform',
       description: 'Leverage GitHub Copilot or GitHub model engines directly',
       icon: <Bot className="w-5 h-5 text-sky-400" />,
       defaultConfig: {
@@ -401,7 +401,7 @@ export default function App() {
     {
       type: 'ollamaTransform' as NodeType,
       category: 'ai' as NodeCategory,
-      name: 'Ollama local AI transform',
+      name: 'Ollama AI Transform',
       description: 'Interact with locally or privately hosted Ollama models',
       icon: <Cpu className="w-5 h-5 text-emerald-400" />,
       defaultConfig: {
@@ -414,7 +414,7 @@ export default function App() {
     {
       type: 'transformRouter' as NodeType,
       category: 'ai' as NodeCategory,
-      name: 'Intelligent Transform Router',
+      name: 'AI Transform Router',
       description: 'Route payloads to path A, B, or C based on Rules or AI sentiment classification',
       icon: <GitBranch className="w-5 h-5 text-indigo-400" />,
       defaultConfig: {
@@ -428,7 +428,7 @@ export default function App() {
     {
       type: 'openSwarm' as NodeType,
       category: 'ai' as NodeCategory,
-      name: 'OpenSwarm AI Orchestrator',
+      name: 'OpenSwarm Orchestrator',
       description: 'Run collaborative multi-agent swarm choreographies to solve complex multi-step instructions',
       icon: <Network className="w-5 h-5 text-teal-400" />,
       defaultConfig: {
@@ -442,9 +442,22 @@ export default function App() {
       } as WorkflowNode['config']
     },
     {
+      type: 'hermesAgent' as NodeType,
+      category: 'ai' as NodeCategory,
+      name: 'Hermes Agent',
+      description: 'High-intelligence reasoning agent capable of sub-task planning, chain-of-thought, and deep analysis.',
+      icon: <Flame className="w-5 h-5 text-amber-500" />,
+      defaultConfig: {
+        hermesInstructions: 'Analyze the incoming data for semantic inconsistencies, write a detailed breakdown of the root causes of any user concerns, and output an action-oriented resolution blueprint.',
+        hermesPersona: 'reasoning',
+        hermesTemperature: 0.2,
+        hermesStepWise: true
+      } as WorkflowNode['config']
+    },
+    {
       type: 'jsCode' as NodeType,
       category: 'utility' as NodeCategory,
-      name: 'Custom Javascript routine',
+      name: 'JavaScript Routine',
       description: 'Write manual mappings & transforms',
       icon: <Code className="w-5 h-5 text-amber-400" />,
       defaultConfig: { code: 'return {\n  ...input,\n  timestamp: new Date().toISOString(),\n  processed: true\n};' } as WorkflowNode['config']
@@ -452,7 +465,7 @@ export default function App() {
     {
       type: 'outputLog' as NodeType,
       category: 'utility' as NodeCategory,
-      name: 'Persistence storage Logger',
+      name: 'Persistence Logger',
       description: 'Print final payload summaries',
       icon: <BookOpen className="w-5 h-5 text-slate-300" />,
       defaultConfig: {} as WorkflowNode['config']
@@ -600,6 +613,12 @@ export default function App() {
         if (node.type === 'openSwarm' && Array.isArray(finalOutputResult?.history)) {
           finalOutputResult.history.forEach((step: any, index: number) => {
             addLog('info', `🤖 Turn #${index + 1} [${step.agent}] ${step.action ? '(' + step.action + ')' : ''}: "${step.message}"`, node.id, node.name);
+          });
+        }
+
+        if (node.type === 'hermesAgent' && Array.isArray(finalOutputResult?.reasoningSteps)) {
+          finalOutputResult.reasoningSteps.forEach((step: any, index: number) => {
+            addLog('info', `🔥 [Hermes Step #${index + 1}] ${step.action || 'Thinking'}: "${step.thought}"`, node.id, node.name);
           });
         }
 
@@ -1658,6 +1677,94 @@ export default function App() {
                     <h6 className="text-[10px] font-bold text-teal-300 uppercase tracking-widest font-mono text-center">OpenSwarm Protocol</h6>
                     <p className="text-[9px] text-slate-400 leading-relaxed text-center">
                       Executes concurrent agent choreographies with intelligent state locks and hand-off loops.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.type === 'hermesAgent' && (
+                <div className="space-y-4 font-sans">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-amber-500 font-mono">Hermes Instruction Protocol</label>
+                    <textarea
+                      rows={5}
+                      value={selectedNode.config.hermesInstructions || ''}
+                      onChange={(e) => updateNodeConfig({ hermesInstructions: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500 h-28 leading-relaxed font-mono"
+                      placeholder="e.g. Synthesize, analyze, or decompose complex data contexts..."
+                    />
+                    <p className="text-[8px] text-slate-500 leading-relaxed">
+                      Hermes processes this direction leveraging high-fidelity system prompts. Supports interpolated inputs such as <code className="text-amber-400 font-mono">{"{{customerName}}"}</code> or <code className="text-amber-400 font-mono">{"{{input}}"}</code> tags.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-amber-500 font-mono">Cognitive Persona</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: 'reasoning', label: '🧠 CoT Reasoner' },
+                        { id: 'technical', label: '💻 IT Expert' },
+                        { id: 'analyst', label: '📊 Data Analyst' },
+                        { id: 'creative', label: '✨ Synthesizer' }
+                      ].map(p => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => updateNodeConfig({ hermesPersona: p.id as any })}
+                          className={`py-1.5 px-2 rounded-md border text-[10px] font-semibold tracking-wide transition duration-150 text-left ${
+                            (selectedNode.config.hermesPersona || 'reasoning') === p.id
+                              ? 'bg-amber-500/10 border-amber-500 text-amber-400 shadow-sm shadow-amber-500/5'
+                              : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-amber-500 font-mono">Cognitive Creative Temp</label>
+                      <span className="text-[10px] text-amber-400 font-mono font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                        {selectedNode.config.hermesTemperature ?? 0.2}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="1"
+                      step="0.05"
+                      value={selectedNode.config.hermesTemperature ?? 0.2}
+                      onChange={(e) => updateNodeConfig({ hermesTemperature: parseFloat(e.target.value) })}
+                      className="w-full accent-amber-500 bg-[#030712] cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[8px] text-slate-500 font-mono font-sans">
+                      <span>Focused (0.1)</span>
+                      <span>Creative (1.0)</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 bg-white/[0.02] border border-white/5 rounded-lg">
+                    <div className="space-y-0.5 pr-2">
+                      <span className="text-[9px] font-bold text-slate-300 uppercase font-mono tracking-wider">Step-Wise CoT Phases</span>
+                      <p className="text-[8px] text-slate-500 leading-normal">Simulate multi-step internal monologue with step-by-step reasoning streams.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedNode.config.hermesStepWise ?? true}
+                        onChange={(e) => updateNodeConfig({ hermesStepWise: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-amber-500/80 peer-checked:after:bg-white"></div>
+                    </label>
+                  </div>
+
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-amber-400 uppercase tracking-widest font-mono text-center">Hermes Reasoning Core</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed text-center">
+                      A premium, single-agent engine built with comprehensive synthetic self-correction algorithms to execute highly analytical data transformation tracks.
                     </p>
                   </div>
                 </div>

@@ -1,4 +1,4 @@
-export type NodeType = 'webhook' | 'interval' | 'httpReq' | 'aiTransform' | 'aiFilter' | 'jsCode' | 'customFetch' | 'outputLog' | 'wsClient' | 'wsServer' | 'chatgptTransform' | 'copilotTransform' | 'ollamaTransform' | 'transformRouter' | 'openSwarm';
+export type NodeType = 'webhook' | 'interval' | 'httpReq' | 'aiTransform' | 'aiFilter' | 'jsCode' | 'customFetch' | 'outputLog' | 'wsClient' | 'wsServer' | 'chatgptTransform' | 'copilotTransform' | 'ollamaTransform' | 'transformRouter' | 'openSwarm' | 'hermesAgent';
 
 export type NodeCategory = 'trigger' | 'action' | 'utility' | 'ai';
 
@@ -47,6 +47,12 @@ export interface WorkflowNode {
     swarmAgents?: string;
     swarmInstructions?: string;
     swarmMaxTurns?: number;
+
+    // Hermes Reasoning Agent
+    hermesInstructions?: string;
+    hermesPersona?: 'reasoning' | 'creative' | 'technical' | 'analyst';
+    hermesTemperature?: number;
+    hermesStepWise?: boolean;
     
     // aiFilter
     condition?: string;

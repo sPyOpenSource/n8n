@@ -1022,7 +1022,159 @@ Finally, construct a definitive output payload based on their combined inputs.`;
         }
         break;
       }
-      
+
+      case 'hermesAgent': {
+        const instructions = config.hermesInstructions || "Analyze, synthesize, or transform inputs.";
+        const persona = config.hermesPersona || "reasoning";
+        const temperature = config.hermesTemperature ?? 0.2;
+        const stepwise = config.hermesStepWise ?? true;
+
+        const geminiKey = process.env.GEMINI_API_KEY;
+        if (!geminiKey || geminiKey === 'MY_GEMINI_API_KEY') {
+          // Simulation mode when API key is unconfigured
+          const simulatedReasoningSteps = [];
+          if (stepwise) {
+            simulatedReasoningSteps.push({
+              action: "Information Retrieval & Structuring",
+              thought: `Parsed incoming input context with keys: [${Object.keys(contextData).join(', ')}]. Aligning to instructed objective: "${instructions}".`
+            });
+            simulatedReasoningSteps.push({
+              action: "Self-Correction & Constraint Modeling",
+              thought: `Analyzing with '${persona}' persona. Restructuring payload with low-temperature focus (temp: ${temperature}) to prevent hallucinations.`
+            });
+            simulatedReasoningSteps.push({
+              action: "Synthesis & Final Formulation",
+              thought: "Ditching boilerplate text. Formulating high-fidelity action items and output fields."
+            });
+          }
+
+          let resolutionPayload: any = { ...contextData };
+          if (persona === 'analyst') {
+            resolutionPayload = {
+              analysisSummary: `Data successfully parsed and analyzed. Resolved ${Object.keys(contextData).length} elements.`,
+              highlights: [
+                "Targeted trends evaluated with optimal coherence",
+                "Statistical metrics consolidated into key outcomes"
+              ],
+              riskProfile: "LOW",
+              status: "COMPLETED"
+            };
+          } else if (persona === 'technical') {
+            resolutionPayload = {
+              technicalRemediation: "Optimized infrastructure and resolved execution anomalies.",
+              schemaDiff: {
+                inboundValid: true,
+                keysPreserved: Object.keys(contextData)
+              },
+              runtimeStatus: "ONLINE"
+            };
+          } else {
+            resolutionPayload = {
+              hermesSummary: `Pristine delivery of refined content under '${persona}' guidelines.`,
+              derivedInsights: {
+                taskComplexity: stepwise ? "High (Step-Wise)" : "Standard (Direct)",
+                synthesizedAt: new Date().toISOString()
+              },
+              status: "SUCCESS"
+            };
+          }
+
+          res.json({
+            output: {
+              activeObjective: instructions,
+              reasoningSteps: stepwise ? simulatedReasoningSteps : undefined,
+              finalPayload: resolutionPayload,
+              metadata: {
+                persona,
+                temperature,
+                stepwise,
+                mode: "simulation"
+              }
+            }
+          });
+          break;
+        }
+
+        try {
+          // Real execution
+          const systemInstruction = `You are Hermes, a high-intelligence reasoning agent. You excel at planning, sub-task breakdown, chain-of-thought analysis, synthetic feedback loops, and highly rigorous transformation pipelines.
+Your current persona is: '${persona}'. Apply the designated cognitive features to the user task.
+If stepwise is requested (value: ${stepwise}), carefully decompose your internal thoughts, sub-steps, and correctness validation checks first, and populate them in the 'reasoningSteps' array before resolving the final payload.
+Ensure the final output is a clean valid JSON response representing the accomplished task.`;
+
+          const requestPrompt = `Payload data context (JSON):
+${JSON.stringify(contextData, null, 2)}
+
+Your custom instructions & objectives to execute:
+"${instructions}"
+
+Deconstruct your thought process, evaluate semantic context, apply instructions, and format the output.`;
+
+          const response = await ai.models.generateContent({
+            model: "gemini-3.5-flash",
+            contents: requestPrompt,
+            config: {
+              systemInstruction,
+              temperature,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  reasoningSteps: {
+                    type: Type.ARRAY,
+                    description: "Chronological sequence of internal reasoning steps or self-corrections.",
+                    items: {
+                      type: Type.OBJECT,
+                      properties: {
+                        action: {
+                          type: Type.STRING,
+                          description: "The phase or check being performed."
+                        },
+                        thought: {
+                          type: Type.STRING,
+                          description: "The detailed internal reasoning, planning, or self-reproach statement."
+                        }
+                      },
+                      required: ["action", "thought"]
+                    }
+                  },
+                  finalPayload: {
+                    type: Type.OBJECT,
+                    description: "The final structured JSON output produced by the reasoning agent."
+                  }
+                },
+                required: ["reasoningSteps", "finalPayload"]
+              }
+            }
+          });
+
+          const responseText = response.text || "{}";
+          let parsedHermes = { reasoningSteps: [], finalPayload: contextData };
+          try {
+            parsedHermes = JSON.parse(responseText.trim());
+          } catch {
+            // fallback
+          }
+
+          res.json({
+            output: {
+              activeObjective: instructions,
+              reasoningSteps: stepwise ? parsedHermes.reasoningSteps : undefined,
+              finalPayload: parsedHermes.finalPayload,
+              metadata: {
+                persona,
+                temperature,
+                stepwise,
+                mode: "ai_live"
+              }
+            }
+          });
+        } catch (err: any) {
+          res.status(500).json({ error: `Hermes Agent execution error: ${err.message}` });
+        }
+        break;
+      }
+
       case 'outputLog': {
         res.json({ output: { status: "logged", timestamp: new Date().toISOString(), data: contextData } });
         break;

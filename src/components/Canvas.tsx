@@ -413,6 +413,7 @@ export default function Canvas({
       case 'aiFilter': return <Settings className="w-5 h-5 text-purple-400" />;
       case 'transformRouter': return <GitBranch className="w-5 h-5 text-indigo-400" />;
       case 'openSwarm': return <Network className="w-5 h-5 text-teal-400" />;
+      case 'hermesAgent': return <Flame className="w-5 h-5 text-amber-500 animate-pulse" />;
       case 'jsCode': return <Code className="w-5 h-5 text-amber-400" />;
       case 'customFetch': return <CloudDrizzle className="w-5 h-5 text-orange-400" />;
       case 'outputLog': return <BookOpen className="w-5 h-5 text-slate-300" />;
@@ -659,6 +660,7 @@ export default function Canvas({
             if (node.type === 'aiFilter') summaryText = node.config.condition ? `Evaluate: ${node.config.condition.slice(0, 20)}...` : "Verify True / False Path";
             if (node.type === 'transformRouter') summaryText = `Route to A/B/C (${node.config.routingMode === 'ai' ? 'AI' : 'Rules'})`;
             if (node.type === 'openSwarm') summaryText = `Multi-Agent Swarm (${node.config.swarmMaxTurns || 3} Turns)`;
+            if (node.type === 'hermesAgent') summaryText = `Hermes (${node.config.hermesPersona || 'reasoning'} Agent)`;
             if (node.type === 'jsCode') summaryText = "Format & map JSON records";
             if (node.type === 'customFetch') summaryText = `Get live ${node.config.source || 'news'} data`;
             if (node.type === 'outputLog') summaryText = "Save workflow executions logs";
