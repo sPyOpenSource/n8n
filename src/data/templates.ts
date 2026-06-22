@@ -471,5 +471,72 @@ return {
         }
       ]
     }
+  },
+  {
+    id: 'opencode_sandbox_compiler',
+    name: 'OpenCode Sandbox Formula Compiler',
+    description: 'Deconstructs computational telemetry records, compiles optimized sandboxed Python/JS statistics routines, and runs automated verification loops.',
+    workflow: {
+      name: 'OpenCode Telemetry Compiler',
+      description: 'Automated Code Generation & Sandbox VM validation.',
+      nodes: [
+        {
+          id: 'telemetry_data',
+          type: 'webhook',
+          name: 'Inbound System Telemetry',
+          category: 'trigger',
+          position: { x: 80, y: 160 },
+          config: {
+            payload: JSON.stringify({
+              service: "core-payment-gateway",
+              metrics: [
+                { "req_id": "tx_201", "latency_ms": 142, "statusCode": 200 },
+                { "req_id": "tx_202", "latency_ms": 3105, "statusCode": 504 },
+                { "req_id": "tx_203", "latency_ms": 98, "statusCode": 200 },
+                { "req_id": "tx_204", "latency_ms": 412, "statusCode": 500 },
+                { "req_id": "tx_205", "latency_ms": 115, "statusCode": 200 }
+              ]
+            }, null, 2)
+          }
+        },
+        {
+          id: 'opencode_processor',
+          type: 'opencodeAgent',
+          name: 'Telemetry Formula Compiler',
+          category: 'ai',
+          position: { x: 380, y: 140 },
+          config: {
+            opencodeInstructions: "Parse the active 'metrics' list from the inbound system telemetry. Generate a custom program to compute the average latency of successful requests (statusCode == 200), compute search outlier tags for requests with latency exceeding 400ms, and format the output results clearly.",
+            opencodeLanguage: 'javascript',
+            opencodeSandboxMode: 'execute',
+            opencodeAutoCorrect: true
+          }
+        },
+        {
+          id: 'opencode_logger',
+          type: 'outputLog',
+          name: 'Telemetry Verification Logger',
+          category: 'utility',
+          position: { x: 740, y: 160 },
+          config: {}
+        }
+      ],
+      connections: [
+        {
+          id: 'conn_oc1',
+          fromId: 'telemetry_data',
+          fromPort: 'output',
+          toId: 'opencode_processor',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_oc2',
+          fromId: 'opencode_processor',
+          fromPort: 'output',
+          toId: 'opencode_logger',
+          toPort: 'input'
+        }
+      ]
+    }
   }
 ];

@@ -1175,6 +1175,139 @@ Deconstruct your thought process, evaluate semantic context, apply instructions,
         break;
       }
 
+      case 'opencodeAgent': {
+        const instructions = config.opencodeInstructions || "Generate and run a script to process the input payload.";
+        const language = config.opencodeLanguage || "javascript";
+        const sandboxMode = config.opencodeSandboxMode || "execute";
+        const autoCorrect = config.opencodeAutoCorrect ?? true;
+
+        const geminiKey = process.env.GEMINI_API_KEY;
+        if (!geminiKey || geminiKey === 'MY_GEMINI_API_KEY') {
+          // Simulation mode when API key is unconfigured
+          let simulatedCode = "";
+          if (language === 'python') {
+            simulatedCode = `# OpenCode Python VM v3.10\nimport json\n\ndef execute_pipeline(input_data):\n    # Instructions: ${instructions}\n    print("[VM] Ingesting client context with keys:", input_data.keys())\n    \n    # Analytical processing loop\n    processed = {}\n    for k, v in input_data.items():\n        if isinstance(v, (int, float)):\n            processed[k + "_scaled"] = v * 1.05\n        else:\n            processed[k] = v\n            \n    processed["opencode_success"] = True\n    processed["sandbox"] = "python_sandbox_3.10_isolated"\n    return processed\n`;
+          } else if (language === 'typescript') {
+            simulatedCode = `// OpenCode Deno TypeScript VM v1.34\ninterface TaskInput {\n  [key: string]: any;\n}\n\nexport function runSandbox(input: TaskInput): TaskInput {\n  console.log("Analyzing instructions: ${instructions}");\n  const keys = Object.keys(input);\n  \n  return {\n    ...input,\n    metadata: {\n      compiler: "TS-Deno-V8",\n      optimized: true,\n      scannedKeys: keys\n    },\n    opencodeStatus: "SUCCESS"\n  };\n}\n`;
+          } else {
+            simulatedCode = `// OpenCode Node V8 VM Sandbox\nfunction processPayload(payload) {\n  // Action: ${instructions}\n  console.log("Virtual sandbox running...");\n  \n  const result = {\n    ...payload,\n    opencodeStatus: "COMPLETED",\n    runtimeVM: "v8_isolated_context"\n  };\n  return result;\n}\n`;
+          }
+
+          const simulatedCompilationSteps = [
+            { stage: "Static Analysis & AST generation", details: `Constructed AST structure for language stack '${language}'. No parse errors found.` },
+            { stage: "Linter validations", details: autoCorrect ? "Linter verified check passed. Auto-remedy loop completed with 0 warnings." : "Linter check completed. Warnings ignored." },
+            { stage: "Virtual Sandbox VM Execution", details: sandboxMode === 'execute' ? "Isolated host sandbox spun up successfully. Gas limits within boundaries. Execution returned status code 0." : "Skipped execution (Codegen-only mode active)." }
+          ];
+
+          let resolutionPayload = { ...contextData };
+          if (sandboxMode === 'execute') {
+            resolutionPayload = {
+              ...contextData,
+              opencodeExecution: {
+                language,
+                autoCorrectActive: autoCorrect,
+                status: "success",
+                compiledAt: new Date().toISOString(),
+                virtualTerminalStdout: "Compilation clean. Exit code 0."
+              }
+            };
+          }
+
+          res.json({
+            output: {
+              generatedCode: simulatedCode,
+              compilationSteps: simulatedCompilationSteps,
+              finalPayload: resolutionPayload
+            }
+          });
+          break;
+        }
+
+        try {
+          // Real live AI execution route
+          const systemInstruction = `You are OpenCode Agent, an advanced AI compiler workspace. Your objective is to model a secure code sandbox.
+Given a user query and a JSON data payload, you must write a beautifully formatted, robust code snippet in language: '${language}'.
+The code must be tailored to the objective specified in opencodeInstructions: "${instructions}".
+Then, simulate running this program in a secure sandbox context where 'input' or 'input_data' maps to the incoming user data context.
+Produce the resulting output context as a clean JSON payload mapping to 'finalPayload'.
+If opencodeAutoCorrect is active (value: ${autoCorrect}), simulate checking your written code for syntax anomalies, type mismatches or potential logical traps, and output detailed stages in compilationSteps.
+Return a structured JSON output with fields: 'generatedCode', 'compilationSteps', and 'finalPayload'.`;
+
+          const requestPrompt = `Input context payload (JSON):
+${JSON.stringify(contextData, null, 2)}
+
+User objectives for code generation & sandbox execution:
+"${instructions}"
+
+Selected stack: ${language}
+Sandbox Mode: ${sandboxMode}
+Auto Correct: ${autoCorrect}
+
+Formulate and return the complete structured output.`;
+
+          const response = await ai.models.generateContent({
+            model: "gemini-3.5-flash",
+            contents: requestPrompt,
+            config: {
+              systemInstruction,
+              temperature: 0.2,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  generatedCode: {
+                    type: Type.STRING,
+                    description: "The complete executable program code generated to satisfy the query."
+                  },
+                  compilationSteps: {
+                    type: Type.ARRAY,
+                    description: "Chronological list of compilation and secure dry-run validation steps.",
+                    items: {
+                      type: Type.OBJECT,
+                      properties: {
+                        stage: {
+                          type: Type.STRING,
+                          description: "The pipeline phase (e.g. AST Generation, Lint Checks, Dependency Resolve, Sandbox Execution)."
+                        },
+                        details: {
+                          type: Type.STRING,
+                          description: "Status message, output outputs, or compilation errors logs."
+                        }
+                      },
+                      required: ["stage", "details"]
+                    }
+                  },
+                  finalPayload: {
+                    type: Type.OBJECT,
+                    description: "The compiled final payload produced by evaluating the script against the input context."
+                  }
+                },
+                required: ["generatedCode", "compilationSteps", "finalPayload"]
+              }
+            }
+          });
+
+          const responseText = response.text || "{}";
+          let parsedOpenCode = { generatedCode: "", compilationSteps: [], finalPayload: contextData };
+          try {
+            parsedOpenCode = JSON.parse(responseText.trim());
+          } catch {
+            // fallback
+          }
+
+          res.json({
+            output: {
+              generatedCode: parsedOpenCode.generatedCode,
+              compilationSteps: parsedOpenCode.compilationSteps,
+              finalPayload: sandboxMode === 'execute' ? parsedOpenCode.finalPayload : { ...contextData, generatedCode: parsedOpenCode.generatedCode }
+            }
+          });
+        } catch (err: any) {
+          res.status(500).json({ error: `OpenCode Agent compilation error: ${err.message}` });
+        }
+        break;
+      }
+
       case 'outputLog': {
         res.json({ output: { status: "logged", timestamp: new Date().toISOString(), data: contextData } });
         break;

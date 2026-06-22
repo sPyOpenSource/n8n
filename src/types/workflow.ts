@@ -1,4 +1,4 @@
-export type NodeType = 'webhook' | 'interval' | 'httpReq' | 'aiTransform' | 'aiFilter' | 'jsCode' | 'customFetch' | 'outputLog' | 'wsClient' | 'wsServer' | 'chatgptTransform' | 'copilotTransform' | 'ollamaTransform' | 'transformRouter' | 'openSwarm' | 'hermesAgent';
+export type NodeType = 'webhook' | 'interval' | 'httpReq' | 'aiTransform' | 'aiFilter' | 'jsCode' | 'customFetch' | 'outputLog' | 'wsClient' | 'wsServer' | 'chatgptTransform' | 'copilotTransform' | 'ollamaTransform' | 'transformRouter' | 'openSwarm' | 'hermesAgent' | 'opencodeAgent';
 
 export type NodeCategory = 'trigger' | 'action' | 'utility' | 'ai';
 
@@ -53,6 +53,12 @@ export interface WorkflowNode {
     hermesPersona?: 'reasoning' | 'creative' | 'technical' | 'analyst';
     hermesTemperature?: number;
     hermesStepWise?: boolean;
+
+    // OpenCode Agent
+    opencodeInstructions?: string;
+    opencodeLanguage?: 'javascript' | 'typescript' | 'python';
+    opencodeSandboxMode?: 'execute' | 'codegen';
+    opencodeAutoCorrect?: boolean;
     
     // aiFilter
     condition?: string;

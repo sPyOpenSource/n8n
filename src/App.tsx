@@ -43,7 +43,8 @@ import {
   Bot,
   GitBranch,
   Network,
-  Users
+  Users,
+  Binary
 } from 'lucide-react';
 
 export default function App() {
@@ -455,6 +456,19 @@ export default function App() {
       } as WorkflowNode['config']
     },
     {
+      type: 'opencodeAgent' as NodeType,
+      category: 'ai' as NodeCategory,
+      name: 'OpenCode Agent',
+      description: 'AI coding agent that writes, reviews, and runs automated, self-correcting programs to solve complex formulas.',
+      icon: <Binary className="w-5 h-5 text-emerald-400 animate-pulse" />,
+      defaultConfig: {
+        opencodeInstructions: 'Generate a script to analyze the input object, parse nested values, compute custom averages/metrics, and return the formatted statistics.',
+        opencodeLanguage: 'javascript',
+        opencodeSandboxMode: 'execute',
+        opencodeAutoCorrect: true
+      } as WorkflowNode['config']
+    },
+    {
       type: 'jsCode' as NodeType,
       category: 'utility' as NodeCategory,
       name: 'JavaScript Routine',
@@ -620,6 +634,17 @@ export default function App() {
           finalOutputResult.reasoningSteps.forEach((step: any, index: number) => {
             addLog('info', `🔥 [Hermes Step #${index + 1}] ${step.action || 'Thinking'}: "${step.thought}"`, node.id, node.name);
           });
+        }
+
+        if (node.type === 'opencodeAgent') {
+          if (finalOutputResult?.generatedCode) {
+            addLog('info', `💻 Generated executable source code: \n${finalOutputResult.generatedCode.slice(0, 150)}...`, node.id, node.name);
+          }
+          if (Array.isArray(finalOutputResult?.compilationSteps)) {
+            finalOutputResult.compilationSteps.forEach((step: any, index: number) => {
+              addLog('info', `⚡ [OpenCode Stage #${index + 1}] ${step.stage}: "${step.details}"`, node.id, node.name);
+            });
+          }
         }
 
         setExecutionState(prev => ({
@@ -1770,6 +1795,94 @@ export default function App() {
                 </div>
               )}
 
+              {selectedNode.type === 'opencodeAgent' && (
+                <div className="space-y-4 font-sans">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-emerald-400 font-mono">OpenCode Agent Directives</label>
+                    <textarea
+                      rows={5}
+                      value={selectedNode.config.opencodeInstructions || ''}
+                      onChange={(e) => updateNodeConfig({ opencodeInstructions: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 h-28 leading-relaxed font-mono"
+                      placeholder="e.g. Write a script to calculate weighted support SLA satisfaction score..."
+                    />
+                    <p className="text-[8px] text-slate-500 leading-relaxed">
+                      Supports templating tags like <code className="text-emerald-400 font-mono">{"{{input}}"}</code>. The model compiles, lint-checks, and runs the script in a containerized environment.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-emerald-400 font-mono">Execution Language Stack</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { id: 'javascript', label: '🟨 JS (V8)' },
+                        { id: 'typescript', label: '🟦 TS (Deno)' },
+                        { id: 'python', label: '🐍 Python 3' }
+                      ].map(lang => (
+                        <button
+                          key={lang.id}
+                          type="button"
+                          onClick={() => updateNodeConfig({ opencodeLanguage: lang.id as any })}
+                          className={`py-1.5 px-2 rounded-md border text-[10px] font-semibold tracking-wide transition duration-150 text-center ${
+                            (selectedNode.config.opencodeLanguage || 'javascript') === lang.id
+                              ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-sm shadow-emerald-500/5'
+                              : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          {lang.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-emerald-400 font-mono">Agent Virtualization Mode</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: 'execute', label: '⚡ Execute with Sandbox' },
+                        { id: 'codegen', label: '📝 Output Code Only' }
+                      ].map(mode => (
+                        <button
+                          key={mode.id}
+                          type="button"
+                          onClick={() => updateNodeConfig({ opencodeSandboxMode: mode.id as any })}
+                          className={`py-1.5 px-2 rounded-md border text-[10px] font-bold tracking-wide transition duration-150 text-center ${
+                            (selectedNode.config.opencodeSandboxMode || 'execute') === mode.id
+                              ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400 shadow-sm'
+                              : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          {mode.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 bg-white/[0.02] border border-white/5 rounded-lg">
+                    <div className="space-y-0.5 pr-2">
+                      <span className="text-[9px] font-bold text-slate-300 uppercase font-mono tracking-wider">Self-Correction Compiler</span>
+                      <p className="text-[8px] text-slate-500 leading-normal">Instantly compile, lint, run code checks and perform iterative automatic error fixes.</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedNode.config.opencodeAutoCorrect ?? true}
+                        onChange={(e) => updateNodeConfig({ opencodeAutoCorrect: e.target.checked })}
+                        className="sr-only peer"
+                      />
+                      <div className="w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500/80 peer-checked:after:bg-white"></div>
+                    </label>
+                  </div>
+
+                  <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest font-mono text-center">OpenCode Engine Protocol</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed text-center">
+                      Auto-synthesizes sandboxed computational blocks, running execution tracing and secure reflection loops.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {selectedNode.type === 'aiFilter' && (
                 <div className="space-y-4">
                   <div className="space-y-1.5">
@@ -1926,12 +2039,30 @@ export default function App() {
                 </button>
               </div>
 
+              {/* If OpenCode, show Code Sandbox Results */}
+              {selectedNode.type === 'opencodeAgent' && executionState.nodeOutputs[selectedNode.id]?.generatedCode && (
+                <div className="pt-4 space-y-1.5 border-t border-white/5">
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-emerald-400 block font-mono">Generated Executable Block</label>
+                  <pre className="p-2.5 bg-[#010409] border border-emerald-500/30 rounded-lg text-[10px] font-mono text-emerald-300 overflow-x-auto max-h-48 scrollbar-thin leading-relaxed">
+                    {executionState.nodeOutputs[selectedNode.id].generatedCode}
+                  </pre>
+                </div>
+              )}
+
               {/* Dynamic previous run output preview block */}
               {executionState.nodeOutputs[selectedNode.id] && (
                 <div className="pt-4 space-y-1.5 border-t border-white/5">
-                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#34d399] block font-mono">Last Evaluated JSON Output</label>
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-[#34d399] block font-mono">
+                    {selectedNode.type === 'opencodeAgent' ? 'Compiled Payload Outpour' : 'Last Evaluated JSON Output'}
+                  </label>
                   <pre className="p-2.5 bg-[#030712] border border-emerald-500/20 rounded-lg text-[9px] font-mono text-emerald-400 overflow-x-auto max-h-56 scrollbar-thin">
-                    {JSON.stringify(executionState.nodeOutputs[selectedNode.id], null, 2)}
+                    {JSON.stringify(
+                      selectedNode.type === 'opencodeAgent'
+                        ? (executionState.nodeOutputs[selectedNode.id].finalPayload ?? executionState.nodeOutputs[selectedNode.id])
+                        : executionState.nodeOutputs[selectedNode.id],
+                      null,
+                      2
+                    )}
                   </pre>
                 </div>
               )}

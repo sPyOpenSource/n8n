@@ -69,6 +69,9 @@ export async function executeNodeOnServer(
   if (configCopy.hermesInstructions) {
     configCopy.hermesInstructions = interpolateTemplate(configCopy.hermesInstructions, allOutputs);
   }
+  if (configCopy.opencodeInstructions) {
+    configCopy.opencodeInstructions = interpolateTemplate(configCopy.opencodeInstructions, allOutputs);
+  }
   if (configCopy.body) {
     configCopy.body = interpolateTemplate(configCopy.body, allOutputs);
   }
