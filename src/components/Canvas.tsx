@@ -30,7 +30,10 @@ import {
   Bot,
   GitBranch,
   Network,
-  Binary
+  Binary,
+  Database,
+  Puzzle,
+  Sliders
 } from 'lucide-react';
 
 interface CanvasProps {
@@ -416,6 +419,10 @@ export default function Canvas({
       case 'openSwarm': return <Network className="w-5 h-5 text-teal-400" />;
       case 'hermesAgent': return <Flame className="w-5 h-5 text-amber-500 animate-pulse" />;
       case 'opencodeAgent': return <Binary className="w-5 h-5 text-emerald-400 animate-pulse" />;
+      case 'customAgent': return <Bot className="w-5 h-5 text-violet-400 animate-pulse" />;
+      case 'mcpClient': return <Puzzle className="w-5 h-5 text-pink-400" />;
+      case 'ragEngine': return <Database className="w-5 h-5 text-cyan-400 animate-pulse" />;
+      case 'modelTraining': return <Sliders className="w-5 h-5 text-orange-400 animate-pulse" />;
       case 'jsCode': return <Code className="w-5 h-5 text-amber-400" />;
       case 'customFetch': return <CloudDrizzle className="w-5 h-5 text-orange-400" />;
       case 'outputLog': return <BookOpen className="w-5 h-5 text-slate-300" />;
@@ -664,6 +671,13 @@ export default function Canvas({
             if (node.type === 'openSwarm') summaryText = `Multi-Agent Swarm (${node.config.swarmMaxTurns || 3} Turns)`;
             if (node.type === 'hermesAgent') summaryText = `Hermes (${node.config.hermesPersona || 'reasoning'} Agent)`;
             if (node.type === 'opencodeAgent') summaryText = `OpenCode (${node.config.opencodeLanguage || 'javascript'} compiler)`;
+            if (node.type === 'customAgent') {
+              const skills = node.config.customAgentSkills || [];
+              summaryText = `Agent: ${node.config.customAgentModel?.replace('gemini-', '') || 'flash'} (${skills.length} tools)`;
+            }
+            if (node.type === 'mcpClient') summaryText = `MCP: ${node.config.mcpMethod === 'callTool' ? 'Tool (' + (node.config.mcpToolName || 'unnamed') + ')' : node.config.mcpMethod}`;
+            if (node.type === 'ragEngine') summaryText = `RAG: ${node.config.ragSourceType || 'text'} (${node.config.ragVectorSearchMetric || 'cosine'})`;
+            if (node.type === 'modelTraining') summaryText = `FT: ${node.config.trainingBaseModel?.replace('gemini-', '') || 'flash'} (${node.config.trainingEpochs ?? 4} Epochs)`;
             if (node.type === 'jsCode') summaryText = "Format & map JSON records";
             if (node.type === 'customFetch') summaryText = `Get live ${node.config.source || 'news'} data`;
             if (node.type === 'outputLog') summaryText = "Save workflow executions logs";

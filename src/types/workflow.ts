@@ -1,4 +1,4 @@
-export type NodeType = 'webhook' | 'interval' | 'httpReq' | 'aiTransform' | 'aiFilter' | 'jsCode' | 'customFetch' | 'outputLog' | 'wsClient' | 'wsServer' | 'chatgptTransform' | 'copilotTransform' | 'ollamaTransform' | 'transformRouter' | 'openSwarm' | 'hermesAgent' | 'opencodeAgent';
+export type NodeType = 'webhook' | 'interval' | 'httpReq' | 'aiTransform' | 'aiFilter' | 'jsCode' | 'customFetch' | 'outputLog' | 'wsClient' | 'wsServer' | 'chatgptTransform' | 'copilotTransform' | 'ollamaTransform' | 'transformRouter' | 'openSwarm' | 'hermesAgent' | 'opencodeAgent' | 'customAgent' | 'mcpClient' | 'ragEngine' | 'modelTraining';
 
 export type NodeCategory = 'trigger' | 'action' | 'utility' | 'ai';
 
@@ -59,6 +59,35 @@ export interface WorkflowNode {
     opencodeLanguage?: 'javascript' | 'typescript' | 'python';
     opencodeSandboxMode?: 'execute' | 'codegen';
     opencodeAutoCorrect?: boolean;
+
+    // Custom Skill Agent
+    customAgentInstructions?: string;
+    customAgentModel?: string;
+    customAgentTemperature?: number;
+    customAgentSkills?: string[]; // e.g. ['search', 'calc', 'image', 'translator']
+
+    // Model Context Protocol (MCP) Client
+    mcpServerUrl?: string;
+    mcpMethod?: 'listTools' | 'callTool' | 'listResources' | 'readResource';
+    mcpToolName?: string;
+    mcpArguments?: string;
+
+    // Retrieval-Augmented Generation (RAG) Engine
+    ragSourceType?: 'file' | 'url' | 'vectorDb' | 'text';
+    ragQuery?: string;
+    ragChunkSize?: number;
+    ragVectorSearchMetric?: 'cosine' | 'dot' | 'euclidean';
+    ragKnowledgeBase?: string;
+
+    // Model Training & Fine-Tuning Block
+    trainingBaseModel?: string;
+    trainingDatasetSize?: number;
+    trainingEpochs?: number;
+    trainingLearningRate?: number;
+    trainingBatchSize?: number;
+    trainingLossFunction?: 'cross_entropy' | 'mean_squared_error' | 'huber';
+    trainingOptimizer?: 'adam' | 'adamw' | 'sgd' | 'rmsprop';
+    trainingPromptDataset?: string;
     
     // aiFilter
     condition?: string;

@@ -72,6 +72,27 @@ export async function executeNodeOnServer(
   if (configCopy.opencodeInstructions) {
     configCopy.opencodeInstructions = interpolateTemplate(configCopy.opencodeInstructions, allOutputs);
   }
+  if (configCopy.customAgentInstructions) {
+    configCopy.customAgentInstructions = interpolateTemplate(configCopy.customAgentInstructions, allOutputs);
+  }
+  if (configCopy.mcpServerUrl) {
+    configCopy.mcpServerUrl = interpolateTemplate(configCopy.mcpServerUrl, allOutputs);
+  }
+  if (configCopy.mcpToolName) {
+    configCopy.mcpToolName = interpolateTemplate(configCopy.mcpToolName, allOutputs);
+  }
+  if (configCopy.mcpArguments) {
+    configCopy.mcpArguments = interpolateTemplate(configCopy.mcpArguments, allOutputs);
+  }
+  if (configCopy.ragQuery) {
+    configCopy.ragQuery = interpolateTemplate(configCopy.ragQuery, allOutputs);
+  }
+  if (configCopy.ragKnowledgeBase) {
+    configCopy.ragKnowledgeBase = interpolateTemplate(configCopy.ragKnowledgeBase, allOutputs);
+  }
+  if (configCopy.trainingPromptDataset) {
+    configCopy.trainingPromptDataset = interpolateTemplate(configCopy.trainingPromptDataset, allOutputs);
+  }
   if (configCopy.body) {
     configCopy.body = interpolateTemplate(configCopy.body, allOutputs);
   }

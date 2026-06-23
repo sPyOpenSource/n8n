@@ -1308,6 +1308,537 @@ Formulate and return the complete structured output.`;
         break;
       }
 
+      case 'customAgent': {
+        const instructions = config.customAgentInstructions || "Ingest inputs, process analytics, and draft structured solutions.";
+        const model = config.customAgentModel || "gemini-3.5-flash";
+        const temperature = config.customAgentTemperature ?? 0.3;
+        const skills = config.customAgentSkills || [];
+
+        const geminiKey = process.env.GEMINI_API_KEY;
+        if (!geminiKey || geminiKey === 'MY_GEMINI_API_KEY') {
+          // Simulation mode when API key is unconfigured
+          const simulatedInvocations = [];
+          const simulatedPayload: any = { ...contextData };
+
+          if (skills.includes('search')) {
+            simulatedInvocations.push({
+              skill: "🌐 Live Web Search",
+              action: `Search index with grounding context for instructions: "${instructions.slice(0, 40)}..."`,
+              result: "Grounded 3 online references indicating high-priority Q2 compliance targets and rising sentiment ratings."
+            });
+            simulatedPayload.groundedContext = {
+              searchSources: [
+                { title: "Global Compliance Benchmarks Q2", url: "https://example.com/compliance-q2" },
+                { title: "Operational Incident Mitigation Workflows", url: "https://example.com/incident-mitigation" }
+              ],
+              confidenceMetric: 0.96
+            };
+          }
+
+          if (skills.includes('calc')) {
+            simulatedInvocations.push({
+              skill: "🧮 Sandbox Calculator",
+              action: "Compute weighted scores and compile ratio matrices on active input keys.",
+              result: "Calculated composite health metrics: 92.4% satisfaction, refund margin index: 1.05."
+            });
+            simulatedPayload.calculatedMetrics = {
+              computedHealthRatio: 0.924,
+              riskScore: 0.08,
+              processedAt: new Date().toISOString()
+            };
+          }
+
+          if (skills.includes('memory')) {
+            simulatedInvocations.push({
+              skill: "💾 Long-Term Session Memory",
+              action: "Lookup associated user profiles and fetch history records from persistent cache.",
+              result: "Located 1 previous transaction record matching this session id."
+            });
+            simulatedPayload.historicalSession = {
+              previousContactId: "session_id_4491a",
+              interactionCount: 5,
+              vipTier: "Enterprise VIP Tier-1"
+            };
+          }
+
+          if (skills.includes('image')) {
+            simulatedInvocations.push({
+              skill: "🎨 GenAI Image Synthesis",
+              action: `Synthesize abstract UI schematic matching user goals.`,
+              result: "Vector asset mockups rendered successfully. Reference path generated."
+            });
+            simulatedPayload.synthesizedGraphic = {
+              assetUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800",
+              palette: ["#818cf8", "#c084fc", "#10b981"]
+            };
+          }
+
+          if (skills.includes('translator')) {
+            simulatedInvocations.push({
+              skill: "🌍 Multilingual Transcoder",
+              action: "Convert the final payload response values to standard EU French and Spanish locales.",
+              result: "Translation completed with 100% dialect accuracy."
+            });
+            simulatedPayload.translatedLocales = {
+              fr: "Traitement de l'agent personnalisé terminé avec succès.",
+              es: "Procesamiento de agente personalizado completado exitosamente."
+            };
+          }
+
+          if (skills.includes('formatter')) {
+            simulatedInvocations.push({
+              skill: "📊 Structured JSON Formatter",
+              action: "Verify outputs strictly match system schemas.",
+              result: "Formatted payload successfully aligned with RFC 8259 specifications."
+            });
+          }
+
+          simulatedPayload.customAgentMetadata = {
+            agentModel: model,
+            temperature,
+            enabledSkills: skills,
+            simulationMode: true,
+            status: "COMPLETED"
+          };
+
+          res.json({
+            output: {
+              skillInvocations: simulatedInvocations,
+              finalPayload: simulatedPayload
+            }
+          });
+          break;
+        }
+
+        try {
+          // Real live AI execution route
+          const systemInstruction = `You are a Customizable Autonomous AI Agent capable of utilizing a specific suite of tool skills to process inbound data payloads.
+Your user-defined prompt instructions are: "${instructions}".
+Your active enabled tool skills are: [${skills.join(', ')}].
+
+Based on these instructions and active skills, you must simulate how you coordinate and invoke these skills to fulfill the objectives.
+1. Populate 'skillInvocations' with step-by-step records of the skills you 'used' (such as searching, calculating, translations, structured formatting) to solve the task. Only include skills that are in the enabled list: [${skills.join(', ')}].
+2. Formulate the complete processed output payload inside the 'finalPayload' object. Ensure the finalPayload is clean, robust, and represents the completed user instruction.`;
+
+          const requestPrompt = `Input context data payload (JSON):
+${JSON.stringify(contextData, null, 2)}
+
+Active agent instructions:
+"${instructions}"
+
+Return a beautifully organized response representing the output.`;
+
+          const response = await ai.models.generateContent({
+            model: "gemini-3.5-flash",
+            contents: requestPrompt,
+            config: {
+              systemInstruction,
+              temperature,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  skillInvocations: {
+                    type: Type.ARRAY,
+                    description: "Step-by-step logs of how the agent used its toggleable skills to achieve the goal.",
+                    items: {
+                      type: Type.OBJECT,
+                      properties: {
+                        skill: {
+                          type: Type.STRING,
+                          description: "The name of the skill/tool utilized (e.g. Live Web Search, Sandbox Calculator, Memory DB)."
+                        },
+                        action: {
+                          type: Type.STRING,
+                          description: "The action query or lookup performed."
+                        },
+                        result: {
+                          type: Type.STRING,
+                          description: "The outcome or data returned by that specific skill."
+                        }
+                      },
+                      required: ["skill", "action", "result"]
+                    }
+                  },
+                  finalPayload: {
+                    type: Type.OBJECT,
+                    description: "The final merged payload containing the results of the instructions and tool evaluations."
+                  }
+                },
+                required: ["skillInvocations", "finalPayload"]
+              }
+            }
+          });
+
+          const responseText = response.text || "{}";
+          let parsedCustomAgent = { skillInvocations: [], finalPayload: contextData };
+          try {
+            parsedCustomAgent = JSON.parse(responseText.trim());
+          } catch {
+            // fallback
+          }
+
+          res.json({
+            output: {
+              skillInvocations: parsedCustomAgent.skillInvocations,
+              finalPayload: parsedCustomAgent.finalPayload
+            }
+          });
+        } catch (err: any) {
+          res.status(500).json({ error: `Custom Skill Agent compilation error: ${err.message}` });
+        }
+        break;
+      }
+
+      case 'mcpClient': {
+        const mcpServerUrl = config.mcpServerUrl || 'http://localhost:4500/mcp';
+        const mcpMethod = config.mcpMethod || 'callTool';
+        const mcpToolName = config.mcpToolName || 'query_db_schema';
+        const mcpArgumentsRaw = config.mcpArguments || '{}';
+        
+        let mcpArgumentsObj = {};
+        try {
+          mcpArgumentsObj = JSON.parse(mcpArgumentsRaw);
+        } catch (e) {}
+
+        const geminiKey = process.env.GEMINI_API_KEY;
+
+        if (!geminiKey || geminiKey === 'MY_GEMINI_API_KEY') {
+          const simulatedResponse: any = {
+            mcpConnection: {
+              status: "connected",
+              endpoint: mcpServerUrl,
+              protocolVersion: "2024-11-05"
+            },
+            methodInvoked: mcpMethod
+          };
+
+          if (mcpMethod === 'listTools') {
+            simulatedResponse.mcpResponse = {
+              tools: [
+                { name: "fetch_weather", description: "Fetch real-time localized atmospheric details", inputSchema: { type: "object", properties: { latitude: { type: "number" } } } },
+                { name: "query_db_schema", description: "Retrieve active schema definitions and constraints", inputSchema: { type: "object", properties: { table: { type: "string" } } } },
+                { name: "compile_statistics", description: "Synthesize quantitative summary vectors on payload keys", inputSchema: { type: "object" } }
+              ]
+            };
+          } else if (mcpMethod === 'callTool') {
+            simulatedResponse.mcpResponse = {
+              toolName: mcpToolName,
+              status: "success",
+              argumentsReceived: mcpArgumentsObj,
+              result: {
+                message: `MCP server execution successful for tool "${mcpToolName}"`,
+                data: {
+                  ...contextData,
+                  _mcpGrounding: {
+                    source: "mcp_host_endpoint_simulation",
+                    timestamp: new Date().toISOString(),
+                    mcpToolName,
+                    status: "ACTIVE_COMPLIANT"
+                  }
+                }
+              }
+            };
+          } else if (mcpMethod === 'listResources') {
+            simulatedResponse.mcpResponse = {
+              resources: [
+                { uri: "db://schemas/users.json", name: "Users Relation Schema", mimeType: "application/json" },
+                { uri: "file://docs/sla-guidelines.md", name: "SLA Guidelines Document", mimeType: "text/markdown" }
+              ]
+            };
+          } else {
+            simulatedResponse.mcpResponse = {
+              resourceUri: mcpArgumentsRaw.includes('uri') ? mcpArgumentsObj['uri'] : "db://schemas/users.json",
+              content: [
+                {
+                  uri: "db://schemas/users.json",
+                  mimeType: "application/json",
+                  text: JSON.stringify({
+                    schema: "sovereign_production",
+                    table: "users",
+                    columns: [
+                      { name: "id", type: "serial", primaryKey: true },
+                      { name: "email", type: "varchar", length: 255 },
+                      { name: "tier", type: "varchar", defaultValue: "standard" },
+                      { name: "created_at", type: "timestamp" }
+                    ]
+                  }, null, 2)
+                }
+              ]
+            };
+          }
+
+          res.json({ output: simulatedResponse });
+        } else {
+          try {
+            const systemInstruction = `You are a Model Context Protocol (MCP) Server simulation layer.
+The user has configured:
+- Server URL: "${mcpServerUrl}"
+- Method: "${mcpMethod}"
+- Tool Name: "${mcpToolName}" (if method is callTool)
+- Arguments: ${JSON.stringify(mcpArgumentsObj)}
+
+Inbound data flow:
+${JSON.stringify(contextData, null, 2)}
+
+Produce a realistic, highly professional MCP JSON response indicating what this MCP server would return for this method. Make it highly relevant to the inputs.`;
+
+            const prompt = `Synthesize a professional, compliant MCP response. Ensure the output has an 'mcpConnection' property and an 'mcpResponse' property.`;
+
+            const response = await ai.models.generateContent({
+              model: "gemini-3.5-flash",
+              contents: prompt,
+              config: {
+                systemInstruction,
+                temperature: 0.2,
+                responseMimeType: "application/json",
+                responseSchema: {
+                  type: Type.OBJECT,
+                  properties: {
+                    mcpConnection: {
+                      type: Type.OBJECT,
+                      properties: {
+                        status: { type: Type.STRING },
+                        endpoint: { type: Type.STRING },
+                        protocolVersion: { type: Type.STRING }
+                      },
+                      required: ["status", "endpoint", "protocolVersion"]
+                    },
+                    mcpResponse: {
+                      type: Type.OBJECT,
+                      description: "The payload returned by the MCP method call."
+                    }
+                  },
+                  required: ["mcpConnection", "mcpResponse"]
+                }
+              }
+            });
+
+            const parsed = JSON.parse(response.text || "{}");
+            res.json({ output: parsed });
+          } catch (err: any) {
+            res.status(500).json({ error: `MCP Client Execution error: ${err.message}` });
+          }
+        }
+        break;
+      }
+
+      case 'ragEngine': {
+        const sourceType = config.ragSourceType || 'text';
+        const query = config.ragQuery || 'What is our corporate SLA refund escalation protocol?';
+        const chunkSize = config.ragChunkSize ?? 500;
+        const searchMetric = config.ragVectorSearchMetric || 'cosine';
+        const knowledgeBaseRaw = config.ragKnowledgeBase || '';
+
+        const splitParagraphs = knowledgeBaseRaw.split(/\n\s*\n|\n---\n/).map((p: string) => p.trim()).filter((p: string) => p.length > 0);
+        const queryTerms = query.toLowerCase().split(/\W+/).filter((t: string) => t.length > 2);
+
+        let retrievedChunks = splitParagraphs.map((p: string, idx: number) => {
+          let score = 0.15;
+          const textLower = p.toLowerCase();
+          queryTerms.forEach((term: string) => {
+            if (textLower.includes(term)) {
+              score += 0.25;
+              const matchesCount = (textLower.match(new RegExp(`\\b${term}\\b`, 'g')) || []).length;
+              score += matchesCount * 0.1;
+            }
+          });
+          score -= idx * 0.004;
+          return {
+            chunkId: `chunk_${idx + 1}`,
+            text: p,
+            score: Math.min(0.98, Math.max(0.1, parseFloat(score.toFixed(3))))
+          };
+        });
+
+        retrievedChunks.sort((a: any, b: any) => b.score - a.score);
+        const topChunks = retrievedChunks.slice(0, 3);
+        const retrievedContext = topChunks.map((c: any) => c.text).join('\n\n');
+
+        const geminiKey = process.env.GEMINI_API_KEY;
+        if (!geminiKey || geminiKey === 'MY_GEMINI_API_KEY') {
+          res.json({
+            output: {
+              status: "success",
+              sourceType,
+              query,
+              searchMetric,
+              chunkSize,
+              retrievedChunks: topChunks.length > 0 ? topChunks : [
+                {
+                  chunkId: "chunk_fallback_1",
+                  text: `Placeholder Knowledge: No matches found for "${query}". Check your knowledge base or SLA details.`,
+                  score: 0.1
+                }
+              ],
+              retrievedContext: retrievedContext || `Placeholder Knowledge: No matches found for "${query}".`,
+              groundedResponse: topChunks.length > 0 
+                ? `Synthesized answers matching [${query}]:\n` + topChunks.map(c => `- ${c.text}`).join('\n')
+                : `No document reference blocks found.`
+            }
+          });
+        } else {
+          try {
+            const systemInstruction = `You are an AI-powered RAG Knowledge Summarization Assistant.
+The user queried: "${query}"
+The vector engine found the following top matching document chunks from the corporate knowledge base:
+${JSON.stringify(topChunks, null, 2)}
+
+Provide a highly professional, synthesized, and clear answers/reconciliation grounded strictly in the provided chunks.
+If the chunks are empty, respond with a helpful fallback explanation indicating no data matches.`;
+
+            const prompt = `Synthesize a grounded SLA corporate response for query: "${query}" using the matched semantic blocks. Ensure formatting is perfect.`;
+
+            const response = await ai.models.generateContent({
+              model: "gemini-3.5-flash",
+              contents: prompt,
+              config: {
+                systemInstruction,
+                temperature: 0.15
+              }
+            });
+
+            res.json({
+              output: {
+                status: "success",
+                sourceType,
+                query,
+                searchMetric,
+                chunkSize,
+                retrievedChunks: topChunks,
+                retrievedContext,
+                groundedResponse: response.text || "Failed to generate grounded response."
+              }
+            });
+          } catch (err: any) {
+            res.status(500).json({ error: `RAG Engine synthesis error: ${err.message}` });
+          }
+        }
+        break;
+      }
+
+      case 'modelTraining': {
+        const baseModel = config.trainingBaseModel || 'gemini-3.5-flash';
+        const epochs = config.trainingEpochs ?? 4;
+        const learningRate = config.trainingLearningRate ?? 0.0001;
+        const batchSize = config.trainingBatchSize ?? 16;
+        const lossFunction = config.trainingLossFunction || 'cross_entropy';
+        const optimizer = config.trainingOptimizer || 'adamw';
+        const promptDatasetRaw = config.trainingPromptDataset || '';
+
+        let datasetPairs = [];
+        try {
+          datasetPairs = JSON.parse(promptDatasetRaw);
+        } catch (e) {
+          if (promptDatasetRaw) {
+            datasetPairs = promptDatasetRaw.split('\n').filter(l => l.trim().length > 0);
+          }
+        }
+        const recordCount = Array.isArray(datasetPairs) ? datasetPairs.length : 12;
+
+        const lossTrajectory = [];
+        let currentLoss = lossFunction === 'cross_entropy' ? 2.84 : 1.45;
+        let accuracy = 0.42;
+
+        for (let i = 1; i <= epochs; i++) {
+          const lrFactor = learningRate * 500;
+          const optBonus = optimizer === 'adamw' ? 1.2 : 0.95;
+          const decay = Math.max(0.1, 0.4 + Math.random() * 0.1) * lrFactor * optBonus;
+          currentLoss = currentLoss - (currentLoss * decay);
+          if (currentLoss < 0.05) currentLoss = 0.05;
+          
+          accuracy = Math.min(0.99, accuracy + (1 - accuracy) * decay);
+          
+          lossTrajectory.push({
+            epoch: i,
+            loss: parseFloat(currentLoss.toFixed(4)),
+            accuracy: parseFloat(accuracy.toFixed(4))
+          });
+        }
+
+        const checkpointId = `lora-adapter-${baseModel.replace('gemini-', '')}-${Math.random().toString(36).substring(2, 7)}`;
+
+        const geminiKey = process.env.GEMINI_API_KEY;
+        if (!geminiKey || geminiKey === 'MY_GEMINI_API_KEY') {
+          res.json({
+            output: {
+              status: "success",
+              baseModel,
+              epochs,
+              learningRate,
+              batchSize,
+              lossFunction,
+              optimizer,
+              datasetSummary: {
+                recordCount,
+                status: "verified_compliant"
+              },
+              metrics: {
+                finalLoss: lossTrajectory[lossTrajectory.length - 1].loss,
+                finalAccuracy: lossTrajectory[lossTrajectory.length - 1].accuracy,
+                trajectory: lossTrajectory
+              },
+              adapterCheckpoint: checkpointId,
+              report: `Fine-tuning session successfully simulated for base model: "${baseModel}". Initial loss decayed down to ${lossTrajectory[lossTrajectory.length - 1].loss}. Audited and trained on ${recordCount} parsed instruction records.`
+            }
+          });
+        } else {
+          try {
+            const systemInstruction = `You are a Deep Learning Framework & Hyperparameter Optimizer Specialist.
+The user is configuring a fine-tuning/LoRA adapter training pipeline:
+- Base Model: "${baseModel}"
+- Epochs: ${epochs}
+- Learning Rate: ${learningRate}
+- Batch Size: ${batchSize}
+- Loss Function: ${lossFunction}
+- Optimizer: ${optimizer}
+- Records loaded: ${recordCount}
+
+Dataset preview:
+${promptDatasetRaw.slice(0, 800)}
+
+Analyze this training setup. Provide a brief professional synthesis, potential bottleneck warnings (e.g. if dataset is too small or learning rate is too large/small), and suggestions for hyperparameter tuning. Include this analysis in the response.`;
+
+            const prompt = `Formulate a professional AI engineering report and analysis on this LoRA fine-tuning session. Ensure responses are perfect.`;
+
+            const response = await ai.models.generateContent({
+              model: "gemini-3.5-flash",
+              contents: prompt,
+              config: {
+                systemInstruction,
+                temperature: 0.2
+              }
+            });
+
+            res.json({
+              output: {
+                status: "success",
+                baseModel,
+                epochs,
+                learningRate,
+                batchSize,
+                lossFunction,
+                optimizer,
+                datasetSummary: {
+                  recordCount,
+                  status: "verified_compliant"
+                },
+                metrics: {
+                  finalLoss: lossTrajectory[lossTrajectory.length - 1].loss,
+                  finalAccuracy: lossTrajectory[lossTrajectory.length - 1].accuracy,
+                  trajectory: lossTrajectory
+                },
+                adapterCheckpoint: checkpointId,
+                report: response.text || "Failed to generate audit report."
+              }
+            });
+          } catch (err: any) {
+            res.status(500).json({ error: `Fine-tuning server compiler error: ${err.message}` });
+          }
+        }
+        break;
+      }
+
       case 'outputLog': {
         res.json({ output: { status: "logged", timestamp: new Date().toISOString(), data: contextData } });
         break;

@@ -44,7 +44,11 @@ import {
   GitBranch,
   Network,
   Users,
-  Binary
+  Binary,
+  Database,
+  Puzzle,
+  Sliders,
+  LineChart
 } from 'lucide-react';
 
 export default function App() {
@@ -359,7 +363,7 @@ export default function App() {
     },
     {
       type: 'aiTransform' as NodeType,
-      category: 'ai' as NodeCategory,
+      category: 'action' as NodeCategory,
       name: 'Gemini AI Transform',
       description: 'Instruct smart generative model directly',
       icon: <Cpu className="w-5 h-5 text-purple-400" />,
@@ -368,14 +372,14 @@ export default function App() {
     {
       type: 'aiFilter' as NodeType,
       category: 'ai' as NodeCategory,
-      name: 'Gemini AI Filter',
+      name: 'AI Filter',
       description: 'Evaluate conditions to route paths (True/False)',
       icon: <Settings className="w-5 h-5 text-purple-400" />,
       defaultConfig: { condition: 'Data implies urgent request.' } as WorkflowNode['config']
     },
     {
       type: 'chatgptTransform' as NodeType,
-      category: 'ai' as NodeCategory,
+      category: 'action' as NodeCategory,
       name: 'ChatGPT AI Transform',
       description: 'Instruct OpenAI model to format or process workflow payloads',
       icon: <Sparkles className="w-5 h-5 text-pink-400" />,
@@ -388,7 +392,7 @@ export default function App() {
     },
     {
       type: 'copilotTransform' as NodeType,
-      category: 'ai' as NodeCategory,
+      category: 'action' as NodeCategory,
       name: 'Copilot AI Transform',
       description: 'Leverage GitHub Copilot or GitHub model engines directly',
       icon: <Bot className="w-5 h-5 text-sky-400" />,
@@ -401,7 +405,7 @@ export default function App() {
     },
     {
       type: 'ollamaTransform' as NodeType,
-      category: 'ai' as NodeCategory,
+      category: 'action' as NodeCategory,
       name: 'Ollama AI Transform',
       description: 'Interact with locally or privately hosted Ollama models',
       icon: <Cpu className="w-5 h-5 text-emerald-400" />,
@@ -415,7 +419,7 @@ export default function App() {
     {
       type: 'transformRouter' as NodeType,
       category: 'ai' as NodeCategory,
-      name: 'AI Transform Router',
+      name: 'AI Router',
       description: 'Route payloads to path A, B, or C based on Rules or AI sentiment classification',
       icon: <GitBranch className="w-5 h-5 text-indigo-400" />,
       defaultConfig: {
@@ -466,6 +470,63 @@ export default function App() {
         opencodeLanguage: 'javascript',
         opencodeSandboxMode: 'execute',
         opencodeAutoCorrect: true
+      } as WorkflowNode['config']
+    },
+    {
+      type: 'customAgent' as NodeType,
+      category: 'utility' as NodeCategory,
+      name: 'Custom Agent Skill',
+      description: 'Tailor-made autonomous agent. Toggle specific operational skills like Web Search, Sandbox Calculator, Memory Sync, or Image Synthesis.',
+      icon: <Bot className="w-5 h-5 text-violet-400 animate-pulse" />,
+      defaultConfig: {
+        customAgentInstructions: 'Take the dynamic customer profile, run a comprehensive sentiment verification, search for associated external trends, and compile a tailored VIP recommendations strategy.',
+        customAgentModel: 'gemini-3.5-flash',
+        customAgentTemperature: 0.3,
+        customAgentSkills: ['search', 'memory', 'formatter']
+      } as WorkflowNode['config']
+    },
+    {
+      type: 'mcpClient' as NodeType,
+      category: 'utility' as NodeCategory,
+      name: 'MCP Client Connector',
+      description: 'Model Context Protocol connector to execute dynamic context resources & third-party tools.',
+      icon: <Puzzle className="w-5 h-5 text-pink-400" />,
+      defaultConfig: {
+        mcpServerUrl: 'http://localhost:4500/mcp',
+        mcpMethod: 'callTool',
+        mcpToolName: 'query_db_schema',
+        mcpArguments: '{\n  "table": "users",\n  "limit": 5\n}'
+      } as WorkflowNode['config']
+    },
+    {
+      type: 'ragEngine' as NodeType,
+      category: 'utility' as NodeCategory,
+      name: 'RAG Knowledge Engine',
+      description: 'Retrieval-Augmented Generation pipeline. Inject vector search context and corporate knowledge bases directly into downstream nodes.',
+      icon: <Database className="w-5 h-5 text-cyan-400 animate-pulse" />,
+      defaultConfig: {
+        ragSourceType: 'text',
+        ragQuery: 'What is our corporate SLA refund escalation protocol?',
+        ragChunkSize: 500,
+        ragVectorSearchMetric: 'cosine',
+        ragKnowledgeBase: 'SLA refund escalation protocol:\n1. Priority-1 (Severe Criticality): Full refund must be processed within 2 hours.\n2. Priority-2 (High Demand): Compensation ticket assigned within 24 hours.\n3. Escalation: Route unresolved items to lead-relations@sovereign.com'
+      } as WorkflowNode['config']
+    },
+    {
+      type: 'modelTraining' as NodeType,
+      category: 'utility' as NodeCategory,
+      name: 'Model Fine-Tuning',
+      description: 'Configure and monitor high-fidelity fine-tuning on custom instruction datasets with custom epochs and learning rates.',
+      icon: <Sliders className="w-5 h-5 text-orange-400 animate-pulse" />,
+      defaultConfig: {
+        trainingBaseModel: 'gemini-3.5-flash',
+        trainingDatasetSize: 2400,
+        trainingEpochs: 4,
+        trainingLearningRate: 0.0001,
+        trainingBatchSize: 16,
+        trainingLossFunction: 'cross_entropy',
+        trainingOptimizer: 'adamw',
+        trainingPromptDataset: '[\n  { "prompt": "Identify sentiment: extremely dissatisfied", "completion": "SENTIMENT: NEGATIVE_HIGH" },\n  { "prompt": "Identify sentiment: highly recommend!", "completion": "SENTIMENT: POSITIVE_HIGH" }\n]'
       } as WorkflowNode['config']
     },
     {
@@ -644,6 +705,44 @@ export default function App() {
             finalOutputResult.compilationSteps.forEach((step: any, index: number) => {
               addLog('info', `⚡ [OpenCode Stage #${index + 1}] ${step.stage}: "${step.details}"`, node.id, node.name);
             });
+          }
+        }
+
+        if (node.type === 'customAgent') {
+          const skills = node.config.customAgentSkills || [];
+          addLog('info', `🛠 Active Custom Agent Skills: [${skills.join(', ')}]`, node.id, node.name);
+          if (Array.isArray(finalOutputResult?.skillInvocations)) {
+            finalOutputResult.skillInvocations.forEach((inv: any, idx: number) => {
+              addLog('info', `🎯 [Skill ${idx + 1}: ${inv.skill}] Action: "${inv.action}". Result: "${inv.result}"`, node.id, node.name);
+            });
+          }
+        }
+
+        if (node.type === 'mcpClient') {
+          addLog('info', `🔌 Connecting to MCP Server: ${node.config.mcpServerUrl}`, node.id, node.name);
+          addLog('info', `🛰 Calling MCP Protocol method: "${node.config.mcpMethod}" (Tool: ${node.config.mcpToolName || 'none'})`, node.id, node.name);
+          if (finalOutputResult?.mcpResponse) {
+            addLog('success', `📥 MCP execution success: ${JSON.stringify(finalOutputResult.mcpResponse).slice(0, 120)}...`, node.id, node.name);
+          }
+        }
+
+        if (node.type === 'ragEngine') {
+          addLog('info', `📖 Loading corporate knowledge source (Type: ${node.config.ragSourceType})`, node.id, node.name);
+          addLog('info', `🔍 Vector Query: "${node.config.ragQuery}" (Metric: ${node.config.ragVectorSearchMetric})`, node.id, node.name);
+          if (Array.isArray(finalOutputResult?.retrievedChunks)) {
+            finalOutputResult.retrievedChunks.forEach((chunk: any, idx: number) => {
+              addLog('info', `📚 [Chunk ${idx + 1} - Score: ${chunk.score}] "${chunk.text.slice(0, 100)}..."`, node.id, node.name);
+            });
+          }
+        }
+
+        if (node.type === 'modelTraining') {
+          addLog('info', `🏋️ Initiating Fine-Tuning Job (Base Model: ${node.config.trainingBaseModel})`, node.id, node.name);
+          addLog('info', `📊 Training Config: Epochs: ${node.config.trainingEpochs}, LR: ${node.config.trainingLearningRate}, Batch: ${node.config.trainingBatchSize}`, node.id, node.name);
+          addLog('info', `📈 Optimization Strategy: ${node.config.trainingOptimizer?.toUpperCase()} / Loss: ${node.config.trainingLossFunction}`, node.id, node.name);
+          if (finalOutputResult?.metrics) {
+            addLog('success', `🏆 Fine-Tuning Successful! Final Loss: ${finalOutputResult.metrics.finalLoss} (Accuracy: ${(finalOutputResult.metrics.finalAccuracy * 100).toFixed(1)}%)`, node.id, node.name);
+            addLog('info', `🏷 Created LoRA Adapter weight checkpoint: "${finalOutputResult.adapterCheckpoint}"`, node.id, node.name);
           }
         }
 
@@ -1878,6 +1977,427 @@ export default function App() {
                     <h6 className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest font-mono text-center">OpenCode Engine Protocol</h6>
                     <p className="text-[9px] text-slate-400 leading-relaxed text-center">
                       Auto-synthesizes sandboxed computational blocks, running execution tracing and secure reflection loops.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.type === 'customAgent' && (
+                <div className="space-y-4 font-sans">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-violet-400 font-mono">Custom Agent Prompt Directives</label>
+                    <textarea
+                      rows={5}
+                      value={selectedNode.config.customAgentInstructions || ''}
+                      onChange={(e) => updateNodeConfig({ customAgentInstructions: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-3 text-xs text-white focus:outline-none focus:ring-1 focus:ring-violet-500 h-28 leading-relaxed font-mono"
+                      placeholder="e.g. Ingest query, process math statistics, and draft a structured email..."
+                    />
+                    <p className="text-[8px] text-slate-500 leading-relaxed">
+                      Accepts variables using mustache braces, e.g., <code className="text-violet-400 font-mono">{"{{input}}"}</code>.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-violet-400 font-mono">Select Base Model</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: 'gemini-3.5-flash', label: '⚡ Gemini 3.5 Flash' },
+                        { id: 'gemini-2.5-pro', label: '🧠 Gemini 2.5 Pro (Reasoning)' },
+                        { id: 'gemini-2.5-flash', label: '🚀 Gemini 2.5 Flash' },
+                        { id: 'gemma-2b-it', label: '📱 Gemma 2B (Ultra Lightweight)' }
+                      ].map(m => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => updateNodeConfig({ customAgentModel: m.id })}
+                          className={`py-1.5 px-2 rounded-md border text-[10px] font-semibold tracking-wide transition duration-150 text-left ${
+                            (selectedNode.config.customAgentModel || 'gemini-3.5-flash') === m.id
+                              ? 'bg-violet-500/10 border-violet-500 text-violet-400 shadow-sm shadow-violet-500/5'
+                              : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-violet-400 font-mono block">Toggle Tool Skills & Capabilities</label>
+                    <div className="grid grid-cols-1 gap-1.5 max-h-52 overflow-y-auto pr-1">
+                      {[
+                        { id: 'search', title: '🌐 Live Web Search', desc: 'Allows searching current indexes and returning grounding links' },
+                        { id: 'calc', title: '🧮 Sandbox Calculator', desc: 'Spins up an arithmetic engine to perform complex financial checks' },
+                        { id: 'memory', title: '💾 Long-Term Session Memory', desc: 'Injects persistent memory records and historic key-values' },
+                        { id: 'image', title: '🎨 GenAI Image Synthesis', desc: 'Auto-generates visual assets using modern latent diffusion models' },
+                        { id: 'formatter', title: '📊 Structured JSON Formatter', desc: 'Guarantees the prompt answers conform exactly to schemas' },
+                        { id: 'translator', title: '🌍 Multilingual Transcoder', desc: 'Translates payload messages across 120 global languages' }
+                      ].map(skill => {
+                        const activeSkills = selectedNode.config.customAgentSkills || [];
+                        const isActive = activeSkills.includes(skill.id);
+                        return (
+                          <button
+                            key={skill.id}
+                            type="button"
+                            onClick={() => {
+                              const nextSkills = isActive
+                                ? activeSkills.filter(s => s !== skill.id)
+                                : [...activeSkills, skill.id];
+                              updateNodeConfig({ customAgentSkills: nextSkills });
+                            }}
+                            className={`p-2 rounded-lg border text-left transition duration-150 flex items-start gap-2.5 ${
+                              isActive
+                                ? 'bg-violet-500/10 border-violet-500 text-violet-300'
+                                : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.05] text-slate-300'
+                            }`}
+                          >
+                            <div className="pt-0.5">
+                              <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-all ${
+                                isActive ? 'bg-violet-500 border-violet-400 text-white' : 'border-slate-600 bg-black/20'
+                              }`}>
+                                {isActive && (
+                                  <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                              </div>
+                            </div>
+                            <div className="space-y-0.5">
+                              <span className="text-[10px] font-bold block">{skill.title}</span>
+                              <span className="text-[8px] text-slate-500 leading-normal block">{skill.desc}</span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-violet-400 font-mono">Engine Temperature</label>
+                      <span className="text-[10px] text-violet-400 font-mono font-bold bg-violet-500/10 px-2 py-0.5 rounded border border-violet-500/20">
+                        {selectedNode.config.customAgentTemperature ?? 0.3}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1.2"
+                      step="0.05"
+                      value={selectedNode.config.customAgentTemperature ?? 0.3}
+                      onChange={(e) => updateNodeConfig({ customAgentTemperature: parseFloat(e.target.value) })}
+                      className="w-full accent-violet-500 bg-[#030712] cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[8px] text-slate-500 font-mono">
+                      <span>Strict / Deterministic (0.0)</span>
+                      <span>Creative / Explorative (1.2)</span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-violet-500/10 border border-violet-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-violet-400 uppercase tracking-widest font-mono text-center">Autonomous Custom Agent Core</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed text-center">
+                      Allows orchestration of bespoke actions with high-fidelity tool integration, compiling results down to a single execution payload response.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.type === 'mcpClient' && (
+                <div className="space-y-4 font-sans">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-pink-400 font-mono">MCP Server Host Endpoints</label>
+                    <input
+                      type="text"
+                      value={selectedNode.config.mcpServerUrl || ''}
+                      onChange={(e) => updateNodeConfig({ mcpServerUrl: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500 font-mono"
+                      placeholder="e.g. http://localhost:4500/mcp"
+                    />
+                    <p className="text-[8px] text-slate-500 leading-normal">
+                      Specify the transport layer server address implementing the Model Context Protocol.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-pink-400 font-mono">MCP Protocol Method</label>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        { id: 'listTools', label: '🛠 List Tools' },
+                        { id: 'callTool', label: '🚀 Call Tool' },
+                        { id: 'listResources', label: '🗂 List Resources' },
+                        { id: 'readResource', label: '📖 Read Resource' }
+                      ].map(m => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => updateNodeConfig({ mcpMethod: m.id as any })}
+                          className={`py-1.5 px-2 rounded-md border text-[10px] font-semibold tracking-wide transition duration-150 text-center ${
+                            (selectedNode.config.mcpMethod || 'callTool') === m.id
+                              ? 'bg-pink-500/10 border-pink-500 text-pink-400 shadow-sm shadow-pink-500/5'
+                              : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {((selectedNode.config.mcpMethod || 'callTool') === 'callTool') && (
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-pink-400 font-mono">MCP Tool Name</label>
+                      <input
+                        type="text"
+                        value={selectedNode.config.mcpToolName || ''}
+                        onChange={(e) => updateNodeConfig({ mcpToolName: e.target.value })}
+                        className="w-full bg-[#030712] border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500 font-mono"
+                        placeholder="e.g. fetch_weather, query_db_schema"
+                      />
+                    </div>
+                  )}
+
+                  {((selectedNode.config.mcpMethod || 'callTool') === 'callTool' || (selectedNode.config.mcpMethod || 'callTool') === 'readResource') && (
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-pink-400 font-mono">Arguments / Context Parameters (JSON)</label>
+                      <textarea
+                        rows={4}
+                        value={selectedNode.config.mcpArguments || ''}
+                        onChange={(e) => updateNodeConfig({ mcpArguments: e.target.value })}
+                        className="w-full bg-[#030712] border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-pink-500 font-mono leading-relaxed"
+                        placeholder="e.g. {&#10;  &quot;table&quot;: &quot;users&quot;&#10;}"
+                      />
+                    </div>
+                  )}
+
+                  <div className="p-3 bg-pink-500/10 border border-pink-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-pink-400 uppercase tracking-widest font-mono text-center">MCP Protocol Core</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed text-center">
+                      Securely connects LLMs to custom sandboxed filesystems, database adapters, and remote orchestration APIs.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.type === 'ragEngine' && (
+                <div className="space-y-4 font-sans">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-cyan-400 font-mono">Knowledge Source Stack</label>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        { id: 'text', label: '📝 Plain Text Context' },
+                        { id: 'file', label: '📄 PDF/JSON File upload' },
+                        { id: 'url', label: '🌐 Scraping URL' },
+                        { id: 'vectorDb', label: '⚡ Live Pinecone Index' }
+                      ].map(src => (
+                        <button
+                          key={src.id}
+                          type="button"
+                          onClick={() => updateNodeConfig({ ragSourceType: src.id as any })}
+                          className={`py-1.5 px-2 rounded-md border text-[10px] font-semibold tracking-wide transition duration-150 text-center ${
+                            (selectedNode.config.ragSourceType || 'text') === src.id
+                              ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-sm shadow-cyan-500/5'
+                              : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          {src.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-cyan-400 font-mono">Vector Embeddings query</label>
+                    <input
+                      type="text"
+                      value={selectedNode.config.ragQuery || ''}
+                      onChange={(e) => updateNodeConfig({ ragQuery: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 font-mono"
+                      placeholder="e.g. Find customer refund escalation rules..."
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-cyan-400 font-mono">Vector Search Metric</label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[
+                        { id: 'cosine', label: 'Cosine Distance' },
+                        { id: 'dot', label: 'Inner Dot Prod' },
+                        { id: 'euclidean', label: 'L2 Euclidean' }
+                      ].map(met => (
+                        <button
+                          key={met.id}
+                          type="button"
+                          onClick={() => updateNodeConfig({ ragVectorSearchMetric: met.id as any })}
+                          className={`py-1 px-1.5 rounded-md border text-[9px] font-semibold tracking-wide transition duration-150 text-center ${
+                            (selectedNode.config.ragVectorSearchMetric || 'cosine') === met.id
+                              ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-sm'
+                              : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          {met.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-cyan-400 font-mono">Max Chunk Token Window</label>
+                      <span className="text-[10px] text-cyan-400 font-mono font-bold bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                        {selectedNode.config.ragChunkSize ?? 500} Tokens
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="100"
+                      max="2000"
+                      step="50"
+                      value={selectedNode.config.ragChunkSize ?? 500}
+                      onChange={(e) => updateNodeConfig({ ragChunkSize: parseInt(e.target.value) })}
+                      className="w-full accent-cyan-500 bg-[#030712] cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-cyan-400 font-mono">Documents & Corporate Knowledge Base</label>
+                    <textarea
+                      rows={5}
+                      value={selectedNode.config.ragKnowledgeBase || ''}
+                      onChange={(e) => updateNodeConfig({ ragKnowledgeBase: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 h-28 leading-relaxed font-mono"
+                      placeholder="e.g. Upload files, paste raw texts, or specify online scraping domains..."
+                    />
+                    <p className="text-[8px] text-slate-500 leading-normal">
+                      Values support moustache braces <code className="text-cyan-400 font-mono">{"{{input}}"}</code> to inject variables dynamically.
+                    </p>
+                  </div>
+
+                  <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest font-mono text-center">Semantic Index Sandbox</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed text-center">
+                      Generates vector embeddings, indexes document chunks, and retrieves the top-K relevant passages.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.type === 'modelTraining' && (
+                <div className="space-y-4 font-sans">
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-orange-400 font-mono">Fine-Tuning Base Model</label>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {[
+                        { id: 'gemini-3.5-flash', label: '♊ Gemini 3.5 Flash (LoRA)' },
+                        { id: 'gemma-2-9b', label: '✨ Gemma 2 9B (QLoRA)' },
+                        { id: 'llama-3.1-8b', label: '🦙 LLaMA 3.1 8B (PEFT)' },
+                        { id: 'mistral-7b', label: '🌪 Mistral 7B (Full FT)' }
+                      ].map(model => (
+                        <button
+                          key={model.id}
+                          type="button"
+                          onClick={() => updateNodeConfig({ trainingBaseModel: model.id })}
+                          className={`py-1.5 px-2 rounded-md border text-[10px] font-semibold tracking-wide transition duration-150 text-left ${
+                            (selectedNode.config.trainingBaseModel || 'gemini-3.5-flash') === model.id
+                              ? 'bg-orange-500/10 border-orange-500 text-orange-400 shadow-sm shadow-orange-500/5'
+                              : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          {model.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-orange-400 font-mono">Epochs</label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={selectedNode.config.trainingEpochs ?? 4}
+                        onChange={(e) => updateNodeConfig({ trainingEpochs: parseInt(e.target.value) || 1 })}
+                        className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-orange-500 font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-orange-400 font-mono">Batch Size</label>
+                      <select
+                        value={selectedNode.config.trainingBatchSize ?? 16}
+                        onChange={(e) => updateNodeConfig({ trainingBatchSize: parseInt(e.target.value) })}
+                        className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-orange-500 font-mono"
+                      >
+                        {[4, 8, 16, 32, 64].map(size => (
+                          <option key={size} value={size}>{size}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-orange-400 font-mono">Learning Rate</label>
+                      <input
+                        type="text"
+                        value={selectedNode.config.trainingLearningRate ?? 0.0001}
+                        onChange={(e) => updateNodeConfig({ trainingLearningRate: parseFloat(e.target.value) || 0.0001 })}
+                        className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-orange-500 font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[9px] font-bold uppercase tracking-widest text-orange-400 font-mono">Loss Metric</label>
+                      <select
+                        value={selectedNode.config.trainingLossFunction || 'cross_entropy'}
+                        onChange={(e) => updateNodeConfig({ trainingLossFunction: e.target.value as any })}
+                        className="w-full bg-[#030712] border border-white/10 rounded-lg p-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-orange-500 font-mono"
+                      >
+                        <option value="cross_entropy">Cross Entropy</option>
+                        <option value="mean_squared_error">Mean Squared Error</option>
+                        <option value="huber">Huber Loss</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-orange-400 font-mono">Optimizer Method</label>
+                    <div className="grid grid-cols-4 gap-1">
+                      {['adam', 'adamw', 'sgd', 'rmsprop'].map(opt => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => updateNodeConfig({ trainingOptimizer: opt as any })}
+                          className={`py-1 rounded border text-[9px] font-semibold tracking-wide transition duration-150 text-center ${
+                            (selectedNode.config.trainingOptimizer || 'adamw') === opt
+                              ? 'bg-orange-500/10 border-orange-500 text-orange-400 shadow-sm'
+                              : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white'
+                          }`}
+                        >
+                          {opt.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-bold uppercase tracking-widest text-orange-400 font-mono">Instruction Dataset (JSON Pairs)</label>
+                    <textarea
+                      rows={5}
+                      value={selectedNode.config.trainingPromptDataset || ''}
+                      onChange={(e) => updateNodeConfig({ trainingPromptDataset: e.target.value })}
+                      className="w-full bg-[#030712] border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-orange-500 h-32 leading-relaxed font-mono"
+                      placeholder="e.g. [ { 'prompt': '...', 'completion': '...' } ]"
+                    />
+                    <p className="text-[8px] text-slate-500 leading-normal">
+                      Provide a serialized list of prompt-response training pairs. Supports <code className="text-orange-400 font-mono">{"{{input}}"}</code> tags to auto-load payloads.
+                    </p>
+                  </div>
+
+                  <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg space-y-1">
+                    <h6 className="text-[10px] font-bold text-orange-400 uppercase tracking-widest font-mono text-center">Fine-Tuning Sandbox Core</h6>
+                    <p className="text-[9px] text-slate-400 leading-relaxed text-center">
+                      Configures the hyperparameter hyper-space, constructs synthetic loss landscapes, and logs optimization weights for LoRA adaptation.
                     </p>
                   </div>
                 </div>

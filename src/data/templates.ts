@@ -538,5 +538,265 @@ return {
         }
       ]
     }
+  },
+  {
+    id: 'custom_agent_research_pipeline',
+    name: 'Custom Skill Agent Synthesis Pipeline',
+    description: 'Deploys an autonomous custom skill agent configured with live web search, memory sync, and arithmetic calculators to build hyper-targeted corporate portfolios.',
+    workflow: {
+      name: 'Custom Agent Synthesis Workspace',
+      description: 'Dynamic multi-skill validation and automated intelligence pipeline.',
+      nodes: [
+        {
+          id: 'corp_trigger',
+          type: 'webhook',
+          name: 'Inbound Customer Account Profile',
+          category: 'trigger',
+          position: { x: 80, y: 160 },
+          config: {
+            payload: JSON.stringify({
+              customerName: "Sovereign Maritime Tracking",
+              headcount: 1420,
+              growthFactor: 1.22,
+              industry: "Maritime Supply Chains"
+            }, null, 2)
+          }
+        },
+        {
+          id: 'skill_agent_core',
+          type: 'customAgent',
+          name: 'Custom Market Analyst',
+          category: 'ai',
+          position: { x: 380, y: 140 },
+          config: {
+            customAgentInstructions: "Ingest client 'customerName' from maritime tracking. Run a live search on active industry parameters in 'industry', execute sandbox metrics computation based on 'headcount' * 'growthFactor' to yield a capacity score, sync historic memory logs, and deliver a formatted portfolio asset.",
+            customAgentModel: 'gemini-3.5-flash',
+            customAgentTemperature: 0.35,
+            customAgentSkills: ['search', 'calc', 'memory', 'formatter', 'translator']
+          }
+        },
+        {
+          id: 'skill_agent_logger',
+          type: 'outputLog',
+          name: 'Market Intelligence Terminal',
+          category: 'utility',
+          position: { x: 740, y: 160 },
+          config: {}
+        }
+      ],
+      connections: [
+        {
+          id: 'conn_ca1',
+          fromId: 'corp_trigger',
+          fromPort: 'output',
+          toId: 'skill_agent_core',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_ca2',
+          fromId: 'skill_agent_core',
+          fromPort: 'output',
+          toId: 'skill_agent_logger',
+          toPort: 'input'
+        }
+      ]
+    }
+  },
+  {
+    id: 'mcp_rag_compliance_engine',
+    name: 'MCP & RAG SLA Compliance Engine',
+    description: 'Autonomous support pipeline. Leverages vector semantic databases to fetch corporate response SLAs, executes MCP client tool protocols to fetch production DB schemas, and synthesizes accurate compliance audits.',
+    workflow: {
+      name: 'MCP & RAG Integration Workflow',
+      description: 'End-to-end grounded compliance pipeline.',
+      nodes: [
+        {
+          id: 'ticket_trigger',
+          type: 'webhook',
+          name: 'Inbound Customer Ticket',
+          category: 'trigger',
+          position: { x: 40, y: 160 },
+          config: {
+            payload: JSON.stringify({
+              customerName: "Hyperion Defense Systems",
+              priority: "high",
+              message: "Please audit our compliance with refund protocols. Also fetch active table structure for database validation."
+            }, null, 2)
+          }
+        },
+        {
+          id: 'rag_vector_index',
+          type: 'ragEngine',
+          name: 'Corporate SLA Search (RAG)',
+          category: 'ai',
+          position: { x: 300, y: 70 },
+          config: {
+            ragSourceType: 'text',
+            ragQuery: 'refund escalation SLA protocols',
+            ragChunkSize: 450,
+            ragVectorSearchMetric: 'cosine',
+            ragKnowledgeBase: 'SLA Escalations Guidelines:\n- Priority 1 (Severe): Refund within 2 hours of verification\n- Priority 2: Response within 24 hours\n- Escalation point contact: compliance-officer@sovereign.com'
+          }
+        },
+        {
+          id: 'mcp_db_connector',
+          type: 'mcpClient',
+          name: 'Production DB Schema (MCP)',
+          category: 'ai',
+          position: { x: 300, y: 260 },
+          config: {
+            mcpServerUrl: 'http://localhost:4500/mcp',
+            mcpMethod: 'callTool',
+            mcpToolName: 'query_db_schema',
+            mcpArguments: '{\n  "table": "users",\n  "columns": ["id", "email", "tier"]\n}'
+          }
+        },
+        {
+          id: 'compliance_synthesizer',
+          type: 'customAgent',
+          name: 'Grounded Audit Agent',
+          category: 'ai',
+          position: { x: 580, y: 160 },
+          config: {
+            customAgentInstructions: "We received ticket message: '{{ticket_trigger.message}}'.\n\nVerify compliance using retrieved RAG guidelines:\n{{rag_vector_index.retrievedContext}}\n\nCombine this with MCP schema results:\n{{mcp_db_connector.mcpResponse}}\n\nCompose a hyper-grounded corporate response draft addressing refund rules and the retrieved table schema.",
+            customAgentModel: 'gemini-3.5-flash',
+            customAgentTemperature: 0.25,
+            customAgentSkills: ['formatter', 'translator']
+          }
+        },
+        {
+          id: 'audit_terminal',
+          type: 'outputLog',
+          name: 'Archival Storage & Logs',
+          category: 'utility',
+          position: { x: 840, y: 170 },
+          config: {}
+        }
+      ],
+      connections: [
+        {
+          id: 'conn_r1',
+          fromId: 'ticket_trigger',
+          fromPort: 'output',
+          toId: 'rag_vector_index',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_r2',
+          fromId: 'ticket_trigger',
+          fromPort: 'output',
+          toId: 'mcp_db_connector',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_r3',
+          fromId: 'rag_vector_index',
+          fromPort: 'output',
+          toId: 'compliance_synthesizer',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_r4',
+          fromId: 'mcp_db_connector',
+          fromPort: 'output',
+          toId: 'compliance_synthesizer',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_r5',
+          fromId: 'compliance_synthesizer',
+          fromPort: 'output',
+          toId: 'audit_terminal',
+          toPort: 'input'
+        }
+      ]
+    }
+  },
+  {
+    id: 'model_fine_tuning_pipeline',
+    name: 'LoRA Adapter Fine-Tuning Pipeline',
+    description: 'Structure inbound feedback streams, format them as instruction pairs, and train a custom high-performance adapter using custom optimizers and epochs.',
+    workflow: {
+      name: 'Model Fine-Tuning & Evaluation Pipeline',
+      description: 'Continuous instruction tuning workflow.',
+      nodes: [
+        {
+          id: 'raw_inputs',
+          type: 'webhook',
+          name: 'Feedback Payload Stream',
+          category: 'trigger',
+          position: { x: 40, y: 180 },
+          config: {
+            payload: JSON.stringify({
+              issue: "Refund needed immediately! Your software lacks premium scaling.",
+              supportTier: "VIP Gold",
+              sentimentExpected: "NEGATIVE_CRITICAL"
+            }, null, 2)
+          }
+        },
+        {
+          id: 'cleaner_formatter',
+          type: 'jsCode',
+          name: 'Structure Training Pairs',
+          category: 'utility',
+          position: { x: 280, y: 180 },
+          config: {
+            code: 'const input = JSON.parse(context.raw_inputs || "{}");\nreturn [\n  {\n    "prompt": `Classification task: ${input.issue || ""}`,\n    "completion": `SENTIMENT: ${input.sentimentExpected || "UNKNOWN"}`\n  }\n];'
+          }
+        },
+        {
+          id: 'lora_tuner',
+          type: 'modelTraining',
+          name: 'LoRA Fine-Tuner',
+          category: 'utility',
+          position: { x: 520, y: 180 },
+          config: {
+            trainingBaseModel: 'gemini-3.5-flash',
+            trainingDatasetSize: 5000,
+            trainingEpochs: 6,
+            trainingLearningRate: 0.00025,
+            trainingBatchSize: 16,
+            trainingLossFunction: 'cross_entropy',
+            trainingOptimizer: 'adamw',
+            trainingPromptDataset: '{{\n  cleaner_formatter\n}}'
+          }
+        },
+        {
+          id: 'evaluator_report',
+          type: 'customAgent',
+          name: 'Adapter Audit Specialist',
+          category: 'utility',
+          position: { x: 760, y: 180 },
+          config: {
+            customAgentInstructions: "Verify the fine-tuning training output from lora_tuner:\n{{lora_tuner}}\n\nCompile a professional training completion summary detailing learning decay, weight checkpoint validation, and downstream inference parameters.",
+            customAgentModel: 'gemini-3.5-flash',
+            customAgentTemperature: 0.2
+          }
+        }
+      ],
+      connections: [
+        {
+          id: 'conn_ft1',
+          fromId: 'raw_inputs',
+          fromPort: 'output',
+          toId: 'cleaner_formatter',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_ft2',
+          fromId: 'cleaner_formatter',
+          fromPort: 'output',
+          toId: 'lora_tuner',
+          toPort: 'input'
+        },
+        {
+          id: 'conn_ft3',
+          fromId: 'lora_tuner',
+          fromPort: 'output',
+          toId: 'evaluator_report',
+          toPort: 'input'
+        }
+      ]
+    }
   }
 ];
