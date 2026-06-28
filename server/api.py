@@ -1,32 +1,55 @@
-"""FastAPI app wiring Copilot onto the OpenAI Chat Completions API."""
+"""FastAPI app wiring multiple providers onto the OpenAI Chat Completions API."""
 
-import threading
-import time
+import logging
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from copilot import CopilotClient
 from copilot.driver import ClearanceRequired
+from copilot.providers.copilot_provider import CopilotProvider
+from copilot.providers.ollama_provider import OllamaProvider
+from copilot.providers.openai_provider import OpenAIProvider
 
-from .config import MODEL_NAME, RATE_LIMIT_BURST, RATE_LIMIT_RPM
-from .openai_format import (
-    completion_response,
-    new_id,
-    sse_event,
-    stream_chunk,
-)
+from .config import MODEL_NAME, PROVIDER_PRIORITY, RATE_LIMIT_BURST, RATE_LIMIT_RPM
+from .openai_format import completion_response, new_id, sse_event, stream_chunk
 from .prompt import messages_to_prompt
 from .ratelimit import TokenBucket
+from .router import Router
 from .schemas import ChatCompletionRequest
 
 app = FastAPI(title="Copilot OpenAI-compatible API", version="1.0.0")
-# Server runs headless and must never pop a visible browser mid-request. With
-# both recovery passes disabled, an expired clearance surfaces immediately as a
-# 503 (see ClearanceRequired handling below) so an operator can re-clear out of
-# band (`python -m copilot login`). Headless auto-solve is intentionally off:
-# it's unreliable on low-trust egress and a failed pass can wedge the session.
-client = CopilotClient(interactive_clear=False, headless_clear=False)
+
+log = logging.getLogger(__name__)
+
+
+def _build_router() -> Router:
+    """Instantiate providers from env config and return a Router."""
+    registry = {
+        "copilot": lambda: CopilotProvider(interactive_clear=False, headless_clear=False),
+        "ollama": lambda: OllamaProvider(),
+        "openai": lambda: OpenAIProvider(),
+    }
+    providers = []
+    for name in PROVIDER_PRIORITY:
+        factory = registry.get(name)
+        if factory is None:
+            log.warning("Unknown provider %r in PROVIDER_PRIORITY; skipping", name)
+            continue
+        try:
+            p = factory()
+            if p.is_available():
+                providers.append(p)
+                log.info("Provider %s: available (%d models)", p.label, len(p.list_models()))
+            else:
+                log.info("Provider %s: not available (skipping)", p.label)
+        except Exception as exc:
+            log.warning("Provider %s failed to initialize: %s; skipping", name, exc)
+    if not providers:
+        log.warning("No providers available — server will reject all requests")
+    return Router(providers)
+
+
+router = _build_router()
 
 _CLEARANCE_HELP = (
     "Cloudflare clearance expired and could not be refreshed headlessly. "
@@ -34,13 +57,10 @@ _CLEARANCE_HELP = (
     "and pass the 'verify you're human' check, then retry."
 )
 
-# Self-imposed rate limit on top of the concurrency lock below: this caps
-# requests-per-minute, the lock caps requests-in-flight. See server/ratelimit.py.
 _rate_limiter = TokenBucket(RATE_LIMIT_RPM, RATE_LIMIT_BURST)
 
 
 def _rate_limited_response():
-    """Spend a token; return an OpenAI-shaped 429 if none left, else ``None``."""
     allowed, wait = _rate_limiter.try_acquire()
     if allowed:
         return None
@@ -49,65 +69,56 @@ def _rate_limited_response():
         status_code=429,
         headers={"Retry-After": str(secs)},
         content={"error": {
-            "message": (
-                f"Rate limit exceeded (>{RATE_LIMIT_RPM:g} req/min). "
-                f"Retry in {secs}s."
-            ),
+            "message": f"Rate limit exceeded (>{RATE_LIMIT_RPM:g} req/min). Retry in {secs}s.",
             "type": "rate_limit_error",
             "code": "rate_limit_exceeded",
         }},
     )
 
-# Copilot's per-account chat socket doesn't tolerate concurrent conversations
-# from one process (parallel requests error out or hang). This server bridges a
-# single signed-in account, so we serialize upstream calls: concurrent HTTP
-# requests queue here and run one at a time. Predictable, at the cost of
-# parallelism — fine for a personal bridge.
-_upstream_lock = threading.Lock()
-
 
 def _stream(prompt: str, model: str, conversation_id=None):
-    """Yield OpenAI ``chat.completion.chunk`` SSE events for ``prompt``.
-
-    ``conversation_id`` continues an existing Copilot thread; ``None`` starts a
-    fresh one (its id is emitted on the final chunk).
-    """
     cid = new_id()
-    created = int(time.time())
+    created = int(__import__("time").time())
     try:
-        with _upstream_lock:  # one upstream chat at a time (released on disconnect)
-            yield sse_event(stream_chunk(cid, created, model, {"role": "assistant"}))
-            stream = client.stream(prompt, conversation_id=conversation_id)
-            for piece in stream:
-                if isinstance(piece, str) and piece:
-                    yield sse_event(stream_chunk(cid, created, model, {"content": piece}))
-            # Copilot's conversation id is known once the stream has run; emit it
-            # on the final chunk so callers can track the upstream thread.
-            yield sse_event(
-                stream_chunk(
-                    cid, created, model, {}, finish="stop",
-                    conversation_id=stream.conversation_id,
-                )
-            )
+        yield from router.stream(prompt, model=model or MODEL_NAME, conversation_id=conversation_id)
     except ClearanceRequired:
         yield sse_event(
             stream_chunk(cid, created, model, {"content": f"\n[error: {_CLEARANCE_HELP}]"}, finish="error")
         )
-    except Exception as exc:  # surface errors to the client instead of hanging
+    except Exception as exc:
         yield sse_event(
             stream_chunk(cid, created, model, {"content": f"\n[error: {exc}]"}, finish="error")
         )
-    yield "data: [DONE]\n\n"
 
 
 @app.get("/v1/models")
 def list_models():
-    return {
-        "object": "list",
-        "data": [
-            {"id": MODEL_NAME, "object": "model", "created": 0, "owned_by": "microsoft"}
-        ],
-    }
+    return {"object": "list", "data": router.list_models()}
+
+
+@app.get("/v1/models/{model_id:path}")
+def get_model_id(model_id: str):
+    return {"id": model_id, "object": "model", "created": 0, "owned_by": "unknown"}
+
+
+@app.get("/api/v1/models")
+def list_api_models():
+    return {"object": "list", "data": router.list_models()}
+
+
+@app.get("/v1/probs")
+def get_problems():
+    return {"problems": []}
+
+
+@app.post("/api/show")
+def post_show():
+    return {"show": []}
+
+
+@app.get("/models")
+def get_models():
+    return {"object": "list", "data": router.list_models()}
 
 
 @app.post("/v1/chat/completions")
@@ -120,8 +131,6 @@ def chat_completions(req: ChatCompletionRequest):
         )
     model = req.model or MODEL_NAME
 
-    # Enforce the per-minute ceiling before touching the upstream lock, so excess
-    # callers get a fast 429 instead of piling up behind the serialized queue.
     limited = _rate_limited_response()
     if limited is not None:
         return limited
@@ -132,8 +141,7 @@ def chat_completions(req: ChatCompletionRequest):
         )
 
     try:
-        with _upstream_lock:  # serialize: one upstream chat at a time
-            reply = client.chat(prompt, conversation_id=req.conversation_id)
+        result = router.chat(prompt, model=model, conversation_id=req.conversation_id)
     except ClearanceRequired:
         return JSONResponse(
             status_code=503,
@@ -144,9 +152,14 @@ def chat_completions(req: ChatCompletionRequest):
             status_code=502,
             content={"error": {"message": str(exc), "type": "upstream_error"}},
         )
-    return completion_response(reply.text, model, reply.conversation_id)
+    return result
+
+
+@app.get("/version")
+def get_version():
+    return {"version": app.version}
 
 
 @app.get("/")
 def root():
-    return {"service": "Copilot OpenAI-compatible API", "endpoints": ["/v1/models", "/v1/chat/completions"]}
+    return {"service": "Copilot OpenAI-compatible API", "endpoints": ["/v1/models", "/v1/chat/completions", "/version"]}

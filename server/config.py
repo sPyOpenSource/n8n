@@ -13,3 +13,7 @@ MODEL_NAME = "copilot"
 # upstream 502s, so the limiter only bites when callers try to exceed that.
 RATE_LIMIT_RPM = float(os.environ.get("RATE_LIMIT_RPM", "12"))  # 12 rpm ≈ 5s per call
 RATE_LIMIT_BURST = int(os.environ.get("RATE_LIMIT_BURST", "4"))
+
+# Provider routing priority (comma-separated)
+PROVIDER_PRIORITY = [p.strip() for p in os.environ.get("PROVIDER_PRIORITY", "copilot,ollama,openai").split(",")]
+
