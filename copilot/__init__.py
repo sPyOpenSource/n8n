@@ -18,6 +18,8 @@ from .auth import load_auth
 from .browser import BrowserCopilot
 from .client import ChatReply, CopilotClient
 from .driver import ClearanceRequired, Copilot
+from .providers import AbstractProvider
+
 
 __all__ = [
     'CopilotClient',
@@ -26,4 +28,5 @@ __all__ = [
     'ClearanceRequired',
     'BrowserCopilot',
     'load_auth',
+    'AbstractProvider',
 ]
