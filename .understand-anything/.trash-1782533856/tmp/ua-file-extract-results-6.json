@@ -1,0 +1,238 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 4,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "MISSION.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 38,
+      "nonEmptyLines": 27,
+      "sections": [
+        {
+          "heading": "Windows Copilot API - OpenAI-Compatible Server",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Why Learn This?",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "What You'll Learn",
+          "level": 2,
+          "line": 16
+        },
+        {
+          "heading": "Primary Resources",
+          "level": 2,
+          "line": 24
+        },
+        {
+          "heading": "Learning Path",
+          "level": 2,
+          "line": 32
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 385,
+      "nonEmptyLines": 270,
+      "sections": [
+        {
+          "heading": "Windows Copilot API: a free LLM API powered by Microsoft Copilot",
+          "level": 1,
+          "line": 3
+        },
+        {
+          "heading": "Table of contents",
+          "level": 2,
+          "line": 20
+        },
+        {
+          "heading": "Why use this?",
+          "level": 2,
+          "line": 40
+        },
+        {
+          "heading": "Requirements",
+          "level": 2,
+          "line": 49
+        },
+        {
+          "heading": "Setup (2 minutes)",
+          "level": 2,
+          "line": 57
+        },
+        {
+          "heading": "Run with Docker (optional)",
+          "level": 2,
+          "line": 102
+        },
+        {
+          "heading": "Usage 1: In Python (no server)",
+          "level": 2,
+          "line": 122
+        },
+        {
+          "heading": "Usage 2: As an OpenAI-compatible server",
+          "level": 2,
+          "line": 150
+        },
+        {
+          "heading": "Command line",
+          "level": 2,
+          "line": 194
+        },
+        {
+          "heading": "Cloudflare clearance (automatic)",
+          "level": 2,
+          "line": 203
+        },
+        {
+          "heading": "Concurrency & stress test",
+          "level": 2,
+          "line": 227
+        },
+        {
+          "heading": "Rate limiting",
+          "level": 2,
+          "line": 268
+        },
+        {
+          "heading": "Project layout",
+          "level": 2,
+          "line": 301
+        },
+        {
+          "heading": "Notes & limitations",
+          "level": 2,
+          "line": 313
+        },
+        {
+          "heading": "Troubleshooting",
+          "level": 2,
+          "line": 323
+        },
+        {
+          "heading": "Collaboration & support",
+          "level": 2,
+          "line": 359
+        },
+        {
+          "heading": "License",
+          "level": 2,
+          "line": 371
+        },
+        {
+          "heading": "Star History",
+          "level": 2,
+          "line": 377
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 18
+      }
+    },
+    {
+      "path": "RESOURCES.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 69,
+      "nonEmptyLines": 54,
+      "sections": [
+        {
+          "heading": "Windows Copilot API - Resources",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Official Documentation",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "Code Documentation",
+          "level": 2,
+          "line": 13
+        },
+        {
+          "heading": "Server Implementation",
+          "level": 3,
+          "line": 15
+        },
+        {
+          "heading": "Core Library",
+          "level": 3,
+          "line": 22
+        },
+        {
+          "heading": "Usage & Examples",
+          "level": 3,
+          "line": 28
+        },
+        {
+          "heading": "Testing & Diagnostics",
+          "level": 2,
+          "line": 37
+        },
+        {
+          "heading": "Community & Support",
+          "level": 2,
+          "line": 42
+        },
+        {
+          "heading": "Learning Best Practices",
+          "level": 2,
+          "line": 47
+        },
+        {
+          "heading": "Architecture Understanding",
+          "level": 3,
+          "line": 49
+        },
+        {
+          "heading": "Code Structure",
+          "level": 3,
+          "line": 55
+        },
+        {
+          "heading": "Related Learning Paths",
+          "level": 2,
+          "line": 61
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 12
+      }
+    },
+    {
+      "path": "requirements.txt",
+      "language": "txt",
+      "fileCategory": "docs",
+      "totalLines": 4,
+      "nonEmptyLines": 4,
+      "metrics": {}
+    }
+  ]
+}

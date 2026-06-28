@@ -1,0 +1,1 @@
+{"object":"list","data":[{"id":"copilot","object":"model","created":0,"owned_by":"microsoft"},{"id":"hf.co/deepreinforce-ai/Ornith-1.0-9B-GGUF:latest","object":"model","created":0,"owned_by":"ollama"},{"id":"llama3.2:1b","object":"model","created":0,"owned_by":"ollama"}]}

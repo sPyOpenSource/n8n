@@ -1,0 +1,32 @@
+{
+  "issues": [],
+  "warnings": [
+    "Node 'file:.understand-anything/.understandignore' has no edges (orphan)",
+    "Node 'file:lessons/0001-introduction-to-openai-compatible-servers' has no edges (orphan)"
+  ],
+  "stats": {
+    "totalNodes": 105,
+    "totalEdges": 173,
+    "totalLayers": 6,
+    "tourSteps": 10,
+    "nodeTypes": {
+      "file": 34,
+      "function": 48,
+      "class": 14,
+      "service": 4,
+      "document": 5
+    },
+    "edgeTypes": {
+      "imports": 28,
+      "contains": 63,
+      "exports": 62,
+      "inherits": 1,
+      "calls": 7,
+      "tested_by": 1,
+      "depends_on": 1,
+      "configures": 1,
+      "documents": 7,
+      "related": 2
+    }
+  }
+}

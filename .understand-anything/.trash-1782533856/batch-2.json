@@ -1,0 +1,507 @@
+{
+  "nodes": [
+    {
+      "id": "file:copilot/challenges.py",
+      "type": "file",
+      "name": "challenges.py",
+      "filePath": "copilot/challenges.py",
+      "summary": "Proof-of-work challenge solvers for Copilot's chat WebSocket, implementing hashcash and arithmetic copilot variants that mirror copilot.microsoft.com's own client.",
+      "tags": ["utility", "challenge-solver", "proof-of-work"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:copilot/challenges.py:_hashcash_ok",
+      "type": "function",
+      "name": "_hashcash_ok",
+      "filePath": "copilot/challenges.py",
+      "lineRange": [12, 22],
+      "summary": "Checks whether a SHA-256 digest has at least a given number of leading zero bits for hashcash proof-of-work validation.",
+      "tags": ["utility", "validation", "cryptographic"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:copilot/challenges.py:solve_hashcash",
+      "type": "function",
+      "name": "solve_hashcash",
+      "filePath": "copilot/challenges.py",
+      "lineRange": [25, 38],
+      "summary": "Solves a hashcash challenge by finding the smallest nonce whose SHA-256 digest has the required leading zero bits.",
+      "tags": ["utility", "challenge-solver", "proof-of-work"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:copilot/challenges.py:solve_copilot_challenge",
+      "type": "function",
+      "name": "solve_copilot_challenge",
+      "filePath": "copilot/challenges.py",
+      "lineRange": [41, 44],
+      "summary": "Solves the arithmetic copilot challenge by computing floor((a^3/100 + a*25) mod 22) rounded to nearest integer.",
+      "tags": ["utility", "challenge-solver", "arithmetic"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:copilot/client.py",
+      "type": "file",
+      "name": "client.py",
+      "filePath": "copilot/client.py",
+      "summary": "High-level Copilot client providing chat and stream methods with transparent auth refresh, Cloudflare clearance recovery via browser, and anonymous mode support.",
+      "tags": ["client", "api-wrapper", "entry-point"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:copilot/client.py:_status",
+      "type": "function",
+      "name": "_status",
+      "filePath": "copilot/client.py",
+      "lineRange": [36, 42],
+      "summary": "Emits a progress or recovery message to stderr so it never mixes into reply text on stdout.",
+      "tags": ["utility", "logging"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:copilot/client.py:ChatReply",
+      "type": "class",
+      "name": "ChatReply",
+      "filePath": "copilot/client.py",
+      "lineRange": [46, 51],
+      "summary": "Dataclass holding the full result of a chat call, including text, conversation id, and any generated images.",
+      "tags": ["data-model", "response", "container"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:copilot/client.py:ChatStream",
+      "type": "class",
+      "name": "ChatStream",
+      "filePath": "copilot/client.py",
+      "lineRange": [54, 72],
+      "summary": "Iterable stream of reply chunks that also exposes the conversation id, yielding text and ImageResponse items.",
+      "tags": ["stream", "iterable", "response"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:copilot/client.py:CopilotClient",
+      "type": "class",
+      "name": "CopilotClient",
+      "filePath": "copilot/client.py",
+      "lineRange": [75, 247],
+      "summary": "Main Copilot client managing signed-in auth, Cloudflare clearance recovery, and chat/stream interactions across multiple conversations.",
+      "tags": ["client", "entry-point", "api-wrapper", "session-management"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:copilot/driver.py",
+      "type": "file",
+      "name": "driver.py",
+      "filePath": "copilot/driver.py",
+      "summary": "Pure-HTTP Copilot driver implementing Microsoft's consumer chat protocol over a Cloudflare-impersonating curl_cffi session with WebSocket streaming and in-process challenge solving.",
+      "tags": ["driver", "websocket", "protocol", "http-client"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:copilot/driver.py:ClearanceRequired",
+      "type": "class",
+      "name": "ClearanceRequired",
+      "filePath": "copilot/driver.py",
+      "lineRange": [31, 42],
+      "summary": "Exception raised when the chat socket demands a Cloudflare Turnstile token that cannot be minted in a pure-HTTP session.",
+      "tags": ["exception", "error-handling", "cloudflare"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:copilot/driver.py:Copilot",
+      "type": "class",
+      "name": "Copilot",
+      "filePath": "copilot/driver.py",
+      "lineRange": [45, 308],
+      "summary": "Concrete Copilot provider implementing chat protocol over curl_cffi with conversation creation, attachment upload, WebSocket handshake, and streaming response parsing.",
+      "tags": ["driver", "provider", "websocket", "protocol"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:copilot/models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "copilot/models.py",
+      "summary": "Shared data types including ImageResponse, AbstractProvider base class, and Conversation container used across both the pure-HTTP and browser driver paths.",
+      "tags": ["data-model", "type-definition", "shared"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:copilot/models.py:ImageResponse",
+      "type": "class",
+      "name": "ImageResponse",
+      "filePath": "copilot/models.py",
+      "lineRange": [18, 21],
+      "summary": "Dataclass holding a generated image's URL, prompt, and associated metadata.",
+      "tags": ["data-model", "image", "response"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:copilot/models.py:AbstractProvider",
+      "type": "class",
+      "name": "AbstractProvider",
+      "filePath": "copilot/models.py",
+      "lineRange": [24, 34],
+      "summary": "Abstract base class defining the provider interface with label, url, streaming support, and an abstract create_completion method.",
+      "tags": ["abstract", "base-class", "interface"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:copilot/models.py:Conversation",
+      "type": "class",
+      "name": "Conversation",
+      "filePath": "copilot/models.py",
+      "lineRange": [37, 56],
+      "summary": "Thread-safe conversation container holding conversation id, cookie jar, access token, and providing cookie dictionary access.",
+      "tags": ["data-model", "conversation", "session", "thread-safe"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:copilot/protocol.py",
+      "type": "file",
+      "name": "protocol.py",
+      "filePath": "copilot/protocol.py",
+      "summary": "Shared Microsoft Copilot chat-protocol constants including WebSocket URL, setOptions handshake frame, and consents frame captured from a live session.",
+      "tags": ["protocol", "constants", "configuration"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:copilot/utils.py",
+      "type": "file",
+      "name": "utils.py",
+      "filePath": "copilot/utils.py",
+      "summary": "Low-level protocol and I/O helpers including HTTP status checking, WebSocket frame reassembly via JSON draining, and image encoding utilities.",
+      "tags": ["utility", "helpers", "io"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:copilot/utils.py:raise_for_status",
+      "type": "function",
+      "name": "raise_for_status",
+      "filePath": "copilot/utils.py",
+      "lineRange": [13, 16],
+      "summary": "Raises an exception if the HTTP response status code indicates a client or server error.",
+      "tags": ["utility", "http", "error-handling"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:copilot/utils.py:drain_json",
+      "type": "function",
+      "name": "drain_json",
+      "filePath": "copilot/utils.py",
+      "lineRange": [22, 42],
+      "summary": "Greedily parses all complete JSON objects from a byte buffer, returning the parsed objects and any trailing partial data for reassembly.",
+      "tags": ["utility", "json", "parsing", "websocket"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:copilot/utils.py:to_bytes",
+      "type": "function",
+      "name": "to_bytes",
+      "filePath": "copilot/utils.py",
+      "lineRange": [45, 50],
+      "summary": "Converts an image file path or raw bytes into bytes for upload.",
+      "tags": ["utility", "io", "image"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:copilot/utils.py:is_accepted_format",
+      "type": "function",
+      "name": "is_accepted_format",
+      "filePath": "copilot/utils.py",
+      "lineRange": [53, 59],
+      "summary": "Determines the MIME type of image data by checking magic bytes for PNG or JPEG, defaulting to octet-stream.",
+      "tags": ["utility", "mime", "image"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:copilot/client.py",
+      "target": "file:copilot/auth.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/client.py",
+      "target": "file:copilot/driver.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/client.py",
+      "target": "file:copilot/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/driver.py",
+      "target": "file:copilot/challenges.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/driver.py",
+      "target": "file:copilot/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/driver.py",
+      "target": "file:copilot/protocol.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/driver.py",
+      "target": "file:copilot/utils.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/utils.py",
+      "target": "file:copilot/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/challenges.py",
+      "target": "function:copilot/challenges.py:_hashcash_ok",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/challenges.py",
+      "target": "function:copilot/challenges.py:solve_hashcash",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/challenges.py",
+      "target": "function:copilot/challenges.py:solve_copilot_challenge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/client.py",
+      "target": "function:copilot/client.py:_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/client.py",
+      "target": "class:copilot/client.py:ChatReply",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/client.py",
+      "target": "class:copilot/client.py:ChatStream",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/client.py",
+      "target": "class:copilot/client.py:CopilotClient",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/driver.py",
+      "target": "class:copilot/driver.py:ClearanceRequired",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/driver.py",
+      "target": "class:copilot/driver.py:Copilot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/models.py",
+      "target": "class:copilot/models.py:ImageResponse",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/models.py",
+      "target": "class:copilot/models.py:AbstractProvider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/models.py",
+      "target": "class:copilot/models.py:Conversation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/utils.py",
+      "target": "function:copilot/utils.py:raise_for_status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/utils.py",
+      "target": "function:copilot/utils.py:drain_json",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/utils.py",
+      "target": "function:copilot/utils.py:to_bytes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/utils.py",
+      "target": "function:copilot/utils.py:is_accepted_format",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/challenges.py",
+      "target": "function:copilot/challenges.py:_hashcash_ok",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/challenges.py",
+      "target": "function:copilot/challenges.py:solve_hashcash",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/challenges.py",
+      "target": "function:copilot/challenges.py:solve_copilot_challenge",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/client.py",
+      "target": "function:copilot/client.py:_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/client.py",
+      "target": "class:copilot/client.py:ChatReply",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/client.py",
+      "target": "class:copilot/client.py:ChatStream",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/client.py",
+      "target": "class:copilot/client.py:CopilotClient",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/driver.py",
+      "target": "class:copilot/driver.py:ClearanceRequired",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/driver.py",
+      "target": "class:copilot/driver.py:Copilot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/models.py",
+      "target": "class:copilot/models.py:ImageResponse",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/models.py",
+      "target": "class:copilot/models.py:AbstractProvider",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/models.py",
+      "target": "class:copilot/models.py:Conversation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/utils.py",
+      "target": "function:copilot/utils.py:raise_for_status",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/utils.py",
+      "target": "function:copilot/utils.py:drain_json",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/utils.py",
+      "target": "function:copilot/utils.py:to_bytes",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/utils.py",
+      "target": "function:copilot/utils.py:is_accepted_format",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:copilot/driver.py:Copilot",
+      "target": "class:copilot/models.py:AbstractProvider",
+      "type": "inherits",
+      "direction": "forward",
+      "weight": 0.9
+    }
+  ]
+}

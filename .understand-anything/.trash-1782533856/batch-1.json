@@ -1,0 +1,166 @@
+{
+  "nodes": [
+    {
+      "id": "file:copilot/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "copilot/__init__.py",
+      "summary": "Package init that re-exports the public API classes (CopilotClient, ChatReply, Copilot, ClearanceRequired, BrowserCopilot, load_auth) from the copilot submodules.",
+      "tags": ["entry-point", "barrel", "exports"],
+      "complexity": "simple",
+      "languageNotes": "Python package barrel file; imports and re-exports are the only contents."
+    },
+    {
+      "id": "file:copilot/auth.py",
+      "type": "file",
+      "name": "auth.py",
+      "filePath": "copilot/auth.py",
+      "summary": "Manages signed-in session caching for the pure-HTTP path, loading and refreshing cookies and MSAL access tokens from a browser profile or cached snapshot.",
+      "tags": ["authentication", "session-management", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:copilot/auth.py:load_auth",
+      "type": "function",
+      "name": "load_auth",
+      "filePath": "copilot/auth.py",
+      "lineRange": [21, 86],
+      "summary": "Returns signed-in cookies and access token from cache or by launching a headless/visible browser session to refresh them.",
+      "tags": ["authentication", "session-management", "caching"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:copilot/browser.py",
+      "type": "file",
+      "name": "browser.py",
+      "filePath": "copilot/browser.py",
+      "summary": "Drives Playwright for Copilot sign-in, Cloudflare Turnstile clearance, and chat token capture, enabling headless session refresh for the pure-HTTP driver.",
+      "tags": ["browser-automation", "authentication", "playwright", "web-scraping"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:copilot/browser.py:BrowserCopilot",
+      "type": "class",
+      "name": "BrowserCopilot",
+      "filePath": "copilot/browser.py",
+      "lineRange": [127, 792],
+      "summary": "Launches a persistent Playwright Chromium profile to handle interactive sign-in, headless chat token capture via WebSocket, and Cloudflare Turnstile bypass for the Copilot session.",
+      "tags": ["browser-automation", "authentication", "playwright"],
+      "complexity": "complex",
+      "languageNotes": "28 methods; uses Playwright sync API with persistent context for session reuse across runs."
+    },
+    {
+      "id": "file:examples/01_direct_chat.py",
+      "type": "file",
+      "name": "01_direct_chat.py",
+      "filePath": "examples/01_direct_chat.py",
+      "summary": "Demonstrates the simplest in-process chat usage of CopilotClient with a single non-streaming reply.",
+      "tags": ["example", "demonstration", "usage"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:examples/02_direct_conversation.py",
+      "type": "file",
+      "name": "02_direct_conversation.py",
+      "filePath": "examples/02_direct_conversation.py",
+      "summary": "Demonstrates multi-turn conversation by reusing conversation_id to continue a Copilot chat session.",
+      "tags": ["example", "demonstration", "conversation"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:examples/03_direct_stream.py",
+      "type": "file",
+      "name": "03_direct_stream.py",
+      "filePath": "examples/03_direct_stream.py",
+      "summary": "Demonstrates streaming Copilot chat responses incrementally as they are generated.",
+      "tags": ["example", "demonstration", "streaming"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:copilot/__init__.py",
+      "target": "file:copilot/auth.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/__init__.py",
+      "target": "file:copilot/browser.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/__init__.py",
+      "target": "file:copilot/client.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/__init__.py",
+      "target": "file:copilot/driver.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/auth.py",
+      "target": "function:copilot/auth.py:load_auth",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/auth.py",
+      "target": "function:copilot/auth.py:load_auth",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:copilot/browser.py",
+      "target": "file:copilot/auth.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:copilot/browser.py",
+      "target": "class:copilot/browser.py:BrowserCopilot",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/browser.py",
+      "target": "class:copilot/browser.py:BrowserCopilot",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:examples/01_direct_chat.py",
+      "target": "file:copilot/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:examples/02_direct_conversation.py",
+      "target": "file:copilot/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:examples/03_direct_stream.py",
+      "target": "file:copilot/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

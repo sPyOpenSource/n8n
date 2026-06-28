@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "service:.dockerignore",
+      "type": "service",
+      "name": ".dockerignore",
+      "filePath": ".dockerignore",
+      "summary": "Excludes local development artifacts (caches, venvs, session secrets, tests) from the Docker build context to keep the image lean and avoid leaking credentials.",
+      "tags": ["containerization", "infrastructure", "build-system"],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:docker-compose.yml",
+      "type": "service",
+      "name": "docker-compose.yml",
+      "filePath": "docker-compose.yml",
+      "summary": "Defines the copilot-api service with port mapping, environment variables for rate limiting (RATE_LIMIT_RPM, RATE_LIMIT_BURST), and a bind-mounted session volume for persistent browser profile storage.",
+      "tags": ["orchestration", "infrastructure", "deployment"],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "filePath": "Dockerfile",
+      "summary": "Single-stage Docker image based on Playwright Python that installs dependencies, copies the application, and serves the Copilot API on port 8000.",
+      "tags": ["containerization", "infrastructure", "deployment"],
+      "complexity": "simple",
+      "languageNotes": "Uses the official mcr.microsoft.com/playwright/python base image which ships Chromium preinstalled for headless browser automation."
+    },
+    {
+      "id": "service:Dockerfile:python",
+      "type": "service",
+      "name": "python",
+      "filePath": "Dockerfile",
+      "lineRange": [3, 20],
+      "summary": "Build stage from the Playwright Python image that installs requirements, copies all source code, and runs app.py as the container entry point.",
+      "tags": ["containerization", "build-stage", "python"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "service:Dockerfile",
+      "target": "service:Dockerfile:python",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "service:Dockerfile",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "service:.dockerignore",
+      "target": "service:Dockerfile",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ]
+}

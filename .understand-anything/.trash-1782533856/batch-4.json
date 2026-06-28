@@ -1,0 +1,116 @@
+{
+  "nodes": [
+    {
+      "id": "file:app.py",
+      "type": "file",
+      "name": "app.py",
+      "filePath": "app.py",
+      "summary": "Entry point script that imports and invokes the server app function to start the OpenAI-compatible Copilot API server.",
+      "tags": ["entry-point", "server", "python-script"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "server/__init__.py",
+      "summary": "Package entry point that exposes the app() function for starting the Copilot API server with uvicorn integration and auth session management.",
+      "tags": ["entry-point", "server", "api-handler", "startup"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/__init__.py:app",
+      "type": "function",
+      "name": "app",
+      "filePath": "server/__init__.py",
+      "lineRange": [27, 51],
+      "summary": "Starts the uvicorn server with configurable host/port, ensuring a Copilot auth session exists before serving requests.",
+      "tags": ["startup", "server", "entry-point"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/test_server.py",
+      "type": "file",
+      "name": "test_server.py",
+      "filePath": "tests/test_server.py",
+      "summary": "Unit tests for server startup configuration covering default host/port, environment variable overrides, and explicit address precedence.",
+      "tags": ["test", "server", "configuration", "unittest"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/test_server.py:ServerStartupTests",
+      "type": "class",
+      "name": "ServerStartupTests",
+      "filePath": "tests/test_server.py",
+      "lineRange": [10, 36],
+      "summary": "Test case with three methods verifying the app function uses correct default, env-based, and explicit host/port values when starting the server.",
+      "tags": ["test", "server", "unittest", "configuration"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:app.py",
+      "target": "file:server/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/__init__.py",
+      "target": "file:server/api.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/test_server.py",
+      "target": "file:server/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/__init__.py",
+      "target": "function:server/__init__.py:app",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/test_server.py",
+      "target": "class:tests/test_server.py:ServerStartupTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/__init__.py",
+      "target": "function:server/__init__.py:app",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/test_server.py",
+      "target": "class:tests/test_server.py:ServerStartupTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/__init__.py",
+      "target": "file:tests/test_server.py",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "class:tests/test_server.py:ServerStartupTests",
+      "target": "function:server/__init__.py:app",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

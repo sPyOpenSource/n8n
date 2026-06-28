@@ -1,0 +1,19 @@
+{
+  "projectRoot": "/Users/xuyi/Source/Python/Windows-Copilot-API",
+  "batchFiles": [
+    {"path": "copilot/challenges.py", "language": "python", "sizeLines": 44, "fileCategory": "code"},
+    {"path": "copilot/client.py", "language": "python", "sizeLines": 247, "fileCategory": "code"},
+    {"path": "copilot/driver.py", "language": "python", "sizeLines": 308, "fileCategory": "code"},
+    {"path": "copilot/models.py", "language": "python", "sizeLines": 56, "fileCategory": "code"},
+    {"path": "copilot/protocol.py", "language": "python", "sizeLines": 61, "fileCategory": "code"},
+    {"path": "copilot/utils.py", "language": "python", "sizeLines": 59, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "copilot/challenges.py": [],
+    "copilot/client.py": ["copilot/auth.py", "copilot/driver.py", "copilot/models.py"],
+    "copilot/driver.py": ["copilot/challenges.py", "copilot/models.py", "copilot/protocol.py", "copilot/utils.py"],
+    "copilot/models.py": [],
+    "copilot/protocol.py": [],
+    "copilot/utils.py": ["copilot/models.py"]
+  }
+}

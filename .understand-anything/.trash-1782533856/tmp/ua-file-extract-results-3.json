@@ -1,0 +1,679 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "server/api.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 201,
+      "nonEmptyLines": 173,
+      "functions": [
+        {
+          "name": "_rate_limited_response",
+          "startLine": 42,
+          "endLine": 59,
+          "params": []
+        },
+        {
+          "name": "_stream",
+          "startLine": 69,
+          "endLine": 100,
+          "params": [
+            "prompt",
+            "model",
+            "conversation_id"
+          ]
+        },
+        {
+          "name": "list_models",
+          "startLine": 104,
+          "endLine": 115,
+          "params": []
+        },
+        {
+          "name": "get_model_id",
+          "startLine": 118,
+          "endLine": 124,
+          "params": [
+            "model_id"
+          ]
+        },
+        {
+          "name": "list_api_models",
+          "startLine": 127,
+          "endLine": 138,
+          "params": []
+        },
+        {
+          "name": "get_problems",
+          "startLine": 141,
+          "endLine": 142,
+          "params": []
+        },
+        {
+          "name": "post_show",
+          "startLine": 145,
+          "endLine": 146,
+          "params": []
+        },
+        {
+          "name": "list_models",
+          "startLine": 149,
+          "endLine": 155,
+          "params": []
+        },
+        {
+          "name": "chat_completions",
+          "startLine": 158,
+          "endLine": 191,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "get_version",
+          "startLine": 195,
+          "endLine": 196,
+          "params": []
+        },
+        {
+          "name": "root",
+          "startLine": 200,
+          "endLine": 201,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "_rate_limited_response",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "_stream",
+          "line": 69,
+          "isDefault": false
+        },
+        {
+          "name": "list_models",
+          "line": 103,
+          "isDefault": false
+        },
+        {
+          "name": "get_model_id",
+          "line": 117,
+          "isDefault": false
+        },
+        {
+          "name": "list_api_models",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "get_problems",
+          "line": 140,
+          "isDefault": false
+        },
+        {
+          "name": "post_show",
+          "line": 144,
+          "isDefault": false
+        },
+        {
+          "name": "list_models",
+          "line": 148,
+          "isDefault": false
+        },
+        {
+          "name": "chat_completions",
+          "line": 157,
+          "isDefault": false
+        },
+        {
+          "name": "get_version",
+          "line": 194,
+          "isDefault": false
+        },
+        {
+          "name": "root",
+          "line": 199,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_rate_limited_response",
+          "callee": "_rate_limiter.try_acquire",
+          "lineNumber": 44
+        },
+        {
+          "caller": "_rate_limited_response",
+          "callee": "max",
+          "lineNumber": 47
+        },
+        {
+          "caller": "_rate_limited_response",
+          "callee": "round",
+          "lineNumber": 47
+        },
+        {
+          "caller": "_rate_limited_response",
+          "callee": "JSONResponse",
+          "lineNumber": 48
+        },
+        {
+          "caller": "_rate_limited_response",
+          "callee": "str",
+          "lineNumber": 50
+        },
+        {
+          "caller": "_stream",
+          "callee": "new_id",
+          "lineNumber": 75
+        },
+        {
+          "caller": "_stream",
+          "callee": "int",
+          "lineNumber": 76
+        },
+        {
+          "caller": "_stream",
+          "callee": "time.time",
+          "lineNumber": 76
+        },
+        {
+          "caller": "_stream",
+          "callee": "sse_event",
+          "lineNumber": 79
+        },
+        {
+          "caller": "_stream",
+          "callee": "stream_chunk",
+          "lineNumber": 79
+        },
+        {
+          "caller": "_stream",
+          "callee": "client.stream",
+          "lineNumber": 80
+        },
+        {
+          "caller": "_stream",
+          "callee": "isinstance",
+          "lineNumber": 82
+        },
+        {
+          "caller": "_stream",
+          "callee": "sse_event",
+          "lineNumber": 83
+        },
+        {
+          "caller": "_stream",
+          "callee": "stream_chunk",
+          "lineNumber": 83
+        },
+        {
+          "caller": "_stream",
+          "callee": "sse_event",
+          "lineNumber": 86
+        },
+        {
+          "caller": "_stream",
+          "callee": "stream_chunk",
+          "lineNumber": 87
+        },
+        {
+          "caller": "_stream",
+          "callee": "sse_event",
+          "lineNumber": 93
+        },
+        {
+          "caller": "_stream",
+          "callee": "stream_chunk",
+          "lineNumber": 94
+        },
+        {
+          "caller": "_stream",
+          "callee": "sse_event",
+          "lineNumber": 97
+        },
+        {
+          "caller": "_stream",
+          "callee": "stream_chunk",
+          "lineNumber": 98
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "messages_to_prompt",
+          "lineNumber": 159
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "prompt.strip",
+          "lineNumber": 160
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "JSONResponse",
+          "lineNumber": 161
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "_rate_limited_response",
+          "lineNumber": 169
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "StreamingResponse",
+          "lineNumber": 174
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "_stream",
+          "lineNumber": 175
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "client.chat",
+          "lineNumber": 180
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "JSONResponse",
+          "lineNumber": 182
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "JSONResponse",
+          "lineNumber": 187
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "str",
+          "lineNumber": 189
+        },
+        {
+          "caller": "chat_completions",
+          "callee": "completion_response",
+          "lineNumber": 191
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 11,
+        "functionCount": 11,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "server/config.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 15,
+      "nonEmptyLines": 12,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "server/openai_format.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 60,
+      "nonEmptyLines": 49,
+      "functions": [
+        {
+          "name": "new_id",
+          "startLine": 8,
+          "endLine": 10,
+          "params": []
+        },
+        {
+          "name": "completion_response",
+          "startLine": 13,
+          "endLine": 34,
+          "params": [
+            "text",
+            "model",
+            "conversation_id"
+          ]
+        },
+        {
+          "name": "sse_event",
+          "startLine": 37,
+          "endLine": 39,
+          "params": [
+            "payload"
+          ]
+        },
+        {
+          "name": "stream_chunk",
+          "startLine": 42,
+          "endLine": 60,
+          "params": [
+            "cid",
+            "created",
+            "model",
+            "delta",
+            "finish",
+            "conversation_id"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "new_id",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "completion_response",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "sse_event",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "stream_chunk",
+          "line": 42,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "new_id",
+          "callee": "uuid.uuid4",
+          "lineNumber": 10
+        },
+        {
+          "caller": "completion_response",
+          "callee": "new_id",
+          "lineNumber": 21
+        },
+        {
+          "caller": "completion_response",
+          "callee": "int",
+          "lineNumber": 23
+        },
+        {
+          "caller": "completion_response",
+          "callee": "time.time",
+          "lineNumber": 23
+        },
+        {
+          "caller": "sse_event",
+          "callee": "json.dumps",
+          "lineNumber": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "server/prompt.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 47,
+      "nonEmptyLines": 38,
+      "functions": [
+        {
+          "name": "content_text",
+          "startLine": 12,
+          "endLine": 25,
+          "params": [
+            "content"
+          ]
+        },
+        {
+          "name": "messages_to_prompt",
+          "startLine": 28,
+          "endLine": 47,
+          "params": [
+            "messages"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "content_text",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "messages_to_prompt",
+          "line": 28,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "content_text",
+          "callee": "isinstance",
+          "lineNumber": 16
+        },
+        {
+          "caller": "content_text",
+          "callee": "isinstance",
+          "lineNumber": 20
+        },
+        {
+          "caller": "content_text",
+          "callee": "part.get",
+          "lineNumber": 21
+        },
+        {
+          "caller": "content_text",
+          "callee": "parts.append",
+          "lineNumber": 22
+        },
+        {
+          "caller": "content_text",
+          "callee": "part.get",
+          "lineNumber": 22
+        },
+        {
+          "caller": "content_text",
+          "callee": "parts.append",
+          "lineNumber": 24
+        },
+        {
+          "caller": "content_text",
+          "callee": "str",
+          "lineNumber": 24
+        },
+        {
+          "caller": "content_text",
+          "callee": "\"\\n\".join",
+          "lineNumber": 25
+        },
+        {
+          "caller": "messages_to_prompt",
+          "callee": "\"\\n\\n\".join",
+          "lineNumber": 30
+        },
+        {
+          "caller": "messages_to_prompt",
+          "callee": "content_text",
+          "lineNumber": 31
+        },
+        {
+          "caller": "messages_to_prompt",
+          "callee": "len",
+          "lineNumber": 35
+        },
+        {
+          "caller": "messages_to_prompt",
+          "callee": "content_text",
+          "lineNumber": 36
+        },
+        {
+          "caller": "messages_to_prompt",
+          "callee": "lines.append",
+          "lineNumber": 41
+        },
+        {
+          "caller": "messages_to_prompt",
+          "callee": "content_text",
+          "lineNumber": 41
+        },
+        {
+          "caller": "messages_to_prompt",
+          "callee": "lines.append",
+          "lineNumber": 42
+        },
+        {
+          "caller": "messages_to_prompt",
+          "callee": "\"\\n\".join",
+          "lineNumber": 43
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "server/ratelimit.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 60,
+      "nonEmptyLines": 50,
+      "classes": [
+        {
+          "name": "TokenBucket",
+          "startLine": 17,
+          "endLine": 60,
+          "methods": [
+            "__init__",
+            "enabled",
+            "_refill",
+            "try_acquire"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "TokenBucket",
+          "line": 17,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "__init__",
+          "callee": "float",
+          "lineNumber": 22
+        },
+        {
+          "caller": "__init__",
+          "callee": "max",
+          "lineNumber": 24
+        },
+        {
+          "caller": "__init__",
+          "callee": "int",
+          "lineNumber": 24
+        },
+        {
+          "caller": "__init__",
+          "callee": "float",
+          "lineNumber": 25
+        },
+        {
+          "caller": "__init__",
+          "callee": "threading.Lock",
+          "lineNumber": 26
+        },
+        {
+          "caller": "__init__",
+          "callee": "self._now",
+          "lineNumber": 30
+        },
+        {
+          "caller": "_refill",
+          "callee": "min",
+          "lineNumber": 39
+        },
+        {
+          "caller": "try_acquire",
+          "callee": "self._now",
+          "lineNumber": 52
+        },
+        {
+          "caller": "try_acquire",
+          "callee": "self._refill",
+          "lineNumber": 53
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "server/schemas.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 26,
+      "nonEmptyLines": 19,
+      "classes": [
+        {
+          "name": "ChatMessage",
+          "startLine": 10,
+          "endLine": 14,
+          "methods": [],
+          "properties": [
+            "role",
+            "content"
+          ]
+        },
+        {
+          "name": "ChatCompletionRequest",
+          "startLine": 17,
+          "endLine": 26,
+          "methods": [],
+          "properties": [
+            "messages",
+            "model",
+            "stream",
+            "conversation_id"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ChatMessage",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "ChatCompletionRequest",
+          "line": 17,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 2
+      }
+    }
+  ]
+}

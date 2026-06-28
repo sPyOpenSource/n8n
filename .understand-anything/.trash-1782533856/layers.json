@@ -1,0 +1,88 @@
+[
+  {
+    "id": "layer:core",
+    "name": "Core Library",
+    "description": "Copilot SDK library implementing the Microsoft Copilot chat protocol, including cookie-based auth, Playwright browser automation, WebSocket driver, challenge solving, and shared data models",
+    "nodeIds": [
+      "file:copilot/__init__.py",
+      "file:copilot/__main__.py",
+      "file:copilot/auth.py",
+      "file:copilot/browser.py",
+      "file:copilot/challenges.py",
+      "file:copilot/client.py",
+      "file:copilot/driver.py",
+      "file:copilot/models.py",
+      "file:copilot/protocol.py",
+      "file:copilot/utils.py"
+    ]
+  },
+  {
+    "id": "layer:api",
+    "name": "API Server Layer",
+    "description": "FastAPI-based OpenAI-compatible server that translates Chat Completions requests into Copilot protocol calls, with request validation, rate limiting, prompt building, and SSE streaming",
+    "nodeIds": [
+      "file:server/__init__.py",
+      "file:server/api.py",
+      "file:server/config.py",
+      "file:server/openai_format.py",
+      "file:server/prompt.py",
+      "file:server/ratelimit.py",
+      "file:server/schemas.py",
+      "file:app.py"
+    ]
+  },
+  {
+    "id": "layer:test",
+    "name": "Test Layer",
+    "description": "Unit tests, integration diagnostics, stress and rate-limit load tests, GPQA accuracy benchmarks, and Playwright async bug reproduction scripts",
+    "nodeIds": [
+      "file:tests/test_server.py",
+      "file:tests/diagnostic.py",
+      "file:tests/gpqa_bench.py",
+      "file:tests/ratelimit.py",
+      "file:tests/stress.py",
+      "file:reproduce_issue_loop.py",
+      "file:reproduce_issue.py"
+    ]
+  },
+  {
+    "id": "layer:examples",
+    "name": "Examples Layer",
+    "description": "Runnable example scripts demonstrating direct CopilotClient usage, server HTTP/streaming interaction, and OpenAI SDK integration",
+    "nodeIds": [
+      "file:examples/01_direct_chat.py",
+      "file:examples/02_direct_conversation.py",
+      "file:examples/03_direct_stream.py",
+      "file:examples/04_server_http.py",
+      "file:examples/05_server_stream.py",
+      "file:examples/06_server_openai_sdk.py",
+      "document:examples/README.md"
+    ]
+  },
+  {
+    "id": "layer:infrastructure",
+    "name": "Infrastructure Layer",
+    "description": "Container definitions, deployment orchestration, build context configuration, and tooling configuration for reproducible deployment",
+    "nodeIds": [
+      "service:Dockerfile",
+      "service:Dockerfile:python",
+      "service:docker-compose.yml",
+      "service:.dockerignore",
+      "file:.understand-anything/.understandignore"
+    ]
+  },
+  {
+    "id": "layer:documentation",
+    "name": "Documentation Layer",
+    "description": "Project overview, learning paths, resource indexes, dependency manifests, and interactive HTML lessons explaining OpenAI-compatible API concepts",
+    "nodeIds": [
+      "document:README.md",
+      "document:MISSION.md",
+      "document:RESOURCES.md",
+      "document:requirements.txt",
+      "document:examples/README.md",
+      "file:lessons/0001-introduction-to-openai-compatible-servers",
+      "file:lessons/0001-introduction-to-openai-compatible-servers.html"
+    ]
+  }
+]

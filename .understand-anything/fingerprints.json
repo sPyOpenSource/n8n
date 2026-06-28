@@ -1,0 +1,1960 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "87baede9df652c07e133df29fd4d64979154ee7b",
+  "generatedAt": "2026-06-27T04:17:29.659Z",
+  "files": {
+    ".dockerignore": {
+      "filePath": ".dockerignore",
+      "contentHash": "5dfd05d1abe7d172e10bcfbee0f86cba1bd5876d3df4e0db8f70d89c0204b66f",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 15,
+      "hasStructuralAnalysis": false
+    },
+    ".understand-anything/.understandignore": {
+      "filePath": ".understand-anything/.understandignore",
+      "contentHash": "661735f93d9b0111f91500a750d61c0d94bdcc81aebfc7e72e4bb43d18b7e23d",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 44,
+      "hasStructuralAnalysis": false
+    },
+    "app.py": {
+      "filePath": "app.py",
+      "contentHash": "04e3914050303c822e47fb585a2857d8711b29b9890ce3a033d225f8b4f904a0",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "server",
+          "specifiers": [
+            "app"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 14,
+      "hasStructuralAnalysis": true
+    },
+    "copilot/__init__.py": {
+      "filePath": "copilot/__init__.py",
+      "contentHash": "afac23a87dfb4dabc630d4436d68a7d4e07560ba07b4164d3c2462c9ed550f9c",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": ".auth",
+          "specifiers": [
+            "load_auth"
+          ]
+        },
+        {
+          "source": ".browser",
+          "specifiers": [
+            "BrowserCopilot"
+          ]
+        },
+        {
+          "source": ".client",
+          "specifiers": [
+            "ChatReply",
+            "CopilotClient"
+          ]
+        },
+        {
+          "source": ".driver",
+          "specifiers": [
+            "ClearanceRequired",
+            "Copilot"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 30,
+      "hasStructuralAnalysis": true
+    },
+    "copilot/__main__.py": {
+      "filePath": "copilot/__main__.py",
+      "contentHash": "faa889a811e5205002fef72ce5e1344cc3ef9a5e84994aeed584dd72461ac51b",
+      "functions": [
+        {
+          "name": "main",
+          "params": [
+            "argv"
+          ],
+          "returnType": "int",
+          "exported": true,
+          "lineCount": 21
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "nest_asyncio",
+          "specifiers": [
+            "nest_asyncio"
+          ]
+        }
+      ],
+      "exports": [
+        "main"
+      ],
+      "totalLines": 38,
+      "hasStructuralAnalysis": true
+    },
+    "copilot/auth.py": {
+      "filePath": "copilot/auth.py",
+      "contentHash": "c73bda19e11545755277da910dca047f92d36f4183a8ce2f92ec0eefb1f7be8e",
+      "functions": [
+        {
+          "name": "load_auth",
+          "params": [
+            "path",
+            "profile_dir",
+            "max_age",
+            "proxy",
+            "auto_login"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 66
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Optional"
+          ]
+        }
+      ],
+      "exports": [
+        "load_auth"
+      ],
+      "totalLines": 87,
+      "hasStructuralAnalysis": true
+    },
+    "copilot/browser.py": {
+      "filePath": "copilot/browser.py",
+      "contentHash": "4f98d15917a034134da2fde4af8aef0c62ef059f27e9cc5b1ca31a6b094bc0d8",
+      "functions": [],
+      "classes": [
+        {
+          "name": "BrowserCopilot",
+          "methods": [
+            "__init__",
+            "start",
+            "_parse_proxy",
+            "region_blocked",
+            "close",
+            "__enter__",
+            "__exit__",
+            "login",
+            "_open_login_log",
+            "_mirror_page_events",
+            "_window_closed",
+            "access_token",
+            "signed_in",
+            "_install_ws_listener",
+            "_on_chat_frame",
+            "_send_warmup",
+            "acquire_chat_token",
+            "_clear_log",
+            "_clearance_value",
+            "_click_turnstile",
+            "_find_turnstile_frame",
+            "_click_in_frame",
+            "_click_turnstile_by_offset",
+            "_await_gate_pass",
+            "auto_clear",
+            "cookies",
+            "export_auth",
+            "_ensure_started"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 666
+        }
+      ],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime",
+            "timezone"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Dict",
+            "Optional"
+          ]
+        },
+        {
+          "source": "urllib.parse",
+          "specifiers": [
+            "parse_qs",
+            "urlparse"
+          ]
+        },
+        {
+          "source": "playwright.sync_api",
+          "specifiers": [
+            "sync_playwright",
+            "PlaywrightError"
+          ]
+        },
+        {
+          "source": ".auth",
+          "specifiers": [
+            "DEFAULT_AUTH_FILE",
+            "DEFAULT_PROFILE_DIR"
+          ]
+        }
+      ],
+      "exports": [
+        "BrowserCopilot"
+      ],
+      "totalLines": 793,
+      "hasStructuralAnalysis": true
+    },
+    "copilot/challenges.py": {
+      "filePath": "copilot/challenges.py",
+      "contentHash": "66d378c616bb908577064068ccb90e2cf391a63187c53c4dd612867469e3d445",
+      "functions": [
+        {
+          "name": "_hashcash_ok",
+          "params": [
+            "digest",
+            "difficulty"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "solve_hashcash",
+          "params": [
+            "parameter"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "solve_copilot_challenge",
+          "params": [
+            "parameter"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "hashlib",
+          "specifiers": [
+            "hashlib"
+          ]
+        },
+        {
+          "source": "math",
+          "specifiers": [
+            "math"
+          ]
+        }
+      ],
+      "exports": [
+        "_hashcash_ok",
+        "solve_hashcash",
+        "solve_copilot_challenge"
+      ],
+      "totalLines": 45,
+      "hasStructuralAnalysis": true
+    },
+    "copilot/client.py": {
+      "filePath": "copilot/client.py",
+      "contentHash": "4d21c651a03acb90b24080aeb56583b61df2ba67a674f963c2d892b5218d76cc",
+      "functions": [
+        {
+          "name": "_status",
+          "params": [
+            "msg"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [
+        {
+          "name": "ChatReply",
+          "methods": [],
+          "properties": [
+            "text",
+            "conversation_id",
+            "images"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "ChatStream",
+          "methods": [
+            "__init__",
+            "__iter__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "CopilotClient",
+          "methods": [
+            "__init__",
+            "stream",
+            "_stream_with_recovery",
+            "_refresh_clearance",
+            "chat",
+            "_fresh_auth"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 173
+        }
+      ],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass",
+            "field"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Generator",
+            "List",
+            "Optional",
+            "Union"
+          ]
+        },
+        {
+          "source": ".auth",
+          "specifiers": [
+            "AUTH_MAX_AGE",
+            "load_auth"
+          ]
+        },
+        {
+          "source": ".driver",
+          "specifiers": [
+            "ClearanceRequired",
+            "Copilot"
+          ]
+        },
+        {
+          "source": ".models",
+          "specifiers": [
+            "Conversation",
+            "ImageResponse"
+          ]
+        }
+      ],
+      "exports": [
+        "_status",
+        "ChatReply",
+        "ChatStream",
+        "CopilotClient"
+      ],
+      "totalLines": 248,
+      "hasStructuralAnalysis": true
+    },
+    "copilot/driver.py": {
+      "filePath": "copilot/driver.py",
+      "contentHash": "2ce895f0e020d15415242f6e34efb9244d73447410115d32e282e763f4c049d3",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ClearanceRequired",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "Copilot",
+          "methods": [
+            "create_completion",
+            "_read_stream",
+            "_recv_frame",
+            "_solve_challenge"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 264
+        }
+      ],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "uuid",
+          "specifiers": [
+            "uuid"
+          ]
+        },
+        {
+          "source": "select",
+          "specifiers": [
+            "select"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Dict",
+            "Optional"
+          ]
+        },
+        {
+          "source": "urllib.parse",
+          "specifiers": [
+            "quote"
+          ]
+        },
+        {
+          "source": "curl_cffi.const",
+          "specifiers": [
+            "CurlECode",
+            "CurlInfo"
+          ]
+        },
+        {
+          "source": "curl_cffi.curl",
+          "specifiers": [
+            "CurlError"
+          ]
+        },
+        {
+          "source": "curl_cffi.requests",
+          "specifiers": [
+            "Session",
+            "CurlWsFlag"
+          ]
+        },
+        {
+          "source": ".challenges",
+          "specifiers": [
+            "solve_copilot_challenge",
+            "solve_hashcash"
+          ]
+        },
+        {
+          "source": ".models",
+          "specifiers": [
+            "AbstractProvider",
+            "Conversation",
+            "ImageResponse",
+            "ImageType"
+          ]
+        },
+        {
+          "source": ".protocol",
+          "specifiers": [
+            "CHAT_WEBSOCKET_URL",
+            "CONSENTS_FRAME",
+            "SET_OPTIONS_FRAME"
+          ]
+        },
+        {
+          "source": ".utils",
+          "specifiers": [
+            "drain_json",
+            "is_accepted_format",
+            "raise_for_status",
+            "to_bytes"
+          ]
+        }
+      ],
+      "exports": [
+        "ClearanceRequired",
+        "Copilot"
+      ],
+      "totalLines": 309,
+      "hasStructuralAnalysis": true
+    },
+    "copilot/models.py": {
+      "filePath": "copilot/models.py",
+      "contentHash": "94b792ee3c592533c17d151aa1e0dd0aefd5d1569e252d8a0336b445e97131f7",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ImageResponse",
+          "methods": [],
+          "properties": [
+            "url",
+            "prompt",
+            "metadata"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "AbstractProvider",
+          "methods": [
+            "create_completion"
+          ],
+          "properties": [
+            "label",
+            "url",
+            "working",
+            "supports_stream",
+            "default_model",
+            "needs_auth"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "Conversation",
+          "methods": [
+            "__init__",
+            "_update_cookies_dict",
+            "update_token",
+            "cookies"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 20
+        }
+      ],
+      "imports": [
+        {
+          "source": "threading",
+          "specifiers": [
+            "threading"
+          ]
+        },
+        {
+          "source": "abc",
+          "specifiers": [
+            "ABC",
+            "abstractmethod"
+          ]
+        },
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass"
+          ]
+        },
+        {
+          "source": "http.cookiejar",
+          "specifiers": [
+            "CookieJar"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any",
+            "Dict",
+            "Generator",
+            "Union"
+          ]
+        }
+      ],
+      "exports": [
+        "ImageResponse",
+        "AbstractProvider",
+        "Conversation"
+      ],
+      "totalLines": 57,
+      "hasStructuralAnalysis": true
+    },
+    "copilot/protocol.py": {
+      "filePath": "copilot/protocol.py",
+      "contentHash": "f00066c7d578ea534c80c720c79ec98d0ffda12b8959ddcba59cc31e003eb201",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 62,
+      "hasStructuralAnalysis": true
+    },
+    "copilot/utils.py": {
+      "filePath": "copilot/utils.py",
+      "contentHash": "8990ea45b8271c0c97d9d305c8a735228dc5268829ac4ee721752568d6fab8c4",
+      "functions": [
+        {
+          "name": "raise_for_status",
+          "params": [
+            "response"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "drain_json",
+          "params": [
+            "buf"
+          ],
+          "returnType": "Tuple[List[dict], bytes]",
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "to_bytes",
+          "params": [
+            "image"
+          ],
+          "returnType": "bytes",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "is_accepted_format",
+          "params": [
+            "data"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "List",
+            "Tuple"
+          ]
+        },
+        {
+          "source": ".models",
+          "specifiers": [
+            "ImageType"
+          ]
+        }
+      ],
+      "exports": [
+        "raise_for_status",
+        "drain_json",
+        "to_bytes",
+        "is_accepted_format"
+      ],
+      "totalLines": 60,
+      "hasStructuralAnalysis": true
+    },
+    "docker-compose.yml": {
+      "filePath": "docker-compose.yml",
+      "contentHash": "35586be31dba57ef5f88476d5c307e6276bd4c218e0591af67943782ec314bf0",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 20,
+      "hasStructuralAnalysis": true
+    },
+    "Dockerfile": {
+      "filePath": "Dockerfile",
+      "contentHash": "614994d13316a45ed675dc1bf6f22457e8233753ab442ad2349fae5d8fc3e66e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "examples/01_direct_chat.py": {
+      "filePath": "examples/01_direct_chat.py",
+      "contentHash": "dcaf73585e7fffd68527576dcffc2caf30ca9da96d9d479564d20e46ccf835db",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "pathlib"
+          ]
+        },
+        {
+          "source": "copilot",
+          "specifiers": [
+            "CopilotClient"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 28,
+      "hasStructuralAnalysis": true
+    },
+    "examples/02_direct_conversation.py": {
+      "filePath": "examples/02_direct_conversation.py",
+      "contentHash": "566c64411ee650653bad8b18661fba873bb051139e665959a53d64f549098e13",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "pathlib"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "copilot",
+          "specifiers": [
+            "CopilotClient"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 32,
+      "hasStructuralAnalysis": true
+    },
+    "examples/03_direct_stream.py": {
+      "filePath": "examples/03_direct_stream.py",
+      "contentHash": "2aa32bf02dd0cb5943e9cf4a887423511638c33d3f2969a23a881b9a4a114b95",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "pathlib"
+          ]
+        },
+        {
+          "source": "copilot",
+          "specifiers": [
+            "CopilotClient"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "examples/04_server_http.py": {
+      "filePath": "examples/04_server_http.py",
+      "contentHash": "160c29f092d3ff589624e35d4d4b4ea5f5b4268e29294132b2b23090ebfa7652",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "requests",
+          "specifiers": [
+            "requests"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 39,
+      "hasStructuralAnalysis": true
+    },
+    "examples/05_server_stream.py": {
+      "filePath": "examples/05_server_stream.py",
+      "contentHash": "5177707e607e5f84b6d8a4f911d5b1340f3d047ea027319339f22b273d61cc32",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "requests",
+          "specifiers": [
+            "requests"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 46,
+      "hasStructuralAnalysis": true
+    },
+    "examples/06_server_openai_sdk.py": {
+      "filePath": "examples/06_server_openai_sdk.py",
+      "contentHash": "5146e3e06de7c9a93eed46df6327f51497ca53f7cdb45df4fb47a91861b953fc",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "openai",
+          "specifiers": [
+            "OpenAI"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 42,
+      "hasStructuralAnalysis": true
+    },
+    "examples/README.md": {
+      "filePath": "examples/README.md",
+      "contentHash": "eb5f558282694461e43c34ae2872e74d230e49e0fd5058a410827c7626d1c248",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 25,
+      "hasStructuralAnalysis": true
+    },
+    "lessons/0001-introduction-to-openai-compatible-servers": {
+      "filePath": "lessons/0001-introduction-to-openai-compatible-servers",
+      "contentHash": "59395612e96c7763456400a1767b4c8832f4dff5aabd73215cc3d6672a08b24c",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": false
+    },
+    "lessons/0001-introduction-to-openai-compatible-servers.html": {
+      "filePath": "lessons/0001-introduction-to-openai-compatible-servers.html",
+      "contentHash": "a730cbb037d4a60169741de0ddf24e2373c4eaa04a2a1e05ed9f6022ec2f2cd3",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 516,
+      "hasStructuralAnalysis": false
+    },
+    "MISSION.md": {
+      "filePath": "MISSION.md",
+      "contentHash": "bf8d8498550e3d9e7b9697bbfeb6f0efdf3e006fd93cab054dc5e5e5615eb49e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 39,
+      "hasStructuralAnalysis": true
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "bb64d17ba7d0531c55850493f77d76978092770e756b22315b25229f933dfd69",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 386,
+      "hasStructuralAnalysis": true
+    },
+    "reproduce_issue_loop.py": {
+      "filePath": "reproduce_issue_loop.py",
+      "contentHash": "b5c06b8635106e1ed0a40df73996ec698733df56c706f17be15b83ade69ce62c",
+      "functions": [
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "asyncio",
+          "specifiers": [
+            "asyncio"
+          ]
+        },
+        {
+          "source": "playwright.sync_api",
+          "specifiers": [
+            "sync_playwright"
+          ]
+        }
+      ],
+      "exports": [
+        "main"
+      ],
+      "totalLines": 13,
+      "hasStructuralAnalysis": true
+    },
+    "reproduce_issue.py": {
+      "filePath": "reproduce_issue.py",
+      "contentHash": "0fa463abd027f3944a6d755a8b6133ed1a15b68ea3570720be51be15b3c376e7",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "nest_asyncio",
+          "specifiers": [
+            "nest_asyncio"
+          ]
+        },
+        {
+          "source": "playwright.sync_api",
+          "specifiers": [
+            "sync_playwright"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "requirements.txt": {
+      "filePath": "requirements.txt",
+      "contentHash": "f2063edf85b0edf5cc262e62a747f0c342007a82ba6daedaa5577f81ef7ff590",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 5,
+      "hasStructuralAnalysis": false
+    },
+    "RESOURCES.md": {
+      "filePath": "RESOURCES.md",
+      "contentHash": "cca543f1eae3abcd36853ce2fbab8f1b2faecb05a846d43b52e69d22ce28ee55",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 70,
+      "hasStructuralAnalysis": true
+    },
+    "server/__init__.py": {
+      "filePath": "server/__init__.py",
+      "contentHash": "afb6a793018c04cc7c54488eefdee6a52cf3c0ec7bb8d7b06aacf6acce035038",
+      "functions": [
+        {
+          "name": "app",
+          "params": [
+            "host",
+            "port"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 25
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": ".api",
+          "specifiers": [
+            "_api"
+          ]
+        }
+      ],
+      "exports": [
+        "app"
+      ],
+      "totalLines": 55,
+      "hasStructuralAnalysis": true
+    },
+    "server/api.py": {
+      "filePath": "server/api.py",
+      "contentHash": "36ac0dcab3803906794f30c2427c7ec746aa59f6664fd911ef354cbcc12fb75f",
+      "functions": [
+        {
+          "name": "_rate_limited_response",
+          "params": [],
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "_stream",
+          "params": [
+            "prompt",
+            "model",
+            "conversation_id"
+          ],
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "list_models",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "get_model_id",
+          "params": [
+            "model_id"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "list_api_models",
+          "params": [],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "get_problems",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "post_show",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "list_models",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "chat_completions",
+          "params": [
+            "req"
+          ],
+          "exported": true,
+          "lineCount": 34
+        },
+        {
+          "name": "get_version",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "root",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "threading",
+          "specifiers": [
+            "threading"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "FastAPI"
+          ]
+        },
+        {
+          "source": "fastapi.responses",
+          "specifiers": [
+            "JSONResponse",
+            "StreamingResponse"
+          ]
+        },
+        {
+          "source": "copilot",
+          "specifiers": [
+            "CopilotClient"
+          ]
+        },
+        {
+          "source": "copilot.driver",
+          "specifiers": [
+            "ClearanceRequired"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "MODEL_NAME",
+            "RATE_LIMIT_BURST",
+            "RATE_LIMIT_RPM"
+          ]
+        },
+        {
+          "source": ".openai_format",
+          "specifiers": [
+            "completion_response",
+            "new_id",
+            "sse_event",
+            "stream_chunk"
+          ]
+        },
+        {
+          "source": ".prompt",
+          "specifiers": [
+            "messages_to_prompt"
+          ]
+        },
+        {
+          "source": ".ratelimit",
+          "specifiers": [
+            "TokenBucket"
+          ]
+        },
+        {
+          "source": ".schemas",
+          "specifiers": [
+            "ChatCompletionRequest"
+          ]
+        }
+      ],
+      "exports": [
+        "_rate_limited_response",
+        "_stream",
+        "list_models",
+        "get_model_id",
+        "list_api_models",
+        "get_problems",
+        "post_show",
+        "list_models",
+        "chat_completions",
+        "get_version",
+        "root"
+      ],
+      "totalLines": 202,
+      "hasStructuralAnalysis": true
+    },
+    "server/config.py": {
+      "filePath": "server/config.py",
+      "contentHash": "ea4564de48cedea4a1411c0112ec2e314d24e2c6c2374d0b0c5ae43bcf6b10fd",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 16,
+      "hasStructuralAnalysis": true
+    },
+    "server/openai_format.py": {
+      "filePath": "server/openai_format.py",
+      "contentHash": "c79be3cbbbbff3404c6dc8ed97961ba44f645d06d5b357f016b6b4237b6595ef",
+      "functions": [
+        {
+          "name": "new_id",
+          "params": [],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "completion_response",
+          "params": [
+            "text",
+            "model",
+            "conversation_id"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "sse_event",
+          "params": [
+            "payload"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "stream_chunk",
+          "params": [
+            "cid",
+            "created",
+            "model",
+            "delta",
+            "finish",
+            "conversation_id"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 19
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "uuid",
+          "specifiers": [
+            "uuid"
+          ]
+        }
+      ],
+      "exports": [
+        "new_id",
+        "completion_response",
+        "sse_event",
+        "stream_chunk"
+      ],
+      "totalLines": 61,
+      "hasStructuralAnalysis": true
+    },
+    "server/prompt.py": {
+      "filePath": "server/prompt.py",
+      "contentHash": "8e1ed3f8f9d4f803962d5023d8826038340855987a2ce1ca0d79672c16eeb837",
+      "functions": [
+        {
+          "name": "content_text",
+          "params": [
+            "content"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "messages_to_prompt",
+          "params": [
+            "messages"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 20
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any",
+            "List",
+            "Optional",
+            "Union"
+          ]
+        },
+        {
+          "source": ".schemas",
+          "specifiers": [
+            "ChatMessage"
+          ]
+        }
+      ],
+      "exports": [
+        "content_text",
+        "messages_to_prompt"
+      ],
+      "totalLines": 48,
+      "hasStructuralAnalysis": true
+    },
+    "server/ratelimit.py": {
+      "filePath": "server/ratelimit.py",
+      "contentHash": "5048aaf6d9010280845bbac29597336f9c499eb0784893b652bd543ecf70fc40",
+      "functions": [],
+      "classes": [
+        {
+          "name": "TokenBucket",
+          "methods": [
+            "__init__",
+            "enabled",
+            "_refill",
+            "try_acquire"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 44
+        }
+      ],
+      "imports": [
+        {
+          "source": "threading",
+          "specifiers": [
+            "threading"
+          ]
+        }
+      ],
+      "exports": [
+        "TokenBucket"
+      ],
+      "totalLines": 61,
+      "hasStructuralAnalysis": true
+    },
+    "server/schemas.py": {
+      "filePath": "server/schemas.py",
+      "contentHash": "fd10d0ef8e9af8fb5e6b1211b903e3e0f1661331aa27bc884938e5979d6fa624",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ChatMessage",
+          "methods": [],
+          "properties": [
+            "role",
+            "content"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "ChatCompletionRequest",
+          "methods": [],
+          "properties": [
+            "messages",
+            "model",
+            "stream",
+            "conversation_id"
+          ],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "imports": [
+        {
+          "source": "typing",
+          "specifiers": [
+            "Any",
+            "List",
+            "Optional",
+            "Union"
+          ]
+        },
+        {
+          "source": "pydantic",
+          "specifiers": [
+            "BaseModel"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "MODEL_NAME"
+          ]
+        }
+      ],
+      "exports": [
+        "ChatMessage",
+        "ChatCompletionRequest"
+      ],
+      "totalLines": 27,
+      "hasStructuralAnalysis": true
+    },
+    "tests/diagnostic.py": {
+      "filePath": "tests/diagnostic.py",
+      "contentHash": "30e83aa868fdfd966d9a0ffb9a6d424c08987bd3c8c476aa90745783906fd133",
+      "functions": [
+        {
+          "name": "redact",
+          "params": [
+            "text"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "_to_text",
+          "params": [
+            "payload"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "env_section",
+          "params": [
+            "r"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "packages_section",
+          "params": [
+            "r"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "playwright_section",
+          "params": [
+            "r"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "session_section",
+          "params": [
+            "r"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 30
+        },
+        {
+          "name": "_snapshot_auth",
+          "params": [
+            "ctx",
+            "page"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "browser_capture",
+          "params": [
+            "r"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 111
+        },
+        {
+          "name": "live_probe_section",
+          "params": [
+            "r",
+            "refreshed"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "log_tail_section",
+          "params": [
+            "r",
+            "title",
+            "path"
+          ],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "main",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 35
+        }
+      ],
+      "classes": [
+        {
+          "name": "Report",
+          "methods": [
+            "__init__",
+            "line",
+            "section",
+            "text"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 16
+        }
+      ],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "io",
+          "specifiers": [
+            "io"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "platform",
+          "specifiers": [
+            "platform"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "traceback",
+          "specifiers": [
+            "traceback"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        }
+      ],
+      "exports": [
+        "redact",
+        "_to_text",
+        "Report",
+        "env_section",
+        "packages_section",
+        "playwright_section",
+        "session_section",
+        "_snapshot_auth",
+        "browser_capture",
+        "live_probe_section",
+        "log_tail_section",
+        "main"
+      ],
+      "totalLines": 391,
+      "hasStructuralAnalysis": true
+    },
+    "tests/gpqa_bench.py": {
+      "filePath": "tests/gpqa_bench.py",
+      "contentHash": "430986d2c95ed2f062e92000235f85af8574489d77739b9760b6d8984eac8fef",
+      "functions": [
+        {
+          "name": "build_question",
+          "params": [
+            "row",
+            "rng"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "parse_letter",
+          "params": [
+            "text"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "ask",
+          "params": [
+            "endpoint",
+            "timeout",
+            "prompt"
+          ],
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 98
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "csv",
+          "specifiers": [
+            "csv"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "random",
+          "specifiers": [
+            "random"
+          ]
+        },
+        {
+          "source": "re",
+          "specifiers": [
+            "re"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "urllib.error",
+          "specifiers": [
+            "urllib.error"
+          ]
+        },
+        {
+          "source": "urllib.request",
+          "specifiers": [
+            "urllib.request"
+          ]
+        }
+      ],
+      "exports": [
+        "build_question",
+        "parse_letter",
+        "ask",
+        "main"
+      ],
+      "totalLines": 209,
+      "hasStructuralAnalysis": true
+    },
+    "tests/ratelimit.py": {
+      "filePath": "tests/ratelimit.py",
+      "contentHash": "eb9dc0ae2e9b9285fe51e52da953d01bf6034ac2cc3cdfd9dffa5e47a309b21e",
+      "functions": [
+        {
+          "name": "classify",
+          "params": [
+            "url",
+            "timeout"
+          ],
+          "exported": true,
+          "lineCount": 29
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 74
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "threading",
+          "specifiers": [
+            "threading"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "urllib.error",
+          "specifiers": [
+            "urllib.error"
+          ]
+        },
+        {
+          "source": "urllib.request",
+          "specifiers": [
+            "urllib.request"
+          ]
+        },
+        {
+          "source": "concurrent.futures",
+          "specifiers": [
+            "ThreadPoolExecutor"
+          ]
+        }
+      ],
+      "exports": [
+        "classify",
+        "main"
+      ],
+      "totalLines": 148,
+      "hasStructuralAnalysis": true
+    },
+    "tests/stress.py": {
+      "filePath": "tests/stress.py",
+      "contentHash": "7107c9e24a92cc5cea8ad64fc429beeda6df81000145ef251247803dcfd1094a",
+      "functions": [
+        {
+          "name": "one_request",
+          "params": [
+            "url",
+            "timeout",
+            "index"
+          ],
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "run_round",
+          "params": [
+            "url",
+            "timeout",
+            "concurrency"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 63
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "urllib.error",
+          "specifiers": [
+            "urllib.error"
+          ]
+        },
+        {
+          "source": "urllib.request",
+          "specifiers": [
+            "urllib.request"
+          ]
+        },
+        {
+          "source": "concurrent.futures",
+          "specifiers": [
+            "ThreadPoolExecutor",
+            "as_completed"
+          ]
+        }
+      ],
+      "exports": [
+        "one_request",
+        "run_round",
+        "main"
+      ],
+      "totalLines": 141,
+      "hasStructuralAnalysis": true
+    },
+    "tests/test_server.py": {
+      "filePath": "tests/test_server.py",
+      "contentHash": "1d20a4546b8374c51c0497bcea5521442075a3846d7c063353b0244d581a9475",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ServerStartupTests",
+          "methods": [
+            "test_uses_default_address",
+            "test_uses_address_from_environment",
+            "test_explicit_address_takes_precedence"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 27
+        }
+      ],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "unittest",
+          "specifiers": [
+            "unittest"
+          ]
+        },
+        {
+          "source": "unittest.mock",
+          "specifiers": [
+            "patch"
+          ]
+        },
+        {
+          "source": "server",
+          "specifiers": [
+            "app"
+          ]
+        }
+      ],
+      "exports": [
+        "ServerStartupTests"
+      ],
+      "totalLines": 41,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

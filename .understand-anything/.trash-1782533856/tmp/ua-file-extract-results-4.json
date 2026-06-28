@@ -1,0 +1,183 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "app.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 13,
+      "nonEmptyLines": 8,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "server/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 54,
+      "nonEmptyLines": 38,
+      "functions": [
+        {
+          "name": "app",
+          "startLine": 27,
+          "endLine": 51,
+          "params": [
+            "host",
+            "port"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "app",
+          "line": 27,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "app",
+          "callee": "os.environ.get",
+          "lineNumber": 38
+        },
+        {
+          "caller": "app",
+          "callee": "int",
+          "lineNumber": 40
+        },
+        {
+          "caller": "app",
+          "callee": "os.environ.get",
+          "lineNumber": 40
+        },
+        {
+          "caller": "app",
+          "callee": "load_auth",
+          "lineNumber": 46
+        },
+        {
+          "caller": "app",
+          "callee": "print",
+          "lineNumber": 48
+        },
+        {
+          "caller": "app",
+          "callee": "print",
+          "lineNumber": 50
+        },
+        {
+          "caller": "app",
+          "callee": "uvicorn.run",
+          "lineNumber": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "tests/test_server.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 29,
+      "classes": [
+        {
+          "name": "ServerStartupTests",
+          "startLine": 10,
+          "endLine": 36,
+          "methods": [
+            "test_uses_default_address",
+            "test_uses_address_from_environment",
+            "test_explicit_address_takes_precedence"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ServerStartupTests",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "test_uses_default_address",
+          "callee": "patch.dict",
+          "lineNumber": 14
+        },
+        {
+          "caller": "test_uses_default_address",
+          "callee": "app",
+          "lineNumber": 15
+        },
+        {
+          "caller": "test_uses_default_address",
+          "callee": "self.assertEqual",
+          "lineNumber": 17
+        },
+        {
+          "caller": "test_uses_default_address",
+          "callee": "self.assertEqual",
+          "lineNumber": 18
+        },
+        {
+          "caller": "test_uses_address_from_environment",
+          "callee": "patch.dict",
+          "lineNumber": 23
+        },
+        {
+          "caller": "test_uses_address_from_environment",
+          "callee": "app",
+          "lineNumber": 24
+        },
+        {
+          "caller": "test_uses_address_from_environment",
+          "callee": "self.assertEqual",
+          "lineNumber": 26
+        },
+        {
+          "caller": "test_uses_address_from_environment",
+          "callee": "self.assertEqual",
+          "lineNumber": 27
+        },
+        {
+          "caller": "test_explicit_address_takes_precedence",
+          "callee": "patch.dict",
+          "lineNumber": 32
+        },
+        {
+          "caller": "test_explicit_address_takes_precedence",
+          "callee": "app",
+          "lineNumber": 33
+        },
+        {
+          "caller": "test_explicit_address_takes_precedence",
+          "callee": "self.assertEqual",
+          "lineNumber": 35
+        },
+        {
+          "caller": "test_explicit_address_takes_precedence",
+          "callee": "self.assertEqual",
+          "lineNumber": 36
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    }
+  ]
+}

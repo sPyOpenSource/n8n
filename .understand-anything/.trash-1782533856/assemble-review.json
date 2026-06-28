@@ -1,0 +1,15 @@
+{
+  "fixedSectionOk": true,
+  "nodesRecovered": 0,
+  "edgesRestored": 0,
+  "crossBatchEdgesAdded": 0,
+  "typesRemapped": 0,
+  "complexityRemapped": 0,
+  "notes": [
+    "No fixed-section or could-not-fix issues reported by merge script.",
+    "All 27 import-map pairs already present in assembled graph.",
+    "Graph is complete and clean with 105 nodes and 173 edges.",
+    "Minor note: 'service' type used for .dockerignore, Dockerfile, and docker-compose.yml — non-standard type but consistent across all batches.",
+    "1 production node tagged 'tested' (server/__init__.py) with corresponding tested_by edge."
+  ]
+}

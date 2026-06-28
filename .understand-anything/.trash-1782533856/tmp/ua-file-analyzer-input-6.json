@@ -1,0 +1,15 @@
+{
+  "projectRoot": "/Users/xuyi/Source/Python/Windows-Copilot-API",
+  "batchFiles": [
+    {"path": "MISSION.md", "language": "markdown", "sizeLines": 38, "fileCategory": "docs"},
+    {"path": "README.md", "language": "markdown", "sizeLines": 385, "fileCategory": "docs"},
+    {"path": "RESOURCES.md", "language": "markdown", "sizeLines": 69, "fileCategory": "docs"},
+    {"path": "requirements.txt", "language": "txt", "sizeLines": 4, "fileCategory": "docs"}
+  ],
+  "batchImportData": {
+    "MISSION.md": [],
+    "README.md": [],
+    "RESOURCES.md": [],
+    "requirements.txt": []
+  }
+}

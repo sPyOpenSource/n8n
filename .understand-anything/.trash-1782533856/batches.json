@@ -1,0 +1,650 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 42,
+  "totalBatches": 7,
+  "exportsByPath": {
+    ".understand-anything/.understandignore": [],
+    "app.py": [],
+    "copilot/__init__.py": [],
+    "copilot/__main__.py": [
+      "main"
+    ],
+    "copilot/auth.py": [
+      "load_auth"
+    ],
+    "copilot/browser.py": [
+      "BrowserCopilot"
+    ],
+    "copilot/challenges.py": [
+      "_hashcash_ok",
+      "solve_hashcash",
+      "solve_copilot_challenge"
+    ],
+    "copilot/client.py": [
+      "_status",
+      "ChatReply",
+      "ChatStream",
+      "CopilotClient"
+    ],
+    "copilot/driver.py": [
+      "ClearanceRequired",
+      "Copilot"
+    ],
+    "copilot/models.py": [
+      "ImageResponse",
+      "AbstractProvider",
+      "Conversation"
+    ],
+    "copilot/protocol.py": [],
+    "copilot/utils.py": [
+      "raise_for_status",
+      "drain_json",
+      "to_bytes",
+      "is_accepted_format"
+    ],
+    "examples/01_direct_chat.py": [],
+    "examples/02_direct_conversation.py": [],
+    "examples/03_direct_stream.py": [],
+    "examples/04_server_http.py": [],
+    "examples/05_server_stream.py": [],
+    "examples/06_server_openai_sdk.py": [],
+    "lessons/0001-introduction-to-openai-compatible-servers": [],
+    "reproduce_issue_loop.py": [
+      "main"
+    ],
+    "reproduce_issue.py": [],
+    "server/__init__.py": [
+      "app"
+    ],
+    "server/api.py": [
+      "_rate_limited_response",
+      "_stream",
+      "list_models",
+      "get_model_id",
+      "list_api_models",
+      "get_problems",
+      "post_show",
+      "list_models",
+      "chat_completions",
+      "get_version",
+      "root"
+    ],
+    "server/config.py": [],
+    "server/openai_format.py": [
+      "new_id",
+      "completion_response",
+      "sse_event",
+      "stream_chunk"
+    ],
+    "server/prompt.py": [
+      "content_text",
+      "messages_to_prompt"
+    ],
+    "server/ratelimit.py": [
+      "TokenBucket"
+    ],
+    "server/schemas.py": [
+      "ChatMessage",
+      "ChatCompletionRequest"
+    ],
+    "tests/diagnostic.py": [
+      "redact",
+      "_to_text",
+      "Report",
+      "env_section",
+      "packages_section",
+      "playwright_section",
+      "session_section",
+      "_snapshot_auth",
+      "browser_capture",
+      "live_probe_section",
+      "log_tail_section",
+      "main"
+    ],
+    "tests/gpqa_bench.py": [
+      "build_question",
+      "parse_letter",
+      "ask",
+      "main"
+    ],
+    "tests/ratelimit.py": [
+      "classify",
+      "main"
+    ],
+    "tests/stress.py": [
+      "one_request",
+      "run_round",
+      "main"
+    ],
+    "tests/test_server.py": [
+      "ServerStartupTests"
+    ]
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "copilot/__init__.py",
+          "language": "python",
+          "sizeLines": 29,
+          "fileCategory": "code"
+        },
+        {
+          "path": "copilot/auth.py",
+          "language": "python",
+          "sizeLines": 86,
+          "fileCategory": "code"
+        },
+        {
+          "path": "copilot/browser.py",
+          "language": "python",
+          "sizeLines": 792,
+          "fileCategory": "code"
+        },
+        {
+          "path": "examples/01_direct_chat.py",
+          "language": "python",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "examples/02_direct_conversation.py",
+          "language": "python",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "examples/03_direct_stream.py",
+          "language": "python",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "copilot/__init__.py": [
+          "copilot/auth.py",
+          "copilot/browser.py",
+          "copilot/client.py",
+          "copilot/driver.py"
+        ],
+        "copilot/auth.py": [],
+        "copilot/browser.py": [
+          "copilot/auth.py"
+        ],
+        "examples/01_direct_chat.py": [
+          "copilot/__init__.py"
+        ],
+        "examples/02_direct_conversation.py": [
+          "copilot/__init__.py"
+        ],
+        "examples/03_direct_stream.py": [
+          "copilot/__init__.py"
+        ]
+      },
+      "neighborMap": {
+        "copilot/__init__.py": [
+          {
+            "path": "copilot/client.py",
+            "batchIndex": 2,
+            "symbols": [
+              "_status",
+              "ChatReply",
+              "ChatStream",
+              "CopilotClient"
+            ]
+          },
+          {
+            "path": "copilot/driver.py",
+            "batchIndex": 2,
+            "symbols": [
+              "ClearanceRequired",
+              "Copilot"
+            ]
+          },
+          {
+            "path": "server/api.py",
+            "batchIndex": 3,
+            "symbols": [
+              "_rate_limited_response",
+              "_stream",
+              "list_models",
+              "get_model_id",
+              "list_api_models",
+              "get_problems",
+              "post_show",
+              "list_models",
+              "chat_completions",
+              "get_version",
+              "root"
+            ]
+          }
+        ],
+        "copilot/auth.py": [
+          {
+            "path": "copilot/client.py",
+            "batchIndex": 2,
+            "symbols": [
+              "_status",
+              "ChatReply",
+              "ChatStream",
+              "CopilotClient"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": "copilot/challenges.py",
+          "language": "python",
+          "sizeLines": 44,
+          "fileCategory": "code"
+        },
+        {
+          "path": "copilot/client.py",
+          "language": "python",
+          "sizeLines": 247,
+          "fileCategory": "code"
+        },
+        {
+          "path": "copilot/driver.py",
+          "language": "python",
+          "sizeLines": 308,
+          "fileCategory": "code"
+        },
+        {
+          "path": "copilot/models.py",
+          "language": "python",
+          "sizeLines": 56,
+          "fileCategory": "code"
+        },
+        {
+          "path": "copilot/protocol.py",
+          "language": "python",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        },
+        {
+          "path": "copilot/utils.py",
+          "language": "python",
+          "sizeLines": 59,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "copilot/challenges.py": [],
+        "copilot/client.py": [
+          "copilot/auth.py",
+          "copilot/driver.py",
+          "copilot/models.py"
+        ],
+        "copilot/driver.py": [
+          "copilot/challenges.py",
+          "copilot/models.py",
+          "copilot/protocol.py",
+          "copilot/utils.py"
+        ],
+        "copilot/models.py": [],
+        "copilot/protocol.py": [],
+        "copilot/utils.py": [
+          "copilot/models.py"
+        ]
+      },
+      "neighborMap": {
+        "copilot/client.py": [
+          {
+            "path": "copilot/auth.py",
+            "batchIndex": 1,
+            "symbols": [
+              "load_auth"
+            ]
+          },
+          {
+            "path": "copilot/__init__.py",
+            "batchIndex": 1,
+            "symbols": []
+          }
+        ],
+        "copilot/driver.py": [
+          {
+            "path": "copilot/__init__.py",
+            "batchIndex": 1,
+            "symbols": []
+          },
+          {
+            "path": "server/api.py",
+            "batchIndex": 3,
+            "symbols": [
+              "_rate_limited_response",
+              "_stream",
+              "list_models",
+              "get_model_id",
+              "list_api_models",
+              "get_problems",
+              "post_show",
+              "list_models",
+              "chat_completions",
+              "get_version",
+              "root"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "server/api.py",
+          "language": "python",
+          "sizeLines": 201,
+          "fileCategory": "code"
+        },
+        {
+          "path": "server/config.py",
+          "language": "python",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "server/openai_format.py",
+          "language": "python",
+          "sizeLines": 60,
+          "fileCategory": "code"
+        },
+        {
+          "path": "server/prompt.py",
+          "language": "python",
+          "sizeLines": 47,
+          "fileCategory": "code"
+        },
+        {
+          "path": "server/ratelimit.py",
+          "language": "python",
+          "sizeLines": 60,
+          "fileCategory": "code"
+        },
+        {
+          "path": "server/schemas.py",
+          "language": "python",
+          "sizeLines": 26,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "server/api.py": [
+          "copilot/__init__.py",
+          "copilot/driver.py",
+          "server/config.py",
+          "server/openai_format.py",
+          "server/prompt.py",
+          "server/ratelimit.py",
+          "server/schemas.py"
+        ],
+        "server/config.py": [],
+        "server/openai_format.py": [],
+        "server/prompt.py": [
+          "server/schemas.py"
+        ],
+        "server/ratelimit.py": [],
+        "server/schemas.py": [
+          "server/config.py"
+        ]
+      },
+      "neighborMap": {
+        "server/api.py": [
+          {
+            "path": "copilot/__init__.py",
+            "batchIndex": 1,
+            "symbols": []
+          },
+          {
+            "path": "copilot/driver.py",
+            "batchIndex": 2,
+            "symbols": [
+              "ClearanceRequired",
+              "Copilot"
+            ]
+          },
+          {
+            "path": "server/__init__.py",
+            "batchIndex": 4,
+            "symbols": [
+              "app"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": "app.py",
+          "language": "python",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "server/__init__.py",
+          "language": "python",
+          "sizeLines": 54,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/test_server.py",
+          "language": "python",
+          "sizeLines": 40,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "app.py": [
+          "server/__init__.py"
+        ],
+        "server/__init__.py": [
+          "server/api.py"
+        ],
+        "tests/test_server.py": [
+          "server/__init__.py"
+        ]
+      },
+      "neighborMap": {
+        "server/__init__.py": [
+          {
+            "path": "server/api.py",
+            "batchIndex": 3,
+            "symbols": [
+              "_rate_limited_response",
+              "_stream",
+              "list_models",
+              "get_model_id",
+              "list_api_models",
+              "get_problems",
+              "post_show",
+              "list_models",
+              "chat_completions",
+              "get_version",
+              "root"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": ".dockerignore",
+          "language": "unknown",
+          "sizeLines": 14,
+          "fileCategory": "infra"
+        },
+        {
+          "path": "docker-compose.yml",
+          "language": "yaml",
+          "sizeLines": 19,
+          "fileCategory": "infra"
+        },
+        {
+          "path": "Dockerfile",
+          "language": "dockerfile",
+          "sizeLines": 20,
+          "fileCategory": "infra"
+        }
+      ],
+      "batchImportData": {
+        ".dockerignore": [],
+        "docker-compose.yml": [],
+        "Dockerfile": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": "MISSION.md",
+          "language": "markdown",
+          "sizeLines": 38,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 385,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "RESOURCES.md",
+          "language": "markdown",
+          "sizeLines": 69,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "requirements.txt",
+          "language": "txt",
+          "sizeLines": 4,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        "MISSION.md": [],
+        "README.md": [],
+        "RESOURCES.md": [],
+        "requirements.txt": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": ".understand-anything/.understandignore",
+          "language": "unknown",
+          "sizeLines": 43,
+          "fileCategory": "code"
+        },
+        {
+          "path": "copilot/__main__.py",
+          "language": "python",
+          "sizeLines": 37,
+          "fileCategory": "code"
+        },
+        {
+          "path": "examples/04_server_http.py",
+          "language": "python",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "examples/05_server_stream.py",
+          "language": "python",
+          "sizeLines": 45,
+          "fileCategory": "code"
+        },
+        {
+          "path": "examples/06_server_openai_sdk.py",
+          "language": "python",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": "examples/README.md",
+          "language": "markdown",
+          "sizeLines": 24,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "lessons/0001-introduction-to-openai-compatible-servers",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "lessons/0001-introduction-to-openai-compatible-servers.html",
+          "language": "html",
+          "sizeLines": 515,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "reproduce_issue_loop.py",
+          "language": "python",
+          "sizeLines": 12,
+          "fileCategory": "code"
+        },
+        {
+          "path": "reproduce_issue.py",
+          "language": "python",
+          "sizeLines": 9,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/diagnostic.py",
+          "language": "python",
+          "sizeLines": 390,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/gpqa_bench.py",
+          "language": "python",
+          "sizeLines": 208,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/ratelimit.py",
+          "language": "python",
+          "sizeLines": 147,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/stress.py",
+          "language": "python",
+          "sizeLines": 140,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".understand-anything/.understandignore": [],
+        "copilot/__main__.py": [],
+        "examples/04_server_http.py": [],
+        "examples/05_server_stream.py": [],
+        "examples/06_server_openai_sdk.py": [],
+        "examples/README.md": [],
+        "lessons/0001-introduction-to-openai-compatible-servers": [],
+        "lessons/0001-introduction-to-openai-compatible-servers.html": [],
+        "reproduce_issue_loop.py": [],
+        "reproduce_issue.py": [],
+        "tests/diagnostic.py": [],
+        "tests/gpqa_bench.py": [],
+        "tests/ratelimit.py": [],
+        "tests/stress.py": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

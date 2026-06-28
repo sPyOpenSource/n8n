@@ -1,0 +1,1095 @@
+{
+  "scriptCompleted": true,
+  "entryPointCandidates": [
+    {
+      "id": "document:README.md",
+      "score": 6,
+      "name": "README.md",
+      "summary": "Comprehensive project documentation covering setup, Python library and OpenAI-compatible server usage, Docker deployment, rate limiting, Cloudflare clearance, concurrency testing, troubleshooting, and project layout."
+    },
+    {
+      "id": "file:app.py",
+      "score": 5,
+      "name": "app.py",
+      "summary": "Entry point script that imports and invokes the server app function to start the OpenAI-compatible Copilot API server."
+    },
+    {
+      "id": "file:copilot/__main__.py",
+      "score": 5,
+      "name": "__main__.py",
+      "summary": "Command-line entry point for the copilot package, supporting `login` (interactive browser sign-in) and `ask` (one-shot completion via CopilotClient stream) subcommands."
+    },
+    {
+      "id": "document:MISSION.md",
+      "score": 4,
+      "name": "MISSION.md",
+      "summary": "Learning-oriented overview that frames the Windows Copilot API as a study of production-grade OpenAI-compatible bridges, with a recommended learning path from README through server implementation to core library."
+    },
+    {
+      "id": "document:examples/README.md",
+      "score": 4,
+      "name": "README.md",
+      "summary": "Index of runnable examples for direct Python usage with CopilotClient and HTTP server interaction, organized by usage pattern."
+    }
+  ],
+  "fanInRanking": [
+    {
+      "id": "file:copilot/__init__.py",
+      "fanIn": 4,
+      "name": "__init__.py"
+    },
+    {
+      "id": "file:copilot/auth.py",
+      "fanIn": 3,
+      "name": "auth.py"
+    },
+    {
+      "id": "file:copilot/driver.py",
+      "fanIn": 3,
+      "name": "driver.py"
+    },
+    {
+      "id": "file:copilot/models.py",
+      "fanIn": 3,
+      "name": "models.py"
+    },
+    {
+      "id": "file:server/config.py",
+      "fanIn": 2,
+      "name": "config.py"
+    },
+    {
+      "id": "file:server/schemas.py",
+      "fanIn": 2,
+      "name": "schemas.py"
+    },
+    {
+      "id": "file:server/__init__.py",
+      "fanIn": 2,
+      "name": "__init__.py"
+    },
+    {
+      "id": "service:Dockerfile",
+      "fanIn": 2,
+      "name": "Dockerfile"
+    },
+    {
+      "id": "document:README.md",
+      "fanIn": 2,
+      "name": "README.md"
+    },
+    {
+      "id": "file:examples/06_server_openai_sdk.py",
+      "fanIn": 2,
+      "name": "06_server_openai_sdk.py"
+    },
+    {
+      "id": "file:copilot/browser.py",
+      "fanIn": 1,
+      "name": "browser.py"
+    },
+    {
+      "id": "file:copilot/client.py",
+      "fanIn": 1,
+      "name": "client.py"
+    },
+    {
+      "id": "file:copilot/challenges.py",
+      "fanIn": 1,
+      "name": "challenges.py"
+    },
+    {
+      "id": "file:copilot/protocol.py",
+      "fanIn": 1,
+      "name": "protocol.py"
+    },
+    {
+      "id": "file:copilot/utils.py",
+      "fanIn": 1,
+      "name": "utils.py"
+    },
+    {
+      "id": "class:copilot/models.py:AbstractProvider",
+      "fanIn": 1,
+      "name": "AbstractProvider"
+    },
+    {
+      "id": "file:server/openai_format.py",
+      "fanIn": 1,
+      "name": "openai_format.py"
+    },
+    {
+      "id": "file:server/prompt.py",
+      "fanIn": 1,
+      "name": "prompt.py"
+    },
+    {
+      "id": "file:server/ratelimit.py",
+      "fanIn": 1,
+      "name": "ratelimit.py"
+    },
+    {
+      "id": "function:server/prompt.py:messages_to_prompt",
+      "fanIn": 1,
+      "name": "messages_to_prompt"
+    }
+  ],
+  "fanOutRanking": [
+    {
+      "id": "file:server/api.py",
+      "fanOut": 7,
+      "name": "api.py"
+    },
+    {
+      "id": "file:copilot/__init__.py",
+      "fanOut": 4,
+      "name": "__init__.py"
+    },
+    {
+      "id": "file:copilot/driver.py",
+      "fanOut": 4,
+      "name": "driver.py"
+    },
+    {
+      "id": "file:copilot/client.py",
+      "fanOut": 3,
+      "name": "client.py"
+    },
+    {
+      "id": "function:server/api.py:_stream",
+      "fanOut": 3,
+      "name": "_stream"
+    },
+    {
+      "id": "document:examples/README.md",
+      "fanOut": 3,
+      "name": "README.md"
+    },
+    {
+      "id": "function:server/api.py:chat_completions",
+      "fanOut": 2,
+      "name": "chat_completions"
+    },
+    {
+      "id": "file:server/__init__.py",
+      "fanOut": 2,
+      "name": "__init__.py"
+    },
+    {
+      "id": "document:MISSION.md",
+      "fanOut": 2,
+      "name": "MISSION.md"
+    },
+    {
+      "id": "file:copilot/browser.py",
+      "fanOut": 1,
+      "name": "browser.py"
+    },
+    {
+      "id": "file:examples/01_direct_chat.py",
+      "fanOut": 1,
+      "name": "01_direct_chat.py"
+    },
+    {
+      "id": "file:examples/02_direct_conversation.py",
+      "fanOut": 1,
+      "name": "02_direct_conversation.py"
+    },
+    {
+      "id": "file:examples/03_direct_stream.py",
+      "fanOut": 1,
+      "name": "03_direct_stream.py"
+    },
+    {
+      "id": "file:copilot/utils.py",
+      "fanOut": 1,
+      "name": "utils.py"
+    },
+    {
+      "id": "class:copilot/driver.py:Copilot",
+      "fanOut": 1,
+      "name": "Copilot"
+    },
+    {
+      "id": "file:server/prompt.py",
+      "fanOut": 1,
+      "name": "prompt.py"
+    },
+    {
+      "id": "file:server/schemas.py",
+      "fanOut": 1,
+      "name": "schemas.py"
+    },
+    {
+      "id": "function:server/api.py:_rate_limited_response",
+      "fanOut": 1,
+      "name": "_rate_limited_response"
+    },
+    {
+      "id": "file:app.py",
+      "fanOut": 1,
+      "name": "app.py"
+    },
+    {
+      "id": "file:tests/test_server.py",
+      "fanOut": 1,
+      "name": "test_server.py"
+    }
+  ],
+  "bfsTraversal": {
+    "startNode": "file:app.py",
+    "order": [
+      "file:app.py",
+      "file:server/__init__.py",
+      "file:server/api.py",
+      "file:copilot/__init__.py",
+      "file:copilot/driver.py",
+      "file:server/config.py",
+      "file:server/openai_format.py",
+      "file:server/prompt.py",
+      "file:server/ratelimit.py",
+      "file:server/schemas.py",
+      "file:copilot/auth.py",
+      "file:copilot/browser.py",
+      "file:copilot/client.py",
+      "file:copilot/challenges.py",
+      "file:copilot/models.py",
+      "file:copilot/protocol.py",
+      "file:copilot/utils.py"
+    ],
+    "depthMap": {
+      "file:app.py": 0,
+      "file:server/__init__.py": 1,
+      "file:server/api.py": 2,
+      "file:copilot/__init__.py": 3,
+      "file:copilot/driver.py": 3,
+      "file:server/config.py": 3,
+      "file:server/openai_format.py": 3,
+      "file:server/prompt.py": 3,
+      "file:server/ratelimit.py": 3,
+      "file:server/schemas.py": 3,
+      "file:copilot/auth.py": 4,
+      "file:copilot/browser.py": 4,
+      "file:copilot/client.py": 4,
+      "file:copilot/challenges.py": 4,
+      "file:copilot/models.py": 4,
+      "file:copilot/protocol.py": 4,
+      "file:copilot/utils.py": 4
+    },
+    "byDepth": {
+      "0": [
+        "file:app.py"
+      ],
+      "1": [
+        "file:server/__init__.py"
+      ],
+      "2": [
+        "file:server/api.py"
+      ],
+      "3": [
+        "file:copilot/__init__.py",
+        "file:copilot/driver.py",
+        "file:server/config.py",
+        "file:server/openai_format.py",
+        "file:server/prompt.py",
+        "file:server/ratelimit.py",
+        "file:server/schemas.py"
+      ],
+      "4": [
+        "file:copilot/auth.py",
+        "file:copilot/browser.py",
+        "file:copilot/client.py",
+        "file:copilot/challenges.py",
+        "file:copilot/models.py",
+        "file:copilot/protocol.py",
+        "file:copilot/utils.py"
+      ]
+    }
+  },
+  "nonCodeFiles": {
+    "documentation": [
+      {
+        "id": "document:MISSION.md",
+        "name": "MISSION.md",
+        "summary": "Learning-oriented overview that frames the Windows Copilot API as a study of production-grade OpenAI-compatible bridges, with a recommended learning path from README through server implementation to core library."
+      },
+      {
+        "id": "document:README.md",
+        "name": "README.md",
+        "summary": "Comprehensive project documentation covering setup, Python library and OpenAI-compatible server usage, Docker deployment, rate limiting, Cloudflare clearance, concurrency testing, troubleshooting, and project layout."
+      },
+      {
+        "id": "document:RESOURCES.md",
+        "name": "RESOURCES.md",
+        "summary": "Curated file index mapping every source directory and its key files (server, core library, examples, tests) to their purposes, with recommended learning paths for protocol bridging and browser automation."
+      },
+      {
+        "id": "document:requirements.txt",
+        "name": "requirements.txt",
+        "summary": "Python dependency manifest listing the four runtime packages \u2014 curl_cffi for HTTP, playwright for browser automation, fastapi and uvicorn for the OpenAI-compatible server."
+      },
+      {
+        "id": "document:examples/README.md",
+        "name": "README.md",
+        "summary": "Index of runnable examples for direct Python usage with CopilotClient and HTTP server interaction, organized by usage pattern."
+      }
+    ],
+    "infrastructure": [
+      {
+        "id": "service:.dockerignore",
+        "name": ".dockerignore",
+        "summary": "Excludes local development artifacts (caches, venvs, session secrets, tests) from the Docker build context to keep the image lean and avoid leaking credentials."
+      },
+      {
+        "id": "service:docker-compose.yml",
+        "name": "docker-compose.yml",
+        "summary": "Defines the copilot-api service with port mapping, environment variables for rate limiting (RATE_LIMIT_RPM, RATE_LIMIT_BURST), and a bind-mounted session volume for persistent browser profile storage."
+      },
+      {
+        "id": "service:Dockerfile",
+        "name": "Dockerfile",
+        "summary": "Single-stage Docker image based on Playwright Python that installs dependencies, copies the application, and serves the Copilot API on port 8000."
+      },
+      {
+        "id": "service:Dockerfile:python",
+        "name": "python",
+        "summary": "Build stage from the Playwright Python image that installs requirements, copies all source code, and runs app.py as the container entry point."
+      }
+    ],
+    "data": [],
+    "config": []
+  },
+  "clusters": [
+    {
+      "nodes": [
+        "file:copilot/browser.py",
+        "file:copilot/client.py",
+        "file:copilot/__init__.py",
+        "file:copilot/auth.py",
+        "file:copilot/driver.py"
+      ],
+      "edgeCount": 7
+    },
+    {
+      "nodes": [
+        "file:server/config.py",
+        "file:server/api.py",
+        "file:server/schemas.py",
+        "file:server/prompt.py"
+      ],
+      "edgeCount": 5
+    },
+    {
+      "nodes": [
+        "document:RESOURCES.md",
+        "document:README.md",
+        "document:MISSION.md"
+      ],
+      "edgeCount": 3
+    },
+    {
+      "nodes": [
+        "file:server/__init__.py",
+        "file:tests/test_server.py"
+      ],
+      "edgeCount": 2
+    },
+    {
+      "nodes": [
+        "function:server/openai_format.py:sse_event",
+        "function:server/api.py:_stream"
+      ],
+      "edgeCount": 1
+    },
+    {
+      "nodes": [
+        "file:examples/06_server_openai_sdk.py",
+        "document:examples/README.md"
+      ],
+      "edgeCount": 1
+    },
+    {
+      "nodes": [
+        "function:server/api.py:chat_completions",
+        "function:server/openai_format.py:completion_response"
+      ],
+      "edgeCount": 1
+    },
+    {
+      "nodes": [
+        "service:Dockerfile",
+        "service:docker-compose.yml"
+      ],
+      "edgeCount": 1
+    }
+  ],
+  "layers": {
+    "count": 6,
+    "list": [
+      {
+        "id": "layer:core",
+        "name": "Core Library",
+        "description": "Copilot SDK library implementing the Microsoft Copilot chat protocol, including cookie-based auth, Playwright browser automation, WebSocket driver, challenge solving, and shared data models"
+      },
+      {
+        "id": "layer:api",
+        "name": "API Server Layer",
+        "description": "FastAPI-based OpenAI-compatible server that translates Chat Completions requests into Copilot protocol calls, with request validation, rate limiting, prompt building, and SSE streaming"
+      },
+      {
+        "id": "layer:test",
+        "name": "Test Layer",
+        "description": "Unit tests, integration diagnostics, stress and rate-limit load tests, GPQA accuracy benchmarks, and Playwright async bug reproduction scripts"
+      },
+      {
+        "id": "layer:examples",
+        "name": "Examples Layer",
+        "description": "Runnable example scripts demonstrating direct CopilotClient usage, server HTTP/streaming interaction, and OpenAI SDK integration"
+      },
+      {
+        "id": "layer:infrastructure",
+        "name": "Infrastructure Layer",
+        "description": "Container definitions, deployment orchestration, build context configuration, and tooling configuration for reproducible deployment"
+      },
+      {
+        "id": "layer:documentation",
+        "name": "Documentation Layer",
+        "description": "Project overview, learning paths, resource indexes, dependency manifests, and interactive HTML lessons explaining OpenAI-compatible API concepts"
+      }
+    ]
+  },
+  "nodeSummaryIndex": {
+    "file:copilot/__init__.py": {
+      "name": "__init__.py",
+      "type": "file",
+      "summary": "Package init that re-exports the public API classes (CopilotClient, ChatReply, Copilot, ClearanceRequired, BrowserCopilot, load_auth) from the copilot submodules.",
+      "filePath": "copilot/__init__.py"
+    },
+    "file:copilot/auth.py": {
+      "name": "auth.py",
+      "type": "file",
+      "summary": "Manages signed-in session caching for the pure-HTTP path, loading and refreshing cookies and MSAL access tokens from a browser profile or cached snapshot.",
+      "filePath": "copilot/auth.py"
+    },
+    "function:copilot/auth.py:load_auth": {
+      "name": "load_auth",
+      "type": "function",
+      "summary": "Returns signed-in cookies and access token from cache or by launching a headless/visible browser session to refresh them.",
+      "filePath": "copilot/auth.py"
+    },
+    "file:copilot/browser.py": {
+      "name": "browser.py",
+      "type": "file",
+      "summary": "Drives Playwright for Copilot sign-in, Cloudflare Turnstile clearance, and chat token capture, enabling headless session refresh for the pure-HTTP driver.",
+      "filePath": "copilot/browser.py"
+    },
+    "class:copilot/browser.py:BrowserCopilot": {
+      "name": "BrowserCopilot",
+      "type": "class",
+      "summary": "Launches a persistent Playwright Chromium profile to handle interactive sign-in, headless chat token capture via WebSocket, and Cloudflare Turnstile bypass for the Copilot session.",
+      "filePath": "copilot/browser.py"
+    },
+    "file:examples/01_direct_chat.py": {
+      "name": "01_direct_chat.py",
+      "type": "file",
+      "summary": "Demonstrates the simplest in-process chat usage of CopilotClient with a single non-streaming reply.",
+      "filePath": "examples/01_direct_chat.py"
+    },
+    "file:examples/02_direct_conversation.py": {
+      "name": "02_direct_conversation.py",
+      "type": "file",
+      "summary": "Demonstrates multi-turn conversation by reusing conversation_id to continue a Copilot chat session.",
+      "filePath": "examples/02_direct_conversation.py"
+    },
+    "file:examples/03_direct_stream.py": {
+      "name": "03_direct_stream.py",
+      "type": "file",
+      "summary": "Demonstrates streaming Copilot chat responses incrementally as they are generated.",
+      "filePath": "examples/03_direct_stream.py"
+    },
+    "file:copilot/challenges.py": {
+      "name": "challenges.py",
+      "type": "file",
+      "summary": "Proof-of-work challenge solvers for Copilot's chat WebSocket, implementing hashcash and arithmetic copilot variants that mirror copilot.microsoft.com's own client.",
+      "filePath": "copilot/challenges.py"
+    },
+    "function:copilot/challenges.py:_hashcash_ok": {
+      "name": "_hashcash_ok",
+      "type": "function",
+      "summary": "Checks whether a SHA-256 digest has at least a given number of leading zero bits for hashcash proof-of-work validation.",
+      "filePath": "copilot/challenges.py"
+    },
+    "function:copilot/challenges.py:solve_hashcash": {
+      "name": "solve_hashcash",
+      "type": "function",
+      "summary": "Solves a hashcash challenge by finding the smallest nonce whose SHA-256 digest has the required leading zero bits.",
+      "filePath": "copilot/challenges.py"
+    },
+    "function:copilot/challenges.py:solve_copilot_challenge": {
+      "name": "solve_copilot_challenge",
+      "type": "function",
+      "summary": "Solves the arithmetic copilot challenge by computing floor((a^3/100 + a*25) mod 22) rounded to nearest integer.",
+      "filePath": "copilot/challenges.py"
+    },
+    "file:copilot/client.py": {
+      "name": "client.py",
+      "type": "file",
+      "summary": "High-level Copilot client providing chat and stream methods with transparent auth refresh, Cloudflare clearance recovery via browser, and anonymous mode support.",
+      "filePath": "copilot/client.py"
+    },
+    "function:copilot/client.py:_status": {
+      "name": "_status",
+      "type": "function",
+      "summary": "Emits a progress or recovery message to stderr so it never mixes into reply text on stdout.",
+      "filePath": "copilot/client.py"
+    },
+    "class:copilot/client.py:ChatReply": {
+      "name": "ChatReply",
+      "type": "class",
+      "summary": "Dataclass holding the full result of a chat call, including text, conversation id, and any generated images.",
+      "filePath": "copilot/client.py"
+    },
+    "class:copilot/client.py:ChatStream": {
+      "name": "ChatStream",
+      "type": "class",
+      "summary": "Iterable stream of reply chunks that also exposes the conversation id, yielding text and ImageResponse items.",
+      "filePath": "copilot/client.py"
+    },
+    "class:copilot/client.py:CopilotClient": {
+      "name": "CopilotClient",
+      "type": "class",
+      "summary": "Main Copilot client managing signed-in auth, Cloudflare clearance recovery, and chat/stream interactions across multiple conversations.",
+      "filePath": "copilot/client.py"
+    },
+    "file:copilot/driver.py": {
+      "name": "driver.py",
+      "type": "file",
+      "summary": "Pure-HTTP Copilot driver implementing Microsoft's consumer chat protocol over a Cloudflare-impersonating curl_cffi session with WebSocket streaming and in-process challenge solving.",
+      "filePath": "copilot/driver.py"
+    },
+    "class:copilot/driver.py:ClearanceRequired": {
+      "name": "ClearanceRequired",
+      "type": "class",
+      "summary": "Exception raised when the chat socket demands a Cloudflare Turnstile token that cannot be minted in a pure-HTTP session.",
+      "filePath": "copilot/driver.py"
+    },
+    "class:copilot/driver.py:Copilot": {
+      "name": "Copilot",
+      "type": "class",
+      "summary": "Concrete Copilot provider implementing chat protocol over curl_cffi with conversation creation, attachment upload, WebSocket handshake, and streaming response parsing.",
+      "filePath": "copilot/driver.py"
+    },
+    "file:copilot/models.py": {
+      "name": "models.py",
+      "type": "file",
+      "summary": "Shared data types including ImageResponse, AbstractProvider base class, and Conversation container used across both the pure-HTTP and browser driver paths.",
+      "filePath": "copilot/models.py"
+    },
+    "class:copilot/models.py:ImageResponse": {
+      "name": "ImageResponse",
+      "type": "class",
+      "summary": "Dataclass holding a generated image's URL, prompt, and associated metadata.",
+      "filePath": "copilot/models.py"
+    },
+    "class:copilot/models.py:AbstractProvider": {
+      "name": "AbstractProvider",
+      "type": "class",
+      "summary": "Abstract base class defining the provider interface with label, url, streaming support, and an abstract create_completion method.",
+      "filePath": "copilot/models.py"
+    },
+    "class:copilot/models.py:Conversation": {
+      "name": "Conversation",
+      "type": "class",
+      "summary": "Thread-safe conversation container holding conversation id, cookie jar, access token, and providing cookie dictionary access.",
+      "filePath": "copilot/models.py"
+    },
+    "file:copilot/protocol.py": {
+      "name": "protocol.py",
+      "type": "file",
+      "summary": "Shared Microsoft Copilot chat-protocol constants including WebSocket URL, setOptions handshake frame, and consents frame captured from a live session.",
+      "filePath": "copilot/protocol.py"
+    },
+    "file:copilot/utils.py": {
+      "name": "utils.py",
+      "type": "file",
+      "summary": "Low-level protocol and I/O helpers including HTTP status checking, WebSocket frame reassembly via JSON draining, and image encoding utilities.",
+      "filePath": "copilot/utils.py"
+    },
+    "function:copilot/utils.py:raise_for_status": {
+      "name": "raise_for_status",
+      "type": "function",
+      "summary": "Raises an exception if the HTTP response status code indicates a client or server error.",
+      "filePath": "copilot/utils.py"
+    },
+    "function:copilot/utils.py:drain_json": {
+      "name": "drain_json",
+      "type": "function",
+      "summary": "Greedily parses all complete JSON objects from a byte buffer, returning the parsed objects and any trailing partial data for reassembly.",
+      "filePath": "copilot/utils.py"
+    },
+    "function:copilot/utils.py:to_bytes": {
+      "name": "to_bytes",
+      "type": "function",
+      "summary": "Converts an image file path or raw bytes into bytes for upload.",
+      "filePath": "copilot/utils.py"
+    },
+    "function:copilot/utils.py:is_accepted_format": {
+      "name": "is_accepted_format",
+      "type": "function",
+      "summary": "Determines the MIME type of image data by checking magic bytes for PNG or JPEG, defaulting to octet-stream.",
+      "filePath": "copilot/utils.py"
+    },
+    "file:server/api.py": {
+      "name": "api.py",
+      "type": "file",
+      "summary": "FastAPI application entry point that wires Microsoft Copilot onto the OpenAI Chat Completions API, exposing endpoints for listing models and generating streaming/non-streaming chat completions.",
+      "filePath": "server/api.py"
+    },
+    "file:server/config.py": {
+      "name": "config.py",
+      "type": "file",
+      "summary": "Server configuration constants for model name, rate limit RPM, and rate limit burst, sourced from environment variables with sensible defaults.",
+      "filePath": "server/config.py"
+    },
+    "file:server/openai_format.py": {
+      "name": "openai_format.py",
+      "type": "file",
+      "summary": "Builders for OpenAI wire-format objects including non-streaming completion responses, SSE event serialization, and streaming chunk objects.",
+      "filePath": "server/openai_format.py"
+    },
+    "file:server/prompt.py": {
+      "name": "prompt.py",
+      "type": "file",
+      "summary": "Flattens OpenAI message arrays into a single Copilot prompt string, handling system messages, multi-turn conversations, and content parts.",
+      "filePath": "server/prompt.py"
+    },
+    "file:server/ratelimit.py": {
+      "name": "ratelimit.py",
+      "type": "file",
+      "summary": "Thread-safe token-bucket rate limiter providing a self-imposed per-minute ceiling on upstream requests, orthogonal to the concurrency lock in the API layer.",
+      "filePath": "server/ratelimit.py"
+    },
+    "file:server/schemas.py": {
+      "name": "schemas.py",
+      "type": "file",
+      "summary": "Pydantic request models defining the OpenAI-compatible chat completion request shape with support for streaming, conversation threading, and content parts.",
+      "filePath": "server/schemas.py"
+    },
+    "function:server/api.py:_rate_limited_response": {
+      "name": "_rate_limited_response",
+      "type": "function",
+      "summary": "Spends a rate-limit token and returns an OpenAI-shaped 429 response if the bucket is empty, or None if the request is allowed.",
+      "filePath": "server/api.py"
+    },
+    "function:server/api.py:_stream": {
+      "name": "_stream",
+      "type": "function",
+      "summary": "Generator that yields OpenAI chat.completion.chunk SSE events for a prompt, serializing upstream Copilot access with a threading lock and handling ClearanceRequired and other errors.",
+      "filePath": "server/api.py"
+    },
+    "function:server/api.py:list_models": {
+      "name": "list_models",
+      "type": "function",
+      "summary": "GET /v1/models handler returning the single advertised Copilot model in OpenAI format.",
+      "filePath": "server/api.py"
+    },
+    "function:server/api.py:get_model_id": {
+      "name": "get_model_id",
+      "type": "function",
+      "summary": "GET /v1/models/{model_id} handler returning a static model object for any requested model id.",
+      "filePath": "server/api.py"
+    },
+    "function:server/api.py:list_api_models": {
+      "name": "list_api_models",
+      "type": "function",
+      "summary": "GET /api/v1/models handler returning the Copilot model in OpenAI format at a secondary path.",
+      "filePath": "server/api.py"
+    },
+    "function:server/api.py:get_problems": {
+      "name": "get_problems",
+      "type": "function",
+      "summary": "GET /v1/probs stub handler returning an empty problems list.",
+      "filePath": "server/api.py"
+    },
+    "function:server/api.py:post_show": {
+      "name": "post_show",
+      "type": "function",
+      "summary": "POST /api/show stub handler returning an empty show response.",
+      "filePath": "server/api.py"
+    },
+    "function:server/api.py:chat_completions": {
+      "name": "chat_completions",
+      "type": "function",
+      "summary": "POST /v1/chat/completions handler that validates the prompt, enforces rate limits, and dispatches streaming or non-streaming responses through the Copilot client.",
+      "filePath": "server/api.py"
+    },
+    "function:server/api.py:get_version": {
+      "name": "get_version",
+      "type": "function",
+      "summary": "GET /version handler returning the API version string.",
+      "filePath": "server/api.py"
+    },
+    "function:server/api.py:root": {
+      "name": "root",
+      "type": "function",
+      "summary": "GET / root handler returning the service name and list of available endpoints.",
+      "filePath": "server/api.py"
+    },
+    "function:server/openai_format.py:new_id": {
+      "name": "new_id",
+      "type": "function",
+      "summary": "Generates a fresh chatcmpl- UUID string matching the OpenAI chat completion ID format.",
+      "filePath": "server/openai_format.py"
+    },
+    "function:server/openai_format.py:completion_response": {
+      "name": "completion_response",
+      "type": "function",
+      "summary": "Builds an OpenAI non-streaming chat.completion response dict with the assistant message, model id, and optional Copilot conversation id.",
+      "filePath": "server/openai_format.py"
+    },
+    "function:server/openai_format.py:sse_event": {
+      "name": "sse_event",
+      "type": "function",
+      "summary": "Serializes a payload dict as a Server-Sent Events data: line.",
+      "filePath": "server/openai_format.py"
+    },
+    "function:server/openai_format.py:stream_chunk": {
+      "name": "stream_chunk",
+      "type": "function",
+      "summary": "Builds a single chat.completion.chunk dict for OpenAI streaming responses, including optional conversation id on the final chunk.",
+      "filePath": "server/openai_format.py"
+    },
+    "function:server/prompt.py:content_text": {
+      "name": "content_text",
+      "type": "function",
+      "summary": "Extracts plain text from a message content field, handling both plain strings and OpenAI content-parts arrays.",
+      "filePath": "server/prompt.py"
+    },
+    "function:server/prompt.py:messages_to_prompt": {
+      "name": "messages_to_prompt",
+      "type": "function",
+      "summary": "Flattens an OpenAI messages array into a single Copilot prompt string, handling system messages and multi-turn conversation formatting.",
+      "filePath": "server/prompt.py"
+    },
+    "class:server/ratelimit.py:TokenBucket": {
+      "name": "TokenBucket",
+      "type": "class",
+      "summary": "Thread-safe token-bucket rate limiter with configurable RPM and burst, injectable clock for testing, and non-blocking try_acquire interface.",
+      "filePath": "server/ratelimit.py"
+    },
+    "class:server/schemas.py:ChatMessage": {
+      "name": "ChatMessage",
+      "type": "class",
+      "summary": "Pydantic model representing a single chat message with role and optional content (plain string or content-parts).",
+      "filePath": "server/schemas.py"
+    },
+    "class:server/schemas.py:ChatCompletionRequest": {
+      "name": "ChatCompletionRequest",
+      "type": "class",
+      "summary": "Pydantic model for OpenAI-compatible chat completion requests with messages, model, stream flag, and optional Copilot conversation id.",
+      "filePath": "server/schemas.py"
+    },
+    "file:app.py": {
+      "name": "app.py",
+      "type": "file",
+      "summary": "Entry point script that imports and invokes the server app function to start the OpenAI-compatible Copilot API server.",
+      "filePath": "app.py"
+    },
+    "file:server/__init__.py": {
+      "name": "__init__.py",
+      "type": "file",
+      "summary": "Package entry point that exposes the app() function for starting the Copilot API server with uvicorn integration and auth session management.",
+      "filePath": "server/__init__.py"
+    },
+    "function:server/__init__.py:app": {
+      "name": "app",
+      "type": "function",
+      "summary": "Starts the uvicorn server with configurable host/port, ensuring a Copilot auth session exists before serving requests.",
+      "filePath": "server/__init__.py"
+    },
+    "file:tests/test_server.py": {
+      "name": "test_server.py",
+      "type": "file",
+      "summary": "Unit tests for server startup configuration covering default host/port, environment variable overrides, and explicit address precedence.",
+      "filePath": "tests/test_server.py"
+    },
+    "class:tests/test_server.py:ServerStartupTests": {
+      "name": "ServerStartupTests",
+      "type": "class",
+      "summary": "Test case with three methods verifying the app function uses correct default, env-based, and explicit host/port values when starting the server.",
+      "filePath": "tests/test_server.py"
+    },
+    "service:.dockerignore": {
+      "name": ".dockerignore",
+      "type": "service",
+      "summary": "Excludes local development artifacts (caches, venvs, session secrets, tests) from the Docker build context to keep the image lean and avoid leaking credentials.",
+      "filePath": ".dockerignore"
+    },
+    "service:docker-compose.yml": {
+      "name": "docker-compose.yml",
+      "type": "service",
+      "summary": "Defines the copilot-api service with port mapping, environment variables for rate limiting (RATE_LIMIT_RPM, RATE_LIMIT_BURST), and a bind-mounted session volume for persistent browser profile storage.",
+      "filePath": "docker-compose.yml"
+    },
+    "service:Dockerfile": {
+      "name": "Dockerfile",
+      "type": "service",
+      "summary": "Single-stage Docker image based on Playwright Python that installs dependencies, copies the application, and serves the Copilot API on port 8000.",
+      "filePath": "Dockerfile"
+    },
+    "service:Dockerfile:python": {
+      "name": "python",
+      "type": "service",
+      "summary": "Build stage from the Playwright Python image that installs requirements, copies all source code, and runs app.py as the container entry point.",
+      "filePath": "Dockerfile"
+    },
+    "document:MISSION.md": {
+      "name": "MISSION.md",
+      "type": "document",
+      "summary": "Learning-oriented overview that frames the Windows Copilot API as a study of production-grade OpenAI-compatible bridges, with a recommended learning path from README through server implementation to core library.",
+      "filePath": "MISSION.md"
+    },
+    "document:README.md": {
+      "name": "README.md",
+      "type": "document",
+      "summary": "Comprehensive project documentation covering setup, Python library and OpenAI-compatible server usage, Docker deployment, rate limiting, Cloudflare clearance, concurrency testing, troubleshooting, and project layout.",
+      "filePath": "README.md"
+    },
+    "document:RESOURCES.md": {
+      "name": "RESOURCES.md",
+      "type": "document",
+      "summary": "Curated file index mapping every source directory and its key files (server, core library, examples, tests) to their purposes, with recommended learning paths for protocol bridging and browser automation.",
+      "filePath": "RESOURCES.md"
+    },
+    "document:requirements.txt": {
+      "name": "requirements.txt",
+      "type": "document",
+      "summary": "Python dependency manifest listing the four runtime packages \u2014 curl_cffi for HTTP, playwright for browser automation, fastapi and uvicorn for the OpenAI-compatible server.",
+      "filePath": "requirements.txt"
+    },
+    "file:.understand-anything/.understandignore": {
+      "name": ".understandignore",
+      "type": "file",
+      "summary": "Ignore file for the understand-anything analyzer, with commented-out suggestions for exclusions derived from .gitignore and test file patterns.",
+      "filePath": ".understand-anything/.understandignore"
+    },
+    "file:copilot/__main__.py": {
+      "name": "__main__.py",
+      "type": "file",
+      "summary": "Command-line entry point for the copilot package, supporting `login` (interactive browser sign-in) and `ask` (one-shot completion via CopilotClient stream) subcommands.",
+      "filePath": "copilot/__main__.py"
+    },
+    "function:copilot/__main__.py:main": {
+      "name": "main",
+      "type": "function",
+      "summary": "Routes CLI commands to login or ask flows, dispatching to BrowserCopilot for sign-in or CopilotClient for streaming completions.",
+      "filePath": "copilot/__main__.py"
+    },
+    "file:examples/04_server_http.py": {
+      "name": "04_server_http.py",
+      "type": "file",
+      "summary": "Demonstrates talking to the OpenAI-compatible server over plain HTTP using the requests library, including continuing a conversation via conversation_id.",
+      "filePath": "examples/04_server_http.py"
+    },
+    "file:examples/05_server_stream.py": {
+      "name": "05_server_stream.py",
+      "type": "file",
+      "summary": "Shows how to stream responses from the OpenAI-compatible server over Server-Sent Events, parsing delta content and capturing the conversation_id from the final chunk.",
+      "filePath": "examples/05_server_stream.py"
+    },
+    "file:examples/06_server_openai_sdk.py": {
+      "name": "06_server_openai_sdk.py",
+      "type": "file",
+      "summary": "Illustrates using the official OpenAI Python SDK against the local server, including accessing the custom conversation_id field via model_extra.",
+      "filePath": "examples/06_server_openai_sdk.py"
+    },
+    "document:examples/README.md": {
+      "name": "README.md",
+      "type": "document",
+      "summary": "Index of runnable examples for direct Python usage with CopilotClient and HTTP server interaction, organized by usage pattern.",
+      "filePath": "examples/README.md"
+    },
+    "file:lessons/0001-introduction-to-openai-compatible-servers": {
+      "name": "0001-introduction-to-openai-compatible-servers",
+      "type": "file",
+      "summary": "Redirect file containing a lesson identifier string, pointing to the accompanying HTML lesson resource.",
+      "filePath": "lessons/0001-introduction-to-openai-compatible-servers"
+    },
+    "file:lessons/0001-introduction-to-openai-compatible-servers.html": {
+      "name": "0001-introduction-to-openai-compatible-servers.html",
+      "type": "file",
+      "summary": "HTML lesson introducing OpenAI-compatible API servers, explaining protocol translation, streaming, authentication, and usage patterns with code pointers.",
+      "filePath": "lessons/0001-introduction-to-openai-compatible-servers.html"
+    },
+    "file:reproduce_issue_loop.py": {
+      "name": "reproduce_issue_loop.py",
+      "type": "file",
+      "summary": "Script that reproduces an asyncio nesting issue with Playwright's sync API by incorrectly wrapping synchronous Playwright code inside an async main function.",
+      "filePath": "reproduce_issue_loop.py"
+    },
+    "function:reproduce_issue_loop.py:main": {
+      "name": "main",
+      "type": "function",
+      "summary": "Async function that attempts to run Playwright's sync API inside an async context, causing an event loop nesting error.",
+      "filePath": "reproduce_issue_loop.py"
+    },
+    "file:reproduce_issue.py": {
+      "name": "reproduce_issue.py",
+      "type": "file",
+      "summary": "Demonstrates the fix for the async Playwright issue by applying nest_asyncio before using Playwright's sync API at module level.",
+      "filePath": "reproduce_issue.py"
+    },
+    "file:tests/diagnostic.py": {
+      "name": "diagnostic.py",
+      "type": "file",
+      "summary": "Diagnostic tool for debugging broken Copilot sessions \u2014 captures WebSocket protocol via a real browser, redacts secrets, snapshots fresh auth tokens, and writes a shareable HTML report.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:redact": {
+      "name": "redact",
+      "type": "function",
+      "summary": "Strips secrets (tokens, JWTs, auth codes, emails) from text using a cascade of regex patterns.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:_to_text": {
+      "name": "_to_text",
+      "type": "function",
+      "summary": "Converts payload (bytes or string) to a UTF-8 decoded string with replacement for invalid sequences.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:env_section": {
+      "name": "env_section",
+      "type": "function",
+      "summary": "Writes Python version, platform, and machine info to the diagnostic report.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:packages_section": {
+      "name": "packages_section",
+      "type": "function",
+      "summary": "Reports installed versions of key packages (curl_cffi, playwright, fastapi, uvicorn, pydantic, websockets) for reproducibility.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:playwright_section": {
+      "name": "playwright_section",
+      "type": "function",
+      "summary": "Verifies Playwright Chromium browser installation and reports its executable path.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:session_section": {
+      "name": "session_section",
+      "type": "function",
+      "summary": "Reports session state including token presence, age, access_token length, and key cookie status without revealing secret values.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:_snapshot_auth": {
+      "name": "_snapshot_auth",
+      "type": "function",
+      "summary": "Captures a fresh token.json from the live browser context, reading cookies and MSAL token to avoid spawning a second browser.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:browser_capture": {
+      "name": "browser_capture",
+      "type": "function",
+      "summary": "Opens a real browser with the signed-in profile, intercepts WebSocket chat frames (redacted) to ws_capture.log, and snapshots a fresh auth token after a completed turn.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:live_probe_section": {
+      "name": "live_probe_section",
+      "type": "function",
+      "summary": "Sends a real completion request via CopilotClient to test whether the saved session works, reporting success or failure with timing.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:log_tail_section": {
+      "name": "log_tail_section",
+      "type": "function",
+      "summary": "Appends the last N redacted lines of a log file to the diagnostic report.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "function:tests/diagnostic.py:main": {
+      "name": "main",
+      "type": "function",
+      "summary": "Orchestrates the full diagnostic: collects environment info, sessions, optionally runs the browser capture, performs a live probe, and writes the report.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "class:tests/diagnostic.py:Report": {
+      "name": "Report",
+      "type": "class",
+      "summary": "Accumulates diagnostic report lines into a buffer while echoing them to the console, with section formatting helpers.",
+      "filePath": "tests/diagnostic.py"
+    },
+    "file:tests/gpqa_bench.py": {
+      "name": "gpqa_bench.py",
+      "type": "file",
+      "summary": "GPQA accuracy benchmark that loads multiple-choice questions from a CSV, sends them to the OpenAI-compatible server, parses answers, and reports accuracy with optional JSON output.",
+      "filePath": "tests/gpqa_bench.py"
+    },
+    "function:tests/gpqa_bench.py:build_question": {
+      "name": "build_question",
+      "type": "function",
+      "summary": "Shuffles answer options from a GPQA CSV row and builds a formatted prompt with the correct letter recorded.",
+      "filePath": "tests/gpqa_bench.py"
+    },
+    "function:tests/gpqa_bench.py:parse_letter": {
+      "name": "parse_letter",
+      "type": "function",
+      "summary": "Extracts the chosen A-D letter from the model's free-text reply, preferring leading matches and falling back to any standalone letter.",
+      "filePath": "tests/gpqa_bench.py"
+    },
+    "function:tests/gpqa_bench.py:ask": {
+      "name": "ask",
+      "type": "function",
+      "summary": "Sends a chat completion request via urllib to the server endpoint and returns the reply text or error detail.",
+      "filePath": "tests/gpqa_bench.py"
+    },
+    "function:tests/gpqa_bench.py:main": {
+      "name": "main",
+      "type": "function",
+      "summary": "Orchestrates the GPQA benchmark: parses CLI args, loads CSV, iterates questions with configurable delay, logs results, and optionally writes a JSON summary.",
+      "filePath": "tests/gpqa_bench.py"
+    },
+    "file:tests/ratelimit.py": {
+      "name": "ratelimit.py",
+      "type": "file",
+      "summary": "Open-loop rate-limit probe that fires requests at a fixed wall-clock rate (RPM) using threaded workers, distinguishing bridge 429s from upstream 502s.",
+      "filePath": "tests/ratelimit.py"
+    },
+    "function:tests/ratelimit.py:classify": {
+      "name": "classify",
+      "type": "function",
+      "summary": "Sends one chat completion and classifies the result as ok, 429, 502, or other with elapsed time and detail.",
+      "filePath": "tests/ratelimit.py"
+    },
+    "function:tests/ratelimit.py:main": {
+      "name": "main",
+      "type": "function",
+      "summary": "Orchestrates the open-loop rate-limit probe: parses args, schedules requests on timed slots via ThreadPoolExecutor, and summarizes category counts.",
+      "filePath": "tests/ratelimit.py"
+    },
+    "file:tests/stress.py": {
+      "name": "stress.py",
+      "type": "file",
+      "summary": "Concurrency stress test that doubles parallel request count each round, stopping at the first round with any failure to find the server's queue capacity ceiling.",
+      "filePath": "tests/stress.py"
+    },
+    "function:tests/stress.py:one_request": {
+      "name": "one_request",
+      "type": "function",
+      "summary": "Sends a single chat completion and returns success status, elapsed time, and a detail string including error information.",
+      "filePath": "tests/stress.py"
+    },
+    "function:tests/stress.py:run_round": {
+      "name": "run_round",
+      "type": "function",
+      "summary": "Fires a batch of concurrent requests via ThreadPoolExecutor and returns all results with wall-clock timing.",
+      "filePath": "tests/stress.py"
+    },
+    "function:tests/stress.py:main": {
+      "name": "main",
+      "type": "function",
+      "summary": "Runs the stress test loop: doubles concurrency each round, reports latencies, stops on first failure, and prints the highest successful concurrency.",
+      "filePath": "tests/stress.py"
+    }
+  },
+  "totalNodes": 105,
+  "totalEdges": 173
+}

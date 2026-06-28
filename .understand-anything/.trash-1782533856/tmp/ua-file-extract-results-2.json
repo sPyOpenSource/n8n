@@ -1,0 +1,1035 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "copilot/challenges.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 44,
+      "nonEmptyLines": 35,
+      "functions": [
+        {
+          "name": "_hashcash_ok",
+          "startLine": 12,
+          "endLine": 22,
+          "params": [
+            "digest",
+            "difficulty"
+          ]
+        },
+        {
+          "name": "solve_hashcash",
+          "startLine": 25,
+          "endLine": 38,
+          "params": [
+            "parameter"
+          ]
+        },
+        {
+          "name": "solve_copilot_challenge",
+          "startLine": 41,
+          "endLine": 44,
+          "params": [
+            "parameter"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_hashcash_ok",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "solve_hashcash",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "solve_copilot_challenge",
+          "line": 41,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_hashcash_ok",
+          "callee": "range",
+          "lineNumber": 15
+        },
+        {
+          "caller": "solve_hashcash",
+          "callee": "parameter.rsplit",
+          "lineNumber": 32
+        },
+        {
+          "caller": "solve_hashcash",
+          "callee": "int",
+          "lineNumber": 33
+        },
+        {
+          "caller": "solve_hashcash",
+          "callee": "_hashcash_ok",
+          "lineNumber": 36
+        },
+        {
+          "caller": "solve_hashcash",
+          "callee": "hashlib.sha256((seed + str(n)).encode()).digest",
+          "lineNumber": 36
+        },
+        {
+          "caller": "solve_hashcash",
+          "callee": "hashlib.sha256",
+          "lineNumber": 36
+        },
+        {
+          "caller": "solve_hashcash",
+          "callee": "(seed + str(n)).encode",
+          "lineNumber": 36
+        },
+        {
+          "caller": "solve_hashcash",
+          "callee": "str",
+          "lineNumber": 36
+        },
+        {
+          "caller": "solve_hashcash",
+          "callee": "str",
+          "lineNumber": 37
+        },
+        {
+          "caller": "solve_copilot_challenge",
+          "callee": "float",
+          "lineNumber": 43
+        },
+        {
+          "caller": "solve_copilot_challenge",
+          "callee": "str",
+          "lineNumber": 44
+        },
+        {
+          "caller": "solve_copilot_challenge",
+          "callee": "int",
+          "lineNumber": 44
+        },
+        {
+          "caller": "solve_copilot_challenge",
+          "callee": "math.floor",
+          "lineNumber": 44
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "copilot/client.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 247,
+      "nonEmptyLines": 211,
+      "functions": [
+        {
+          "name": "_status",
+          "startLine": 36,
+          "endLine": 42,
+          "params": [
+            "msg"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "ChatReply",
+          "startLine": 46,
+          "endLine": 51,
+          "methods": [],
+          "properties": [
+            "text",
+            "conversation_id",
+            "images"
+          ]
+        },
+        {
+          "name": "ChatStream",
+          "startLine": 54,
+          "endLine": 72,
+          "methods": [
+            "__init__",
+            "__iter__"
+          ],
+          "properties": []
+        },
+        {
+          "name": "CopilotClient",
+          "startLine": 75,
+          "endLine": 247,
+          "methods": [
+            "__init__",
+            "stream",
+            "_stream_with_recovery",
+            "_refresh_clearance",
+            "chat",
+            "_fresh_auth"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "_status",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "ChatReply",
+          "line": 45,
+          "isDefault": false
+        },
+        {
+          "name": "ChatStream",
+          "line": 54,
+          "isDefault": false
+        },
+        {
+          "name": "CopilotClient",
+          "line": 75,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_status",
+          "callee": "print",
+          "lineNumber": 42
+        },
+        {
+          "caller": "__iter__",
+          "callee": "isinstance",
+          "lineNumber": 69
+        },
+        {
+          "caller": "__init__",
+          "callee": "Copilot",
+          "lineNumber": 112
+        },
+        {
+          "caller": "stream",
+          "callee": "ChatStream",
+          "lineNumber": 138
+        },
+        {
+          "caller": "stream",
+          "callee": "self._stream_with_recovery",
+          "lineNumber": 139
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "strategies.append",
+          "lineNumber": 158
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "strategies.append",
+          "lineNumber": 160
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "len",
+          "lineNumber": 161
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "range",
+          "lineNumber": 163
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "self._fresh_auth",
+          "lineNumber": 164
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "dict",
+          "lineNumber": 165
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "auth.get",
+          "lineNumber": 170
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "_status",
+          "lineNumber": 179
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "self._driver.create_completion",
+          "lineNumber": 182
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "isinstance",
+          "lineNumber": 183
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "_status",
+          "lineNumber": 189
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "len",
+          "lineNumber": 192
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "_status",
+          "lineNumber": 195
+        },
+        {
+          "caller": "_stream_with_recovery",
+          "callee": "self._refresh_clearance",
+          "lineNumber": 197
+        },
+        {
+          "caller": "_refresh_clearance",
+          "callee": "_status",
+          "lineNumber": 209
+        },
+        {
+          "caller": "_refresh_clearance",
+          "callee": "_status",
+          "lineNumber": 211
+        },
+        {
+          "caller": "_refresh_clearance",
+          "callee": "BrowserCopilot",
+          "lineNumber": 213
+        },
+        {
+          "caller": "_refresh_clearance",
+          "callee": "bot.auto_clear",
+          "lineNumber": 215
+        },
+        {
+          "caller": "_refresh_clearance",
+          "callee": "bot.close",
+          "lineNumber": 217
+        },
+        {
+          "caller": "_refresh_clearance",
+          "callee": "_status",
+          "lineNumber": 218
+        },
+        {
+          "caller": "chat",
+          "callee": "self.stream",
+          "lineNumber": 231
+        },
+        {
+          "caller": "chat",
+          "callee": "isinstance",
+          "lineNumber": 235
+        },
+        {
+          "caller": "chat",
+          "callee": "text.append",
+          "lineNumber": 236
+        },
+        {
+          "caller": "chat",
+          "callee": "isinstance",
+          "lineNumber": 237
+        },
+        {
+          "caller": "chat",
+          "callee": "images.append",
+          "lineNumber": 238
+        },
+        {
+          "caller": "chat",
+          "callee": "ChatReply",
+          "lineNumber": 239
+        },
+        {
+          "caller": "chat",
+          "callee": "\"\".join",
+          "lineNumber": 239
+        },
+        {
+          "caller": "_fresh_auth",
+          "callee": "time.time",
+          "lineNumber": 245
+        },
+        {
+          "caller": "_fresh_auth",
+          "callee": "self._auth.get",
+          "lineNumber": 245
+        },
+        {
+          "caller": "_fresh_auth",
+          "callee": "load_auth",
+          "lineNumber": 246
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 4,
+        "functionCount": 1,
+        "classCount": 3
+      }
+    },
+    {
+      "path": "copilot/driver.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 308,
+      "nonEmptyLines": 278,
+      "classes": [
+        {
+          "name": "ClearanceRequired",
+          "startLine": 31,
+          "endLine": 42,
+          "methods": [],
+          "properties": []
+        },
+        {
+          "name": "Copilot",
+          "startLine": 45,
+          "endLine": 308,
+          "methods": [
+            "create_completion",
+            "_read_stream",
+            "_recv_frame",
+            "_solve_challenge"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ClearanceRequired",
+          "line": 31,
+          "isDefault": false
+        },
+        {
+          "name": "Copilot",
+          "line": 45,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "create_completion",
+          "callee": "uuid.uuid4",
+          "lineNumber": 111
+        },
+        {
+          "caller": "create_completion",
+          "callee": "quote",
+          "lineNumber": 113
+        },
+        {
+          "caller": "create_completion",
+          "callee": "quote",
+          "lineNumber": 117
+        },
+        {
+          "caller": "create_completion",
+          "callee": "Session",
+          "lineNumber": 119
+        },
+        {
+          "caller": "create_completion",
+          "callee": "session.get",
+          "lineNumber": 126
+        },
+        {
+          "caller": "create_completion",
+          "callee": "session.post",
+          "lineNumber": 133
+        },
+        {
+          "caller": "create_completion",
+          "callee": "raise_for_status",
+          "lineNumber": 134
+        },
+        {
+          "caller": "create_completion",
+          "callee": "response.json().get",
+          "lineNumber": 135
+        },
+        {
+          "caller": "create_completion",
+          "callee": "response.json",
+          "lineNumber": 135
+        },
+        {
+          "caller": "create_completion",
+          "callee": "Conversation",
+          "lineNumber": 137
+        },
+        {
+          "caller": "create_completion",
+          "callee": "to_bytes",
+          "lineNumber": 141
+        },
+        {
+          "caller": "create_completion",
+          "callee": "session.post",
+          "lineNumber": 142
+        },
+        {
+          "caller": "create_completion",
+          "callee": "is_accepted_format",
+          "lineNumber": 144
+        },
+        {
+          "caller": "create_completion",
+          "callee": "raise_for_status",
+          "lineNumber": 147
+        },
+        {
+          "caller": "create_completion",
+          "callee": "images.append",
+          "lineNumber": 148
+        },
+        {
+          "caller": "create_completion",
+          "callee": "response.json().get",
+          "lineNumber": 148
+        },
+        {
+          "caller": "create_completion",
+          "callee": "response.json",
+          "lineNumber": 148
+        },
+        {
+          "caller": "create_completion",
+          "callee": "json.dumps({\n                \"event\": \"send\",\n                \"conversationId\": conversation_id,\n                \"content\": [*images, {\"type\": \"text\", \"text\": prompt}],\n                \"mode\": \"smart\",\n                \"context\": {},\n            }).encode",
+          "lineNumber": 150
+        },
+        {
+          "caller": "create_completion",
+          "callee": "json.dumps",
+          "lineNumber": 150
+        },
+        {
+          "caller": "create_completion",
+          "callee": "session.ws_connect",
+          "lineNumber": 158
+        },
+        {
+          "caller": "create_completion",
+          "callee": "wss.send",
+          "lineNumber": 162
+        },
+        {
+          "caller": "create_completion",
+          "callee": "json.dumps(SET_OPTIONS_FRAME).encode",
+          "lineNumber": 162
+        },
+        {
+          "caller": "create_completion",
+          "callee": "json.dumps",
+          "lineNumber": 162
+        },
+        {
+          "caller": "create_completion",
+          "callee": "wss.send",
+          "lineNumber": 163
+        },
+        {
+          "caller": "create_completion",
+          "callee": "json.dumps(CONSENTS_FRAME).encode",
+          "lineNumber": 163
+        },
+        {
+          "caller": "create_completion",
+          "callee": "json.dumps",
+          "lineNumber": 163
+        },
+        {
+          "caller": "create_completion",
+          "callee": "wss.send",
+          "lineNumber": 164
+        },
+        {
+          "caller": "create_completion",
+          "callee": "self._read_stream",
+          "lineNumber": 165
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "time.time",
+          "lineNumber": 181
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "time.time",
+          "lineNumber": 183
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "self._recv_frame",
+          "lineNumber": 185
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "min",
+          "lineNumber": 185
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "time.time",
+          "lineNumber": 189
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "TimeoutError",
+          "lineNumber": 190
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "TimeoutError",
+          "lineNumber": 191
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "isinstance",
+          "lineNumber": 196
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "chunk.encode",
+          "lineNumber": 196
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "drain_json",
+          "lineNumber": 197
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "msg.get",
+          "lineNumber": 200
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "msg.get",
+          "lineNumber": 202
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "ClearanceRequired",
+          "lineNumber": 210
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "self._solve_challenge",
+          "lineNumber": 218
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "RuntimeError",
+          "lineNumber": 220
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "wss.send",
+          "lineNumber": 225
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "json.dumps({\n                        \"event\": \"challengeResponse\",\n                        \"token\": token,\n                        \"method\": msg.get(\"method\"),\n                        \"id\": msg.get(\"id\"),\n                    }).encode",
+          "lineNumber": 225
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "json.dumps",
+          "lineNumber": 225
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "msg.get",
+          "lineNumber": 228
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "msg.get",
+          "lineNumber": 229
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "wss.send",
+          "lineNumber": 233
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "msg.get",
+          "lineNumber": 236
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "msg.get",
+          "lineNumber": 238
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "ImageResponse",
+          "lineNumber": 240
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "msg.get",
+          "lineNumber": 240
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "msg.get",
+          "lineNumber": 240
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "msg.get",
+          "lineNumber": 244
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "RuntimeError",
+          "lineNumber": 246
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "RuntimeError",
+          "lineNumber": 252
+        },
+        {
+          "caller": "_read_stream",
+          "callee": "RuntimeError",
+          "lineNumber": 255
+        },
+        {
+          "caller": "_recv_frame",
+          "callee": "wss.curl.getinfo",
+          "lineNumber": 266
+        },
+        {
+          "caller": "_recv_frame",
+          "callee": "ConnectionError",
+          "lineNumber": 268
+        },
+        {
+          "caller": "_recv_frame",
+          "callee": "wss.recv_fragment",
+          "lineNumber": 272
+        },
+        {
+          "caller": "_recv_frame",
+          "callee": "chunks.append",
+          "lineNumber": 273
+        },
+        {
+          "caller": "_recv_frame",
+          "callee": "b\"\".join",
+          "lineNumber": 275
+        },
+        {
+          "caller": "_recv_frame",
+          "callee": "time.time",
+          "lineNumber": 279
+        },
+        {
+          "caller": "_recv_frame",
+          "callee": "select",
+          "lineNumber": 282
+        },
+        {
+          "caller": "_recv_frame",
+          "callee": "min",
+          "lineNumber": 282
+        },
+        {
+          "caller": "_solve_challenge",
+          "callee": "msg.get",
+          "lineNumber": 301
+        },
+        {
+          "caller": "_solve_challenge",
+          "callee": "msg.get",
+          "lineNumber": 302
+        },
+        {
+          "caller": "_solve_challenge",
+          "callee": "solve_hashcash",
+          "lineNumber": 304
+        },
+        {
+          "caller": "_solve_challenge",
+          "callee": "solve_copilot_challenge",
+          "lineNumber": 306
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 2
+      }
+    },
+    {
+      "path": "copilot/models.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 56,
+      "nonEmptyLines": 43,
+      "classes": [
+        {
+          "name": "ImageResponse",
+          "startLine": 18,
+          "endLine": 21,
+          "methods": [],
+          "properties": [
+            "url",
+            "prompt",
+            "metadata"
+          ]
+        },
+        {
+          "name": "AbstractProvider",
+          "startLine": 24,
+          "endLine": 34,
+          "methods": [
+            "create_completion"
+          ],
+          "properties": [
+            "label",
+            "url",
+            "working",
+            "supports_stream",
+            "default_model",
+            "needs_auth"
+          ]
+        },
+        {
+          "name": "Conversation",
+          "startLine": 37,
+          "endLine": 56,
+          "methods": [
+            "__init__",
+            "_update_cookies_dict",
+            "update_token",
+            "cookies"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ImageResponse",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "AbstractProvider",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "Conversation",
+          "line": 37,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "__init__",
+          "callee": "threading.Lock",
+          "lineNumber": 42
+        },
+        {
+          "caller": "__init__",
+          "callee": "self._update_cookies_dict",
+          "lineNumber": 44
+        },
+        {
+          "caller": "update_token",
+          "callee": "self._update_cookies_dict",
+          "lineNumber": 52
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 0,
+        "classCount": 3
+      }
+    },
+    {
+      "path": "copilot/protocol.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 61,
+      "nonEmptyLines": 54,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "copilot/utils.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 59,
+      "nonEmptyLines": 45,
+      "functions": [
+        {
+          "name": "raise_for_status",
+          "startLine": 13,
+          "endLine": 16,
+          "params": [
+            "response"
+          ]
+        },
+        {
+          "name": "drain_json",
+          "startLine": 22,
+          "endLine": 42,
+          "params": [
+            "buf"
+          ]
+        },
+        {
+          "name": "to_bytes",
+          "startLine": 45,
+          "endLine": 50,
+          "params": [
+            "image"
+          ]
+        },
+        {
+          "name": "is_accepted_format",
+          "startLine": 53,
+          "endLine": 59,
+          "params": [
+            "data"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "raise_for_status",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "drain_json",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "to_bytes",
+          "line": 45,
+          "isDefault": false
+        },
+        {
+          "name": "is_accepted_format",
+          "line": 53,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "raise_for_status",
+          "callee": "Exception",
+          "lineNumber": 16
+        },
+        {
+          "caller": "drain_json",
+          "callee": "buf.decode",
+          "lineNumber": 29
+        },
+        {
+          "caller": "drain_json",
+          "callee": "len",
+          "lineNumber": 31
+        },
+        {
+          "caller": "drain_json",
+          "callee": "s[idx:].lstrip",
+          "lineNumber": 32
+        },
+        {
+          "caller": "drain_json",
+          "callee": "len",
+          "lineNumber": 34
+        },
+        {
+          "caller": "drain_json",
+          "callee": "_decoder.raw_decode",
+          "lineNumber": 37
+        },
+        {
+          "caller": "drain_json",
+          "callee": "out.append",
+          "lineNumber": 40
+        },
+        {
+          "caller": "drain_json",
+          "callee": "len",
+          "lineNumber": 41
+        },
+        {
+          "caller": "drain_json",
+          "callee": "len",
+          "lineNumber": 41
+        },
+        {
+          "caller": "drain_json",
+          "callee": "s[idx:].encode",
+          "lineNumber": 42
+        },
+        {
+          "caller": "to_bytes",
+          "callee": "isinstance",
+          "lineNumber": 47
+        },
+        {
+          "caller": "to_bytes",
+          "callee": "open",
+          "lineNumber": 48
+        },
+        {
+          "caller": "to_bytes",
+          "callee": "f.read",
+          "lineNumber": 49
+        },
+        {
+          "caller": "is_accepted_format",
+          "callee": "data.startswith",
+          "lineNumber": 55
+        },
+        {
+          "caller": "is_accepted_format",
+          "callee": "data.startswith",
+          "lineNumber": 57
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    }
+  ]
+}

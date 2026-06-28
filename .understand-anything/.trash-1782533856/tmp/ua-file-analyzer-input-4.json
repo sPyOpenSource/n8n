@@ -1,0 +1,13 @@
+{
+  "projectRoot": "/Users/xuyi/Source/Python/Windows-Copilot-API",
+  "batchFiles": [
+    {"path": "app.py", "language": "python", "sizeLines": 13, "fileCategory": "code"},
+    {"path": "server/__init__.py", "language": "python", "sizeLines": 54, "fileCategory": "code"},
+    {"path": "tests/test_server.py", "language": "python", "sizeLines": 40, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "app.py": ["server/__init__.py"],
+    "server/__init__.py": ["server/api.py"],
+    "tests/test_server.py": ["server/__init__.py"]
+  }
+}

@@ -5,7 +5,10 @@
 """
 
 import sys
+import nest_asyncio
 
+# Sta geneste asyncio loops toe voor Playwright Sync
+#nest_asyncio.apply()
 
 def main(argv) -> int:
     cmd = argv[0] if argv else "ask"
@@ -18,7 +21,9 @@ def main(argv) -> int:
     if cmd == "ask":
         prompt = " ".join(argv[1:]) or "Hello!"
         from .client import CopilotClient
-
+        from .browser import BrowserCopilot
+        #browser_client = BrowserCopilot()
+        #browser_client.auto_clear()
         for chunk in CopilotClient().stream(prompt):
             if isinstance(chunk, str):
                 print(chunk, end="", flush=True)

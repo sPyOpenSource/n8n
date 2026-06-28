@@ -1,0 +1,1145 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 6,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "copilot/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 29,
+      "nonEmptyLines": 24,
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "copilot/auth.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 86,
+      "nonEmptyLines": 73,
+      "functions": [
+        {
+          "name": "load_auth",
+          "startLine": 21,
+          "endLine": 86,
+          "params": [
+            "path",
+            "profile_dir",
+            "max_age",
+            "proxy",
+            "auto_login"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "load_auth",
+          "line": 21,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "load_auth",
+          "callee": "Path",
+          "lineNumber": 46
+        },
+        {
+          "caller": "load_auth",
+          "callee": "p.exists",
+          "lineNumber": 47
+        },
+        {
+          "caller": "load_auth",
+          "callee": "json.loads",
+          "lineNumber": 49
+        },
+        {
+          "caller": "load_auth",
+          "callee": "p.read_text",
+          "lineNumber": 49
+        },
+        {
+          "caller": "load_auth",
+          "callee": "cached.get",
+          "lineNumber": 50
+        },
+        {
+          "caller": "load_auth",
+          "callee": "time.time",
+          "lineNumber": 50
+        },
+        {
+          "caller": "load_auth",
+          "callee": "cached.get",
+          "lineNumber": 50
+        },
+        {
+          "caller": "load_auth",
+          "callee": "BrowserCopilot",
+          "lineNumber": 61
+        },
+        {
+          "caller": "load_auth",
+          "callee": "bot.start",
+          "lineNumber": 63
+        },
+        {
+          "caller": "load_auth",
+          "callee": "bot.acquire_chat_token",
+          "lineNumber": 64
+        },
+        {
+          "caller": "load_auth",
+          "callee": "bot.region_blocked",
+          "lineNumber": 65
+        },
+        {
+          "caller": "load_auth",
+          "callee": "bot.export_auth",
+          "lineNumber": 66
+        },
+        {
+          "caller": "load_auth",
+          "callee": "time.time",
+          "lineNumber": 66
+        },
+        {
+          "caller": "load_auth",
+          "callee": "bot.close",
+          "lineNumber": 68
+        },
+        {
+          "caller": "load_auth",
+          "callee": "RuntimeError",
+          "lineNumber": 72
+        },
+        {
+          "caller": "load_auth",
+          "callee": "print",
+          "lineNumber": 78
+        },
+        {
+          "caller": "load_auth",
+          "callee": "BrowserCopilot(profile_dir=profile_dir, headless=False, proxy=proxy).login",
+          "lineNumber": 79
+        },
+        {
+          "caller": "load_auth",
+          "callee": "BrowserCopilot",
+          "lineNumber": 79
+        },
+        {
+          "caller": "load_auth",
+          "callee": "auth.get",
+          "lineNumber": 80
+        },
+        {
+          "caller": "load_auth",
+          "callee": "RuntimeError",
+          "lineNumber": 81
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "copilot/browser.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 792,
+      "nonEmptyLines": 702,
+      "classes": [
+        {
+          "name": "BrowserCopilot",
+          "startLine": 127,
+          "endLine": 792,
+          "methods": [
+            "__init__",
+            "start",
+            "_parse_proxy",
+            "region_blocked",
+            "close",
+            "__enter__",
+            "__exit__",
+            "login",
+            "_open_login_log",
+            "_mirror_page_events",
+            "_window_closed",
+            "access_token",
+            "signed_in",
+            "_install_ws_listener",
+            "_on_chat_frame",
+            "_send_warmup",
+            "acquire_chat_token",
+            "_clear_log",
+            "_clearance_value",
+            "_click_turnstile",
+            "_find_turnstile_frame",
+            "_click_in_frame",
+            "_click_turnstile_by_offset",
+            "_await_gate_pass",
+            "auto_clear",
+            "cookies",
+            "export_auth",
+            "_ensure_started"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "BrowserCopilot",
+          "line": 127,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "__init__",
+          "callee": "str",
+          "lineNumber": 150
+        },
+        {
+          "caller": "__init__",
+          "callee": "Path(profile_dir).resolve",
+          "lineNumber": 150
+        },
+        {
+          "caller": "__init__",
+          "callee": "Path",
+          "lineNumber": 150
+        },
+        {
+          "caller": "start",
+          "callee": "sync_playwright().start",
+          "lineNumber": 184
+        },
+        {
+          "caller": "start",
+          "callee": "sync_playwright",
+          "lineNumber": 184
+        },
+        {
+          "caller": "start",
+          "callee": "dict",
+          "lineNumber": 185
+        },
+        {
+          "caller": "start",
+          "callee": "self._parse_proxy",
+          "lineNumber": 197
+        },
+        {
+          "caller": "start",
+          "callee": "self._pw.chromium.launch_persistent_context",
+          "lineNumber": 198
+        },
+        {
+          "caller": "start",
+          "callee": "self._context.add_init_script",
+          "lineNumber": 205
+        },
+        {
+          "caller": "start",
+          "callee": "self._context.new_page",
+          "lineNumber": 208
+        },
+        {
+          "caller": "start",
+          "callee": "self._page.set_default_timeout",
+          "lineNumber": 209
+        },
+        {
+          "caller": "start",
+          "callee": "self._page.goto",
+          "lineNumber": 210
+        },
+        {
+          "caller": "start",
+          "callee": "self._page.wait_for_timeout",
+          "lineNumber": 215
+        },
+        {
+          "caller": "start",
+          "callee": "self.close",
+          "lineNumber": 217
+        },
+        {
+          "caller": "start",
+          "callee": "ConnectionError",
+          "lineNumber": 218
+        },
+        {
+          "caller": "_parse_proxy",
+          "callee": "urlparse",
+          "lineNumber": 226
+        },
+        {
+          "caller": "region_blocked",
+          "callee": "self._page.evaluate",
+          "lineNumber": 240
+        },
+        {
+          "caller": "region_blocked",
+          "callee": "(text or \"\").lower",
+          "lineNumber": 243
+        },
+        {
+          "caller": "close",
+          "callee": "c.close",
+          "lineNumber": 247
+        },
+        {
+          "caller": "close",
+          "callee": "p.stop",
+          "lineNumber": 248
+        },
+        {
+          "caller": "close",
+          "callee": "f.close",
+          "lineNumber": 249
+        },
+        {
+          "caller": "close",
+          "callee": "getattr",
+          "lineNumber": 251
+        },
+        {
+          "caller": "close",
+          "callee": "closer",
+          "lineNumber": 254
+        },
+        {
+          "caller": "close",
+          "callee": "setattr",
+          "lineNumber": 257
+        },
+        {
+          "caller": "__enter__",
+          "callee": "self.start",
+          "lineNumber": 261
+        },
+        {
+          "caller": "__exit__",
+          "callee": "self.close",
+          "lineNumber": 264
+        },
+        {
+          "caller": "login",
+          "callee": "self.close",
+          "lineNumber": 285
+        },
+        {
+          "caller": "login",
+          "callee": "self.start",
+          "lineNumber": 286
+        },
+        {
+          "caller": "login",
+          "callee": "self._install_ws_listener",
+          "lineNumber": 287
+        },
+        {
+          "caller": "login",
+          "callee": "self._open_login_log",
+          "lineNumber": 289
+        },
+        {
+          "caller": "login",
+          "callee": "Path(path).resolve",
+          "lineNumber": 289
+        },
+        {
+          "caller": "login",
+          "callee": "Path",
+          "lineNumber": 289
+        },
+        {
+          "caller": "login",
+          "callee": "log",
+          "lineNumber": 290
+        },
+        {
+          "caller": "login",
+          "callee": "self._mirror_page_events",
+          "lineNumber": 291
+        },
+        {
+          "caller": "login",
+          "callee": "print",
+          "lineNumber": 293
+        },
+        {
+          "caller": "login",
+          "callee": "time.time",
+          "lineNumber": 302
+        },
+        {
+          "caller": "login",
+          "callee": "time.time",
+          "lineNumber": 303
+        },
+        {
+          "caller": "login",
+          "callee": "self._window_closed",
+          "lineNumber": 304
+        },
+        {
+          "caller": "login",
+          "callee": "log",
+          "lineNumber": 305
+        },
+        {
+          "caller": "login",
+          "callee": "self.signed_in",
+          "lineNumber": 307
+        },
+        {
+          "caller": "login",
+          "callee": "log",
+          "lineNumber": 308
+        },
+        {
+          "caller": "login",
+          "callee": "self._page.wait_for_timeout",
+          "lineNumber": 312
+        },
+        {
+          "caller": "login",
+          "callee": "self._clearance_value",
+          "lineNumber": 317
+        },
+        {
+          "caller": "login",
+          "callee": "print",
+          "lineNumber": 319
+        },
+        {
+          "caller": "login",
+          "callee": "log",
+          "lineNumber": 320
+        },
+        {
+          "caller": "login",
+          "callee": "self._send_warmup",
+          "lineNumber": 328
+        },
+        {
+          "caller": "login",
+          "callee": "self._await_gate_pass",
+          "lineNumber": 329
+        },
+        {
+          "caller": "login",
+          "callee": "max",
+          "lineNumber": 330
+        },
+        {
+          "caller": "login",
+          "callee": "int",
+          "lineNumber": 330
+        },
+        {
+          "caller": "login",
+          "callee": "time.time",
+          "lineNumber": 330
+        },
+        {
+          "caller": "login",
+          "callee": "self.access_token",
+          "lineNumber": 332
+        },
+        {
+          "caller": "login",
+          "callee": "log",
+          "lineNumber": 334
+        },
+        {
+          "caller": "login",
+          "callee": "self._clearance_value",
+          "lineNumber": 335
+        },
+        {
+          "caller": "login",
+          "callee": "log",
+          "lineNumber": 336
+        },
+        {
+          "caller": "login",
+          "callee": "print",
+          "lineNumber": 339
+        },
+        {
+          "caller": "login",
+          "callee": "log",
+          "lineNumber": 342
+        },
+        {
+          "caller": "login",
+          "callee": "print",
+          "lineNumber": 343
+        },
+        {
+          "caller": "login",
+          "callee": "self.export_auth",
+          "lineNumber": 348
+        },
+        {
+          "caller": "login",
+          "callee": "time.time",
+          "lineNumber": 348
+        },
+        {
+          "caller": "login",
+          "callee": "log",
+          "lineNumber": 349
+        },
+        {
+          "caller": "login",
+          "callee": "auth.get",
+          "lineNumber": 349
+        },
+        {
+          "caller": "login",
+          "callee": "auth.get",
+          "lineNumber": 350
+        },
+        {
+          "caller": "login",
+          "callee": "print",
+          "lineNumber": 351
+        },
+        {
+          "caller": "login",
+          "callee": "log",
+          "lineNumber": 353
+        },
+        {
+          "caller": "login",
+          "callee": "print",
+          "lineNumber": 354
+        },
+        {
+          "caller": "login",
+          "callee": "log",
+          "lineNumber": 356
+        },
+        {
+          "caller": "login",
+          "callee": "self.close",
+          "lineNumber": 357
+        },
+        {
+          "caller": "login",
+          "callee": "print",
+          "lineNumber": 358
+        },
+        {
+          "caller": "_open_login_log",
+          "callee": "log_path.parent.mkdir",
+          "lineNumber": 368
+        },
+        {
+          "caller": "_open_login_log",
+          "callee": "log_path.open",
+          "lineNumber": 369
+        },
+        {
+          "caller": "log",
+          "callee": "fh.write",
+          "lineNumber": 378
+        },
+        {
+          "caller": "log",
+          "callee": "datetime.now(timezone.utc).isoformat",
+          "lineNumber": 378
+        },
+        {
+          "caller": "log",
+          "callee": "datetime.now",
+          "lineNumber": 378
+        },
+        {
+          "caller": "log",
+          "callee": "fh.flush",
+          "lineNumber": 379
+        },
+        {
+          "caller": "_mirror_page_events",
+          "callee": "self._page.on",
+          "lineNumber": 388
+        },
+        {
+          "caller": "_mirror_page_events",
+          "callee": "log",
+          "lineNumber": 390
+        },
+        {
+          "caller": "_mirror_page_events",
+          "callee": "self._page.on",
+          "lineNumber": 392
+        },
+        {
+          "caller": "_mirror_page_events",
+          "callee": "log",
+          "lineNumber": 394
+        },
+        {
+          "caller": "_window_closed",
+          "callee": "self._page.is_closed",
+          "lineNumber": 402
+        },
+        {
+          "caller": "access_token",
+          "callee": "self._ensure_started",
+          "lineNumber": 417
+        },
+        {
+          "caller": "access_token",
+          "callee": "self._page.evaluate",
+          "lineNumber": 419
+        },
+        {
+          "caller": "signed_in",
+          "callee": "self._ensure_started",
+          "lineNumber": 425
+        },
+        {
+          "caller": "signed_in",
+          "callee": "bool",
+          "lineNumber": 427
+        },
+        {
+          "caller": "signed_in",
+          "callee": "self._page.evaluate",
+          "lineNumber": 427
+        },
+        {
+          "caller": "on_ws",
+          "callee": "parse_qs",
+          "lineNumber": 448
+        },
+        {
+          "caller": "on_ws",
+          "callee": "urlparse",
+          "lineNumber": 448
+        },
+        {
+          "caller": "on_ws",
+          "callee": "q.get",
+          "lineNumber": 449
+        },
+        {
+          "caller": "on_ws",
+          "callee": "q.get",
+          "lineNumber": 452
+        },
+        {
+          "caller": "on_ws",
+          "callee": "ws.on",
+          "lineNumber": 454
+        },
+        {
+          "caller": "_install_ws_listener",
+          "callee": "self._page.on",
+          "lineNumber": 459
+        },
+        {
+          "caller": "_on_chat_frame",
+          "callee": "isinstance",
+          "lineNumber": 472
+        },
+        {
+          "caller": "_on_chat_frame",
+          "callee": "bytes(payload).decode",
+          "lineNumber": 472
+        },
+        {
+          "caller": "_on_chat_frame",
+          "callee": "bytes",
+          "lineNumber": 472
+        },
+        {
+          "caller": "_send_warmup",
+          "callee": "self._page.wait_for_selector",
+          "lineNumber": 487
+        },
+        {
+          "caller": "_send_warmup",
+          "callee": "self._page.click",
+          "lineNumber": 491
+        },
+        {
+          "caller": "_send_warmup",
+          "callee": "self._page.keyboard.type",
+          "lineNumber": 492
+        },
+        {
+          "caller": "_send_warmup",
+          "callee": "self._page.keyboard.press",
+          "lineNumber": 493
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self._ensure_started",
+          "lineNumber": 518
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self._install_ws_listener",
+          "lineNumber": 519
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self.access_token",
+          "lineNumber": 521
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "time.time",
+          "lineNumber": 525
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "time.time",
+          "lineNumber": 526
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "min",
+          "lineNumber": 526
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "time.time",
+          "lineNumber": 527
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self.signed_in",
+          "lineNumber": 527
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self._window_closed",
+          "lineNumber": 528
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self._page.wait_for_timeout",
+          "lineNumber": 530
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self.signed_in",
+          "lineNumber": 531
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self._send_warmup",
+          "lineNumber": 534
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self.access_token",
+          "lineNumber": 535
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "time.time",
+          "lineNumber": 537
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self._window_closed",
+          "lineNumber": 540
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self._page.wait_for_timeout",
+          "lineNumber": 542
+        },
+        {
+          "caller": "acquire_chat_token",
+          "callee": "self.access_token",
+          "lineNumber": 543
+        },
+        {
+          "caller": "_clear_log",
+          "callee": "print",
+          "lineNumber": 548
+        },
+        {
+          "caller": "_clearance_value",
+          "callee": "self._context.cookies",
+          "lineNumber": 560
+        },
+        {
+          "caller": "_clearance_value",
+          "callee": "c.get",
+          "lineNumber": 561
+        },
+        {
+          "caller": "_clearance_value",
+          "callee": "c.get",
+          "lineNumber": 562
+        },
+        {
+          "caller": "_click_turnstile",
+          "callee": "time.time",
+          "lineNumber": 590
+        },
+        {
+          "caller": "_click_turnstile",
+          "callee": "self._find_turnstile_frame",
+          "lineNumber": 593
+        },
+        {
+          "caller": "_click_turnstile",
+          "callee": "self._click_in_frame",
+          "lineNumber": 594
+        },
+        {
+          "caller": "_click_turnstile",
+          "callee": "self._page.query_selector",
+          "lineNumber": 598
+        },
+        {
+          "caller": "_click_turnstile",
+          "callee": "self._page.frame_locator",
+          "lineNumber": 599
+        },
+        {
+          "caller": "_click_turnstile",
+          "callee": "fl.locator(sel).first.click",
+          "lineNumber": 602
+        },
+        {
+          "caller": "_click_turnstile",
+          "callee": "fl.locator",
+          "lineNumber": 602
+        },
+        {
+          "caller": "_click_turnstile",
+          "callee": "self._click_turnstile_by_offset",
+          "lineNumber": 606
+        },
+        {
+          "caller": "_click_turnstile",
+          "callee": "time.time",
+          "lineNumber": 610
+        },
+        {
+          "caller": "_click_turnstile",
+          "callee": "self._page.wait_for_timeout",
+          "lineNumber": 612
+        },
+        {
+          "caller": "_find_turnstile_frame",
+          "callee": "(fr.url or \"\").lower",
+          "lineNumber": 625
+        },
+        {
+          "caller": "_click_in_frame",
+          "callee": "frame.locator(sel).first.click",
+          "lineNumber": 637
+        },
+        {
+          "caller": "_click_in_frame",
+          "callee": "frame.locator",
+          "lineNumber": 637
+        },
+        {
+          "caller": "_click_turnstile_by_offset",
+          "callee": "self._page.query_selector",
+          "lineNumber": 649
+        },
+        {
+          "caller": "_click_turnstile_by_offset",
+          "callee": "host.bounding_box",
+          "lineNumber": 652
+        },
+        {
+          "caller": "_click_turnstile_by_offset",
+          "callee": "box.get",
+          "lineNumber": 653
+        },
+        {
+          "caller": "_click_turnstile_by_offset",
+          "callee": "min",
+          "lineNumber": 655
+        },
+        {
+          "caller": "_click_turnstile_by_offset",
+          "callee": "self._page.mouse.click",
+          "lineNumber": 657
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "time.time",
+          "lineNumber": 671
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "time.time",
+          "lineNumber": 673
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._window_closed",
+          "lineNumber": 674
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._clear_log",
+          "lineNumber": 675
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._click_turnstile",
+          "lineNumber": 677
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._clear_log",
+          "lineNumber": 679
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._clear_log",
+          "lineNumber": 684
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._clearance_value",
+          "lineNumber": 686
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._clear_log",
+          "lineNumber": 688
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._page.wait_for_timeout",
+          "lineNumber": 690
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._clear_log",
+          "lineNumber": 692
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._window_closed",
+          "lineNumber": 693
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._page.wait_for_timeout",
+          "lineNumber": 694
+        },
+        {
+          "caller": "_await_gate_pass",
+          "callee": "self._clearance_value",
+          "lineNumber": 695
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._ensure_started",
+          "lineNumber": 716
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._install_ws_listener",
+          "lineNumber": 717
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._clear_log",
+          "lineNumber": 719
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._clearance_value",
+          "lineNumber": 728
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._click_turnstile",
+          "lineNumber": 731
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._clear_log",
+          "lineNumber": 732
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self.signed_in",
+          "lineNumber": 739
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._clear_log",
+          "lineNumber": 741
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._send_warmup",
+          "lineNumber": 742
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._clear_log",
+          "lineNumber": 743
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._await_gate_pass",
+          "lineNumber": 745
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._clear_log",
+          "lineNumber": 747
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self.export_auth",
+          "lineNumber": 749
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "time.time",
+          "lineNumber": 749
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "bool",
+          "lineNumber": 753
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "auth.get",
+          "lineNumber": 753
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._clearance_value",
+          "lineNumber": 754
+        },
+        {
+          "caller": "auto_clear",
+          "callee": "self._clear_log",
+          "lineNumber": 756
+        },
+        {
+          "caller": "cookies",
+          "callee": "self._ensure_started",
+          "lineNumber": 762
+        },
+        {
+          "caller": "cookies",
+          "callee": "self._context.cookies",
+          "lineNumber": 764
+        },
+        {
+          "caller": "cookies",
+          "callee": "c.get",
+          "lineNumber": 767
+        },
+        {
+          "caller": "export_auth",
+          "callee": "self.cookies",
+          "lineNumber": 776
+        },
+        {
+          "caller": "export_auth",
+          "callee": "self.access_token",
+          "lineNumber": 777
+        },
+        {
+          "caller": "export_auth",
+          "callee": "Path",
+          "lineNumber": 783
+        },
+        {
+          "caller": "export_auth",
+          "callee": "dest.parent.mkdir",
+          "lineNumber": 784
+        },
+        {
+          "caller": "export_auth",
+          "callee": "dest.write_text",
+          "lineNumber": 785
+        },
+        {
+          "caller": "export_auth",
+          "callee": "json.dumps",
+          "lineNumber": 785
+        },
+        {
+          "caller": "_ensure_started",
+          "callee": "self.start",
+          "lineNumber": 792
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "examples/01_direct_chat.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 27,
+      "nonEmptyLines": 19,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "examples/02_direct_conversation.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 31,
+      "nonEmptyLines": 21,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "examples/03_direct_stream.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 30,
+      "nonEmptyLines": 21,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "projectRoot": "/Users/xuyi/Source/Python/Windows-Copilot-API",
+  "batchFiles": [
+    {"path": ".dockerignore", "language": "unknown", "sizeLines": 14, "fileCategory": "infra"},
+    {"path": "docker-compose.yml", "language": "yaml", "sizeLines": 19, "fileCategory": "infra"},
+    {"path": "Dockerfile", "language": "dockerfile", "sizeLines": 20, "fileCategory": "infra"}
+  ],
+  "batchImportData": {".dockerignore": [], "docker-compose.yml": [], "Dockerfile": []}
+}

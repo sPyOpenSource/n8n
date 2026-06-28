@@ -1,0 +1,350 @@
+{
+  "scriptCompleted": true,
+  "directoryGroups": {
+    "copilot": [
+      "file:copilot/__init__.py",
+      "file:copilot/auth.py",
+      "file:copilot/browser.py",
+      "file:copilot/challenges.py",
+      "file:copilot/client.py",
+      "file:copilot/driver.py",
+      "file:copilot/models.py",
+      "file:copilot/protocol.py",
+      "file:copilot/utils.py",
+      "file:copilot/__main__.py"
+    ],
+    "examples": [
+      "file:examples/01_direct_chat.py",
+      "file:examples/02_direct_conversation.py",
+      "file:examples/03_direct_stream.py",
+      "file:examples/04_server_http.py",
+      "file:examples/05_server_stream.py",
+      "file:examples/06_server_openai_sdk.py",
+      "document:examples/README.md"
+    ],
+    "server": [
+      "file:server/api.py",
+      "file:server/config.py",
+      "file:server/openai_format.py",
+      "file:server/prompt.py",
+      "file:server/ratelimit.py",
+      "file:server/schemas.py",
+      "file:server/__init__.py"
+    ],
+    "root": [
+      "file:app.py",
+      "service:.dockerignore",
+      "service:docker-compose.yml",
+      "service:Dockerfile",
+      "service:Dockerfile:python",
+      "document:MISSION.md",
+      "document:README.md",
+      "document:RESOURCES.md",
+      "document:requirements.txt",
+      "file:reproduce_issue_loop.py",
+      "file:reproduce_issue.py"
+    ],
+    "tests": [
+      "file:tests/test_server.py",
+      "file:tests/diagnostic.py",
+      "file:tests/gpqa_bench.py",
+      "file:tests/ratelimit.py",
+      "file:tests/stress.py"
+    ],
+    ".understand-anything": [
+      "file:.understand-anything/.understandignore"
+    ],
+    "lessons": [
+      "file:lessons/0001-introduction-to-openai-compatible-servers",
+      "file:lessons/0001-introduction-to-openai-compatible-servers.html"
+    ]
+  },
+  "nodeTypeGroups": {
+    "file": [
+      "file:copilot/__init__.py",
+      "file:copilot/auth.py",
+      "file:copilot/browser.py",
+      "file:examples/01_direct_chat.py",
+      "file:examples/02_direct_conversation.py",
+      "file:examples/03_direct_stream.py",
+      "file:copilot/challenges.py",
+      "file:copilot/client.py",
+      "file:copilot/driver.py",
+      "file:copilot/models.py",
+      "file:copilot/protocol.py",
+      "file:copilot/utils.py",
+      "file:server/api.py",
+      "file:server/config.py",
+      "file:server/openai_format.py",
+      "file:server/prompt.py",
+      "file:server/ratelimit.py",
+      "file:server/schemas.py",
+      "file:app.py",
+      "file:server/__init__.py",
+      "file:tests/test_server.py",
+      "file:.understand-anything/.understandignore",
+      "file:copilot/__main__.py",
+      "file:examples/04_server_http.py",
+      "file:examples/05_server_stream.py",
+      "file:examples/06_server_openai_sdk.py",
+      "file:lessons/0001-introduction-to-openai-compatible-servers",
+      "file:lessons/0001-introduction-to-openai-compatible-servers.html",
+      "file:reproduce_issue_loop.py",
+      "file:reproduce_issue.py",
+      "file:tests/diagnostic.py",
+      "file:tests/gpqa_bench.py",
+      "file:tests/ratelimit.py",
+      "file:tests/stress.py"
+    ],
+    "service": [
+      "service:.dockerignore",
+      "service:docker-compose.yml",
+      "service:Dockerfile",
+      "service:Dockerfile:python"
+    ],
+    "document": [
+      "document:MISSION.md",
+      "document:README.md",
+      "document:RESOURCES.md",
+      "document:requirements.txt",
+      "document:examples/README.md"
+    ]
+  },
+  "crossCategoryEdges": [
+    {
+      "fromType": "document",
+      "toType": "file",
+      "edgeType": "documents",
+      "count": 3
+    }
+  ],
+  "interGroupImports": [
+    {
+      "from": "examples",
+      "to": "copilot",
+      "count": 3
+    },
+    {
+      "from": "server",
+      "to": "copilot",
+      "count": 2
+    },
+    {
+      "from": "root",
+      "to": "server",
+      "count": 1
+    },
+    {
+      "from": "tests",
+      "to": "server",
+      "count": 1
+    }
+  ],
+  "intraGroupDensity": {
+    "copilot": {
+      "internalEdges": 13,
+      "totalEdges": 18,
+      "density": 0.7222222222222222
+    },
+    "examples": {
+      "internalEdges": 0,
+      "totalEdges": 3,
+      "density": 0
+    },
+    "server": {
+      "internalEdges": 8,
+      "totalEdges": 12,
+      "density": 0.6666666666666666
+    },
+    "root": {
+      "internalEdges": 0,
+      "totalEdges": 1,
+      "density": 0
+    },
+    "tests": {
+      "internalEdges": 0,
+      "totalEdges": 1,
+      "density": 0
+    },
+    ".understand-anything": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    },
+    "lessons": {
+      "internalEdges": 0,
+      "totalEdges": 0,
+      "density": 0
+    }
+  },
+  "patternMatches": {
+    "copilot": "service",
+    "examples": "example",
+    "server": "api",
+    "root": "other",
+    "tests": "test",
+    ".understand-anything": "other",
+    "lessons": "education"
+  },
+  "deploymentTopology": {
+    "hasDockerfile": true,
+    "hasCompose": true,
+    "hasK8s": false,
+    "hasTerraform": false,
+    "hasCI": false,
+    "infraFiles": [
+      ".dockerignore",
+      "docker-compose.yml",
+      "Dockerfile"
+    ]
+  },
+  "dataPipeline": {
+    "schemaFiles": [],
+    "migrationFiles": [],
+    "dataModelFiles": [
+      "file:copilot/models.py",
+      "file:server/schemas.py"
+    ],
+    "apiHandlerFiles": [
+      "file:server/api.py",
+      "file:server/__init__.py"
+    ]
+  },
+  "docCoverage": {
+    "groupsWithDocs": 2,
+    "totalGroups": 7,
+    "coverageRatio": 0.2857142857142857,
+    "undocumentedGroups": [
+      "copilot",
+      "server",
+      "tests",
+      ".understand-anything",
+      "lessons"
+    ]
+  },
+  "dependencyDirection": [
+    {
+      "dependent": "examples",
+      "dependsOn": "copilot"
+    },
+    {
+      "dependent": "server",
+      "dependsOn": "copilot"
+    },
+    {
+      "dependent": "root",
+      "dependsOn": "server"
+    },
+    {
+      "dependent": "tests",
+      "dependsOn": "server"
+    }
+  ],
+  "fileStats": {
+    "totalFileNodes": 43,
+    "filesPerGroup": {
+      "copilot": 10,
+      "examples": 7,
+      "server": 7,
+      "root": 11,
+      "tests": 5,
+      ".understand-anything": 1,
+      "lessons": 2
+    },
+    "nodeTypeCounts": {
+      "file": 34,
+      "service": 4,
+      "document": 5
+    }
+  },
+  "fanIn": {
+    "file:copilot/__init__.py": 4,
+    "file:copilot/auth.py": 3,
+    "file:copilot/browser.py": 1,
+    "file:examples/01_direct_chat.py": 0,
+    "file:examples/02_direct_conversation.py": 0,
+    "file:examples/03_direct_stream.py": 0,
+    "file:copilot/challenges.py": 1,
+    "file:copilot/client.py": 1,
+    "file:copilot/driver.py": 3,
+    "file:copilot/models.py": 3,
+    "file:copilot/protocol.py": 1,
+    "file:copilot/utils.py": 1,
+    "file:server/api.py": 1,
+    "file:server/config.py": 2,
+    "file:server/openai_format.py": 1,
+    "file:server/prompt.py": 1,
+    "file:server/ratelimit.py": 1,
+    "file:server/schemas.py": 2,
+    "file:app.py": 0,
+    "file:server/__init__.py": 2,
+    "file:tests/test_server.py": 0,
+    "service:.dockerignore": 0,
+    "service:docker-compose.yml": 0,
+    "service:Dockerfile": 0,
+    "service:Dockerfile:python": 0,
+    "document:MISSION.md": 0,
+    "document:README.md": 0,
+    "document:RESOURCES.md": 0,
+    "document:requirements.txt": 0,
+    "file:.understand-anything/.understandignore": 0,
+    "file:copilot/__main__.py": 0,
+    "file:examples/04_server_http.py": 0,
+    "file:examples/05_server_stream.py": 0,
+    "file:examples/06_server_openai_sdk.py": 0,
+    "document:examples/README.md": 0,
+    "file:lessons/0001-introduction-to-openai-compatible-servers": 0,
+    "file:lessons/0001-introduction-to-openai-compatible-servers.html": 0,
+    "file:reproduce_issue_loop.py": 0,
+    "file:reproduce_issue.py": 0,
+    "file:tests/diagnostic.py": 0,
+    "file:tests/gpqa_bench.py": 0,
+    "file:tests/ratelimit.py": 0,
+    "file:tests/stress.py": 0
+  },
+  "fanOut": {
+    "file:copilot/__init__.py": 4,
+    "file:copilot/auth.py": 0,
+    "file:copilot/browser.py": 1,
+    "file:examples/01_direct_chat.py": 1,
+    "file:examples/02_direct_conversation.py": 1,
+    "file:examples/03_direct_stream.py": 1,
+    "file:copilot/challenges.py": 0,
+    "file:copilot/client.py": 3,
+    "file:copilot/driver.py": 4,
+    "file:copilot/models.py": 0,
+    "file:copilot/protocol.py": 0,
+    "file:copilot/utils.py": 1,
+    "file:server/api.py": 7,
+    "file:server/config.py": 0,
+    "file:server/openai_format.py": 0,
+    "file:server/prompt.py": 1,
+    "file:server/ratelimit.py": 0,
+    "file:server/schemas.py": 1,
+    "file:app.py": 1,
+    "file:server/__init__.py": 1,
+    "file:tests/test_server.py": 1,
+    "service:.dockerignore": 0,
+    "service:docker-compose.yml": 0,
+    "service:Dockerfile": 0,
+    "service:Dockerfile:python": 0,
+    "document:MISSION.md": 0,
+    "document:README.md": 0,
+    "document:RESOURCES.md": 0,
+    "document:requirements.txt": 0,
+    "file:.understand-anything/.understandignore": 0,
+    "file:copilot/__main__.py": 0,
+    "file:examples/04_server_http.py": 0,
+    "file:examples/05_server_stream.py": 0,
+    "file:examples/06_server_openai_sdk.py": 0,
+    "document:examples/README.md": 0,
+    "file:lessons/0001-introduction-to-openai-compatible-servers": 0,
+    "file:lessons/0001-introduction-to-openai-compatible-servers.html": 0,
+    "file:reproduce_issue_loop.py": 0,
+    "file:reproduce_issue.py": 0,
+    "file:tests/diagnostic.py": 0,
+    "file:tests/gpqa_bench.py": 0,
+    "file:tests/ratelimit.py": 0,
+    "file:tests/stress.py": 0
+  }
+}

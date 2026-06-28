@@ -1,0 +1,20 @@
+{
+  "projectRoot": "/Users/xuyi/Source/Python/Windows-Copilot-API",
+  "batchFiles": [
+    {"path": ".understand-anything/.understandignore", "language": "unknown", "sizeLines": 43, "fileCategory": "code"},
+    {"path": "copilot/__main__.py", "language": "python", "sizeLines": 37, "fileCategory": "code"},
+    {"path": "examples/04_server_http.py", "language": "python", "sizeLines": 38, "fileCategory": "code"},
+    {"path": "examples/05_server_stream.py", "language": "python", "sizeLines": 45, "fileCategory": "code"},
+    {"path": "examples/06_server_openai_sdk.py", "language": "python", "sizeLines": 41, "fileCategory": "code"},
+    {"path": "examples/README.md", "language": "markdown", "sizeLines": 24, "fileCategory": "docs"},
+    {"path": "lessons/0001-introduction-to-openai-compatible-servers", "language": "unknown", "sizeLines": 0, "fileCategory": "code"},
+    {"path": "lessons/0001-introduction-to-openai-compatible-servers.html", "language": "html", "sizeLines": 515, "fileCategory": "markup"},
+    {"path": "reproduce_issue_loop.py", "language": "python", "sizeLines": 12, "fileCategory": "code"},
+    {"path": "reproduce_issue.py", "language": "python", "sizeLines": 9, "fileCategory": "code"},
+    {"path": "tests/diagnostic.py", "language": "python", "sizeLines": 390, "fileCategory": "code"},
+    {"path": "tests/gpqa_bench.py", "language": "python", "sizeLines": 208, "fileCategory": "code"},
+    {"path": "tests/ratelimit.py", "language": "python", "sizeLines": 147, "fileCategory": "code"},
+    {"path": "tests/stress.py", "language": "python", "sizeLines": 140, "fileCategory": "code"}
+  ],
+  "batchImportData": {".understand-anything/.understandignore": [], "copilot/__main__.py": [], "examples/04_server_http.py": [], "examples/05_server_stream.py": [], "examples/06_server_openai_sdk.py": [], "examples/README.md": [], "lessons/0001-introduction-to-openai-compatible-servers": [], "lessons/0001-introduction-to-openai-compatible-servers.html": [], "reproduce_issue_loop.py": [], "reproduce_issue.py": [], "tests/diagnostic.py": [], "tests/gpqa_bench.py": [], "tests/ratelimit.py": [], "tests/stress.py": []}
+}

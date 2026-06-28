@@ -1,0 +1,19 @@
+{
+  "projectRoot": "/Users/xuyi/Source/Python/Windows-Copilot-API",
+  "batchFiles": [
+    {"path": "copilot/__init__.py", "language": "python", "sizeLines": 29, "fileCategory": "code"},
+    {"path": "copilot/auth.py", "language": "python", "sizeLines": 86, "fileCategory": "code"},
+    {"path": "copilot/browser.py", "language": "python", "sizeLines": 792, "fileCategory": "code"},
+    {"path": "examples/01_direct_chat.py", "language": "python", "sizeLines": 27, "fileCategory": "code"},
+    {"path": "examples/02_direct_conversation.py", "language": "python", "sizeLines": 31, "fileCategory": "code"},
+    {"path": "examples/03_direct_stream.py", "language": "python", "sizeLines": 30, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "copilot/__init__.py": ["copilot/auth.py", "copilot/browser.py", "copilot/client.py", "copilot/driver.py"],
+    "copilot/auth.py": [],
+    "copilot/browser.py": ["copilot/auth.py"],
+    "examples/01_direct_chat.py": ["copilot/__init__.py"],
+    "examples/02_direct_conversation.py": ["copilot/__init__.py"],
+    "examples/03_direct_stream.py": ["copilot/__init__.py"]
+  }
+}

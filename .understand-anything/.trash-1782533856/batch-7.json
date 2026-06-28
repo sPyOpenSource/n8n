@@ -1,0 +1,722 @@
+{
+  "nodes": [
+    {
+      "id": "file:.understand-anything/.understandignore",
+      "type": "file",
+      "name": ".understandignore",
+      "filePath": ".understand-anything/.understandignore",
+      "summary": "Ignore file for the understand-anything analyzer, with commented-out suggestions for exclusions derived from .gitignore and test file patterns.",
+      "tags": ["configuration", "ignore-patterns", "analysis-config"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:copilot/__main__.py",
+      "type": "file",
+      "name": "__main__.py",
+      "filePath": "copilot/__main__.py",
+      "summary": "Command-line entry point for the copilot package, supporting `login` (interactive browser sign-in) and `ask` (one-shot completion via CopilotClient stream) subcommands.",
+      "tags": ["entry-point", "cli", "command-router"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:copilot/__main__.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "copilot/__main__.py",
+      "lineRange": [13, 33],
+      "summary": "Routes CLI commands to login or ask flows, dispatching to BrowserCopilot for sign-in or CopilotClient for streaming completions.",
+      "tags": ["entry-point", "cli", "dispatcher"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:examples/04_server_http.py",
+      "type": "file",
+      "name": "04_server_http.py",
+      "filePath": "examples/04_server_http.py",
+      "summary": "Demonstrates talking to the OpenAI-compatible server over plain HTTP using the requests library, including continuing a conversation via conversation_id.",
+      "tags": ["example", "http-client", "openai-compatible", "tutorial"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:examples/05_server_stream.py",
+      "type": "file",
+      "name": "05_server_stream.py",
+      "filePath": "examples/05_server_stream.py",
+      "summary": "Shows how to stream responses from the OpenAI-compatible server over Server-Sent Events, parsing delta content and capturing the conversation_id from the final chunk.",
+      "tags": ["example", "streaming", "sse", "tutorial"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:examples/06_server_openai_sdk.py",
+      "type": "file",
+      "name": "06_server_openai_sdk.py",
+      "filePath": "examples/06_server_openai_sdk.py",
+      "summary": "Illustrates using the official OpenAI Python SDK against the local server, including accessing the custom conversation_id field via model_extra.",
+      "tags": ["example", "openai-sdk", "openai-compatible", "tutorial"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:examples/README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "examples/README.md",
+      "summary": "Index of runnable examples for direct Python usage with CopilotClient and HTTP server interaction, organized by usage pattern.",
+      "tags": ["documentation", "examples-index", "tutorial"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:lessons/0001-introduction-to-openai-compatible-servers",
+      "type": "file",
+      "name": "0001-introduction-to-openai-compatible-servers",
+      "filePath": "lessons/0001-introduction-to-openai-compatible-servers",
+      "summary": "Redirect file containing a lesson identifier string, pointing to the accompanying HTML lesson resource.",
+      "tags": ["lesson", "redirect"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:lessons/0001-introduction-to-openai-compatible-servers.html",
+      "type": "file",
+      "name": "0001-introduction-to-openai-compatible-servers.html",
+      "filePath": "lessons/0001-introduction-to-openai-compatible-servers.html",
+      "summary": "HTML lesson introducing OpenAI-compatible API servers, explaining protocol translation, streaming, authentication, and usage patterns with code pointers.",
+      "tags": ["lesson", "documentation", "educational", "openai-compatible"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:reproduce_issue_loop.py",
+      "type": "file",
+      "name": "reproduce_issue_loop.py",
+      "filePath": "reproduce_issue_loop.py",
+      "summary": "Script that reproduces an asyncio nesting issue with Playwright's sync API by incorrectly wrapping synchronous Playwright code inside an async main function.",
+      "tags": ["test", "bug-reproduction", "playwright", "asyncio"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:reproduce_issue_loop.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "reproduce_issue_loop.py",
+      "lineRange": [4, 10],
+      "summary": "Async function that attempts to run Playwright's sync API inside an async context, causing an event loop nesting error.",
+      "tags": ["test", "bug-reproduction"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:reproduce_issue.py",
+      "type": "file",
+      "name": "reproduce_issue.py",
+      "filePath": "reproduce_issue.py",
+      "summary": "Demonstrates the fix for the async Playwright issue by applying nest_asyncio before using Playwright's sync API at module level.",
+      "tags": ["test", "bug-reproduction", "playwright", "asyncio"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/diagnostic.py",
+      "type": "file",
+      "name": "diagnostic.py",
+      "filePath": "tests/diagnostic.py",
+      "summary": "Diagnostic tool for debugging broken Copilot sessions — captures WebSocket protocol via a real browser, redacts secrets, snapshots fresh auth tokens, and writes a shareable HTML report.",
+      "tags": ["test", "diagnostic", "playwright", "session-debug", "redaction"],
+      "complexity": "complex",
+      "languageNotes": "Uses Playwright's launch_persistent_context to drive a real signed-in browser, intercepting WebSocket frames to capture the chat protocol while refreshing Cloudflare cookies."
+    },
+    {
+      "id": "function:tests/diagnostic.py:redact",
+      "type": "function",
+      "name": "redact",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [76, 80],
+      "summary": "Strips secrets (tokens, JWTs, auth codes, emails) from text using a cascade of regex patterns.",
+      "tags": ["utility", "redaction", "security"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/diagnostic.py:_to_text",
+      "type": "function",
+      "name": "_to_text",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [83, 86],
+      "summary": "Converts payload (bytes or string) to a UTF-8 decoded string with replacement for invalid sequences.",
+      "tags": ["utility", "conversion"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/diagnostic.py:env_section",
+      "type": "function",
+      "name": "env_section",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [108, 112],
+      "summary": "Writes Python version, platform, and machine info to the diagnostic report.",
+      "tags": ["diagnostic", "environment"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/diagnostic.py:packages_section",
+      "type": "function",
+      "name": "packages_section",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [115, 126],
+      "summary": "Reports installed versions of key packages (curl_cffi, playwright, fastapi, uvicorn, pydantic, websockets) for reproducibility.",
+      "tags": ["diagnostic", "package-versions"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/diagnostic.py:playwright_section",
+      "type": "function",
+      "name": "playwright_section",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [129, 139],
+      "summary": "Verifies Playwright Chromium browser installation and reports its executable path.",
+      "tags": ["diagnostic", "playwright", "browser"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/diagnostic.py:session_section",
+      "type": "function",
+      "name": "session_section",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [142, 171],
+      "summary": "Reports session state including token presence, age, access_token length, and key cookie status without revealing secret values.",
+      "tags": ["diagnostic", "session", "auth"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tests/diagnostic.py:_snapshot_auth",
+      "type": "function",
+      "name": "_snapshot_auth",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [174, 199],
+      "summary": "Captures a fresh token.json from the live browser context, reading cookies and MSAL token to avoid spawning a second browser.",
+      "tags": ["auth", "session-snapshot", "playwright"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tests/diagnostic.py:browser_capture",
+      "type": "function",
+      "name": "browser_capture",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [202, 312],
+      "summary": "Opens a real browser with the signed-in profile, intercepts WebSocket chat frames (redacted) to ws_capture.log, and snapshots a fresh auth token after a completed turn.",
+      "tags": ["diagnostic", "playwright", "websocket-capture", "auth-fix"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:tests/diagnostic.py:live_probe_section",
+      "type": "function",
+      "name": "live_probe_section",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [315, 335],
+      "summary": "Sends a real completion request via CopilotClient to test whether the saved session works, reporting success or failure with timing.",
+      "tags": ["diagnostic", "probe", "integration-test"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tests/diagnostic.py:log_tail_section",
+      "type": "function",
+      "name": "log_tail_section",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [338, 349],
+      "summary": "Appends the last N redacted lines of a log file to the diagnostic report.",
+      "tags": ["diagnostic", "log-analysis"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/diagnostic.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [352, 386],
+      "summary": "Orchestrates the full diagnostic: collects environment info, sessions, optionally runs the browser capture, performs a live probe, and writes the report.",
+      "tags": ["diagnostic", "orchestrator", "entry-point"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:tests/diagnostic.py:Report",
+      "type": "class",
+      "name": "Report",
+      "filePath": "tests/diagnostic.py",
+      "lineRange": [90, 105],
+      "summary": "Accumulates diagnostic report lines into a buffer while echoing them to the console, with section formatting helpers.",
+      "tags": ["diagnostic", "report", "accumulator"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/gpqa_bench.py",
+      "type": "file",
+      "name": "gpqa_bench.py",
+      "filePath": "tests/gpqa_bench.py",
+      "summary": "GPQA accuracy benchmark that loads multiple-choice questions from a CSV, sends them to the OpenAI-compatible server, parses answers, and reports accuracy with optional JSON output.",
+      "tags": ["test", "benchmark", "gpqa", "accuracy", "openai-compatible"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tests/gpqa_bench.py:build_question",
+      "type": "function",
+      "name": "build_question",
+      "filePath": "tests/gpqa_bench.py",
+      "lineRange": [56, 66],
+      "summary": "Shuffles answer options from a GPQA CSV row and builds a formatted prompt with the correct letter recorded.",
+      "tags": ["benchmark", "question-builder", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/gpqa_bench.py:parse_letter",
+      "type": "function",
+      "name": "parse_letter",
+      "filePath": "tests/gpqa_bench.py",
+      "lineRange": [69, 80],
+      "summary": "Extracts the chosen A-D letter from the model's free-text reply, preferring leading matches and falling back to any standalone letter.",
+      "tags": ["benchmark", "parsing", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/gpqa_bench.py:ask",
+      "type": "function",
+      "name": "ask",
+      "filePath": "tests/gpqa_bench.py",
+      "lineRange": [83, 104],
+      "summary": "Sends a chat completion request via urllib to the server endpoint and returns the reply text or error detail.",
+      "tags": ["benchmark", "http-client", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/gpqa_bench.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "tests/gpqa_bench.py",
+      "lineRange": [107, 204],
+      "summary": "Orchestrates the GPQA benchmark: parses CLI args, loads CSV, iterates questions with configurable delay, logs results, and optionally writes a JSON summary.",
+      "tags": ["benchmark", "orchestrator", "entry-point"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:tests/ratelimit.py",
+      "type": "file",
+      "name": "ratelimit.py",
+      "filePath": "tests/ratelimit.py",
+      "summary": "Open-loop rate-limit probe that fires requests at a fixed wall-clock rate (RPM) using threaded workers, distinguishing bridge 429s from upstream 502s.",
+      "tags": ["test", "rate-limit", "load-test", "open-loop"],
+      "complexity": "moderate",
+      "languageNotes": "Open-loop design avoids latency capping by sending each request on its own timer without waiting for the reply."
+    },
+    {
+      "id": "function:tests/ratelimit.py:classify",
+      "type": "function",
+      "name": "classify",
+      "filePath": "tests/ratelimit.py",
+      "lineRange": [39, 67],
+      "summary": "Sends one chat completion and classifies the result as ok, 429, 502, or other with elapsed time and detail.",
+      "tags": ["test", "http-client", "classification"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tests/ratelimit.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "tests/ratelimit.py",
+      "lineRange": [70, 143],
+      "summary": "Orchestrates the open-loop rate-limit probe: parses args, schedules requests on timed slots via ThreadPoolExecutor, and summarizes category counts.",
+      "tags": ["test", "orchestrator", "load-test", "entry-point"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:tests/stress.py",
+      "type": "file",
+      "name": "stress.py",
+      "filePath": "tests/stress.py",
+      "summary": "Concurrency stress test that doubles parallel request count each round, stopping at the first round with any failure to find the server's queue capacity ceiling.",
+      "tags": ["test", "stress-test", "concurrency", "load-test"],
+      "complexity": "moderate",
+      "languageNotes": "Uses a doubling-concurrency strategy to probe server queue limits, leveraging ThreadPoolExecutor for parallel requests."
+    },
+    {
+      "id": "function:tests/stress.py:one_request",
+      "type": "function",
+      "name": "one_request",
+      "filePath": "tests/stress.py",
+      "lineRange": [34, 60],
+      "summary": "Sends a single chat completion and returns success status, elapsed time, and a detail string including error information.",
+      "tags": ["test", "http-client", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tests/stress.py:run_round",
+      "type": "function",
+      "name": "run_round",
+      "filePath": "tests/stress.py",
+      "lineRange": [63, 71],
+      "summary": "Fires a batch of concurrent requests via ThreadPoolExecutor and returns all results with wall-clock timing.",
+      "tags": ["test", "concurrency", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/stress.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "tests/stress.py",
+      "lineRange": [74, 136],
+      "summary": "Runs the stress test loop: doubles concurrency each round, reports latencies, stops on first failure, and prints the highest successful concurrency.",
+      "tags": ["test", "orchestrator", "stress-test", "entry-point"],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:copilot/__main__.py",
+      "target": "function:copilot/__main__.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:copilot/__main__.py",
+      "target": "function:copilot/__main__.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:reproduce_issue_loop.py",
+      "target": "function:reproduce_issue_loop.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:reproduce_issue_loop.py",
+      "target": "function:reproduce_issue_loop.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:redact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:redact",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:_to_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:_to_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:env_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:env_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:packages_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:packages_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:playwright_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:playwright_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:session_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:session_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:_snapshot_auth",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:_snapshot_auth",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:browser_capture",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:browser_capture",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:live_probe_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:live_probe_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:log_tail_section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:log_tail_section",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "function:tests/diagnostic.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "class:tests/diagnostic.py:Report",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/diagnostic.py",
+      "target": "class:tests/diagnostic.py:Report",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/gpqa_bench.py",
+      "target": "function:tests/gpqa_bench.py:build_question",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/gpqa_bench.py",
+      "target": "function:tests/gpqa_bench.py:build_question",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/gpqa_bench.py",
+      "target": "function:tests/gpqa_bench.py:parse_letter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/gpqa_bench.py",
+      "target": "function:tests/gpqa_bench.py:parse_letter",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/gpqa_bench.py",
+      "target": "function:tests/gpqa_bench.py:ask",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/gpqa_bench.py",
+      "target": "function:tests/gpqa_bench.py:ask",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/gpqa_bench.py",
+      "target": "function:tests/gpqa_bench.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/gpqa_bench.py",
+      "target": "function:tests/gpqa_bench.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/ratelimit.py",
+      "target": "function:tests/ratelimit.py:classify",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/ratelimit.py",
+      "target": "function:tests/ratelimit.py:classify",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/ratelimit.py",
+      "target": "function:tests/ratelimit.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/ratelimit.py",
+      "target": "function:tests/ratelimit.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/stress.py",
+      "target": "function:tests/stress.py:one_request",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/stress.py",
+      "target": "function:tests/stress.py:one_request",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/stress.py",
+      "target": "function:tests/stress.py:run_round",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/stress.py",
+      "target": "function:tests/stress.py:run_round",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:tests/stress.py",
+      "target": "function:tests/stress.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/stress.py",
+      "target": "function:tests/stress.py:main",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "document:examples/README.md",
+      "target": "file:examples/04_server_http.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:examples/README.md",
+      "target": "file:examples/05_server_stream.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:examples/README.md",
+      "target": "file:examples/06_server_openai_sdk.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:lessons/0001-introduction-to-openai-compatible-servers.html",
+      "target": "file:examples/06_server_openai_sdk.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:reproduce_issue.py",
+      "target": "file:reproduce_issue_loop.py",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

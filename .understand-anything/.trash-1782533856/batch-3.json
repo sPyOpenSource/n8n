@@ -1,0 +1,621 @@
+{
+  "nodes": [
+    {
+      "id": "file:server/api.py",
+      "type": "file",
+      "name": "api.py",
+      "filePath": "server/api.py",
+      "summary": "FastAPI application entry point that wires Microsoft Copilot onto the OpenAI Chat Completions API, exposing endpoints for listing models and generating streaming/non-streaming chat completions.",
+      "tags": ["api-handler", "entry-point", "fastapi", "openai-compatible"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/config.py",
+      "type": "file",
+      "name": "config.py",
+      "filePath": "server/config.py",
+      "summary": "Server configuration constants for model name, rate limit RPM, and rate limit burst, sourced from environment variables with sensible defaults.",
+      "tags": ["configuration", "constants", "environment"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/openai_format.py",
+      "type": "file",
+      "name": "openai_format.py",
+      "filePath": "server/openai_format.py",
+      "summary": "Builders for OpenAI wire-format objects including non-streaming completion responses, SSE event serialization, and streaming chunk objects.",
+      "tags": ["serialization", "openai-format", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/prompt.py",
+      "type": "file",
+      "name": "prompt.py",
+      "filePath": "server/prompt.py",
+      "summary": "Flattens OpenAI message arrays into a single Copilot prompt string, handling system messages, multi-turn conversations, and content parts.",
+      "tags": ["utility", "prompt", "transformation"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:server/ratelimit.py",
+      "type": "file",
+      "name": "ratelimit.py",
+      "filePath": "server/ratelimit.py",
+      "summary": "Thread-safe token-bucket rate limiter providing a self-imposed per-minute ceiling on upstream requests, orthogonal to the concurrency lock in the API layer.",
+      "tags": ["rate-limiting", "utility", "thread-safe"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:server/schemas.py",
+      "type": "file",
+      "name": "schemas.py",
+      "filePath": "server/schemas.py",
+      "summary": "Pydantic request models defining the OpenAI-compatible chat completion request shape with support for streaming, conversation threading, and content parts.",
+      "tags": ["data-model", "type-definition", "pydantic"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/api.py:_rate_limited_response",
+      "type": "function",
+      "name": "_rate_limited_response",
+      "filePath": "server/api.py",
+      "lineRange": [42, 59],
+      "summary": "Spends a rate-limit token and returns an OpenAI-shaped 429 response if the bucket is empty, or None if the request is allowed.",
+      "tags": ["rate-limiting", "helper", "middleware"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/api.py:_stream",
+      "type": "function",
+      "name": "_stream",
+      "filePath": "server/api.py",
+      "lineRange": [69, 100],
+      "summary": "Generator that yields OpenAI chat.completion.chunk SSE events for a prompt, serializing upstream Copilot access with a threading lock and handling ClearanceRequired and other errors.",
+      "tags": ["streaming", "sse", "generator"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:server/api.py:list_models",
+      "type": "function",
+      "name": "list_models",
+      "filePath": "server/api.py",
+      "lineRange": [104, 115],
+      "summary": "GET /v1/models handler returning the single advertised Copilot model in OpenAI format.",
+      "tags": ["api-handler", "models", "get"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/api.py:get_model_id",
+      "type": "function",
+      "name": "get_model_id",
+      "filePath": "server/api.py",
+      "lineRange": [118, 124],
+      "summary": "GET /v1/models/{model_id} handler returning a static model object for any requested model id.",
+      "tags": ["api-handler", "models", "get"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/api.py:list_api_models",
+      "type": "function",
+      "name": "list_api_models",
+      "filePath": "server/api.py",
+      "lineRange": [127, 138],
+      "summary": "GET /api/v1/models handler returning the Copilot model in OpenAI format at a secondary path.",
+      "tags": ["api-handler", "models", "get"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/api.py:get_problems",
+      "type": "function",
+      "name": "get_problems",
+      "filePath": "server/api.py",
+      "lineRange": [141, 142],
+      "summary": "GET /v1/probs stub handler returning an empty problems list.",
+      "tags": ["api-handler", "stub"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/api.py:post_show",
+      "type": "function",
+      "name": "post_show",
+      "filePath": "server/api.py",
+      "lineRange": [145, 146],
+      "summary": "POST /api/show stub handler returning an empty show response.",
+      "tags": ["api-handler", "stub"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/api.py:chat_completions",
+      "type": "function",
+      "name": "chat_completions",
+      "filePath": "server/api.py",
+      "lineRange": [158, 191],
+      "summary": "POST /v1/chat/completions handler that validates the prompt, enforces rate limits, and dispatches streaming or non-streaming responses through the Copilot client.",
+      "tags": ["api-handler", "chat-completions", "post"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:server/api.py:get_version",
+      "type": "function",
+      "name": "get_version",
+      "filePath": "server/api.py",
+      "lineRange": [195, 196],
+      "summary": "GET /version handler returning the API version string.",
+      "tags": ["api-handler", "version", "get"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/api.py:root",
+      "type": "function",
+      "name": "root",
+      "filePath": "server/api.py",
+      "lineRange": [200, 201],
+      "summary": "GET / root handler returning the service name and list of available endpoints.",
+      "tags": ["api-handler", "root", "get"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/openai_format.py:new_id",
+      "type": "function",
+      "name": "new_id",
+      "filePath": "server/openai_format.py",
+      "lineRange": [8, 10],
+      "summary": "Generates a fresh chatcmpl- UUID string matching the OpenAI chat completion ID format.",
+      "tags": ["utility", "id-generation"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/openai_format.py:completion_response",
+      "type": "function",
+      "name": "completion_response",
+      "filePath": "server/openai_format.py",
+      "lineRange": [13, 34],
+      "summary": "Builds an OpenAI non-streaming chat.completion response dict with the assistant message, model id, and optional Copilot conversation id.",
+      "tags": ["utility", "serialization", "openai-format"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/openai_format.py:sse_event",
+      "type": "function",
+      "name": "sse_event",
+      "filePath": "server/openai_format.py",
+      "lineRange": [37, 39],
+      "summary": "Serializes a payload dict as a Server-Sent Events data: line.",
+      "tags": ["utility", "serialization", "sse"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/openai_format.py:stream_chunk",
+      "type": "function",
+      "name": "stream_chunk",
+      "filePath": "server/openai_format.py",
+      "lineRange": [42, 60],
+      "summary": "Builds a single chat.completion.chunk dict for OpenAI streaming responses, including optional conversation id on the final chunk.",
+      "tags": ["utility", "serialization", "streaming"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/prompt.py:content_text",
+      "type": "function",
+      "name": "content_text",
+      "filePath": "server/prompt.py",
+      "lineRange": [12, 25],
+      "summary": "Extracts plain text from a message content field, handling both plain strings and OpenAI content-parts arrays.",
+      "tags": ["utility", "prompt", "extraction"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:server/prompt.py:messages_to_prompt",
+      "type": "function",
+      "name": "messages_to_prompt",
+      "filePath": "server/prompt.py",
+      "lineRange": [28, 47],
+      "summary": "Flattens an OpenAI messages array into a single Copilot prompt string, handling system messages and multi-turn conversation formatting.",
+      "tags": ["utility", "prompt", "transformation"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:server/ratelimit.py:TokenBucket",
+      "type": "class",
+      "name": "TokenBucket",
+      "filePath": "server/ratelimit.py",
+      "lineRange": [17, 60],
+      "summary": "Thread-safe token-bucket rate limiter with configurable RPM and burst, injectable clock for testing, and non-blocking try_acquire interface.",
+      "tags": ["rate-limiting", "thread-safe", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:server/schemas.py:ChatMessage",
+      "type": "class",
+      "name": "ChatMessage",
+      "filePath": "server/schemas.py",
+      "lineRange": [10, 14],
+      "summary": "Pydantic model representing a single chat message with role and optional content (plain string or content-parts).",
+      "tags": ["data-model", "pydantic", "type-definition"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:server/schemas.py:ChatCompletionRequest",
+      "type": "class",
+      "name": "ChatCompletionRequest",
+      "filePath": "server/schemas.py",
+      "lineRange": [17, 26],
+      "summary": "Pydantic model for OpenAI-compatible chat completion requests with messages, model, stream flag, and optional Copilot conversation id.",
+      "tags": ["data-model", "pydantic", "type-definition"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:server/api.py",
+      "target": "file:copilot/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "file:copilot/driver.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "file:server/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "file:server/openai_format.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "file:server/prompt.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "file:server/ratelimit.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "file:server/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/prompt.py",
+      "target": "file:server/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/schemas.py",
+      "target": "file:server/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:_rate_limited_response",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:_stream",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:list_models",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:get_model_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:list_api_models",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:get_problems",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:post_show",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:chat_completions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:get_version",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:root",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/openai_format.py",
+      "target": "function:server/openai_format.py:new_id",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/openai_format.py",
+      "target": "function:server/openai_format.py:completion_response",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/openai_format.py",
+      "target": "function:server/openai_format.py:sse_event",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/openai_format.py",
+      "target": "function:server/openai_format.py:stream_chunk",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/prompt.py",
+      "target": "function:server/prompt.py:content_text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/prompt.py",
+      "target": "function:server/prompt.py:messages_to_prompt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/ratelimit.py",
+      "target": "class:server/ratelimit.py:TokenBucket",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/schemas.py",
+      "target": "class:server/schemas.py:ChatMessage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/schemas.py",
+      "target": "class:server/schemas.py:ChatCompletionRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:_rate_limited_response",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:_stream",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:list_models",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:get_model_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:list_api_models",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:get_problems",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:post_show",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:chat_completions",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:get_version",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/api.py",
+      "target": "function:server/api.py:root",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/openai_format.py",
+      "target": "function:server/openai_format.py:new_id",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/openai_format.py",
+      "target": "function:server/openai_format.py:completion_response",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/openai_format.py",
+      "target": "function:server/openai_format.py:sse_event",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/openai_format.py",
+      "target": "function:server/openai_format.py:stream_chunk",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/prompt.py",
+      "target": "function:server/prompt.py:content_text",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/prompt.py",
+      "target": "function:server/prompt.py:messages_to_prompt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/ratelimit.py",
+      "target": "class:server/ratelimit.py:TokenBucket",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/schemas.py",
+      "target": "class:server/schemas.py:ChatMessage",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:server/schemas.py",
+      "target": "class:server/schemas.py:ChatCompletionRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:server/api.py:chat_completions",
+      "target": "function:server/prompt.py:messages_to_prompt",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:server/api.py:chat_completions",
+      "target": "function:server/openai_format.py:completion_response",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:server/api.py:_stream",
+      "target": "function:server/openai_format.py:new_id",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:server/api.py:_stream",
+      "target": "function:server/openai_format.py:sse_event",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:server/api.py:_stream",
+      "target": "function:server/openai_format.py:stream_chunk",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:server/api.py:_rate_limited_response",
+      "target": "class:server/ratelimit.py:TokenBucket",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".dockerignore",
+      "language": "unknown",
+      "fileCategory": "infra",
+      "totalLines": 14,
+      "nonEmptyLines": 14,
+      "metrics": {}
+    },
+    {
+      "path": "docker-compose.yml",
+      "language": "yaml",
+      "fileCategory": "infra",
+      "totalLines": 19,
+      "nonEmptyLines": 19,
+      "sections": [
+        {
+          "heading": "services",
+          "level": 1,
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 1
+      }
+    },
+    {
+      "path": "Dockerfile",
+      "language": "dockerfile",
+      "fileCategory": "infra",
+      "totalLines": 20,
+      "nonEmptyLines": 14,
+      "services": [
+        {
+          "name": "python",
+          "image": "mcr.microsoft.com/playwright/python:v1.60.0-noble",
+          "ports": [
+            8000
+          ],
+          "startLine": 3,
+          "endLine": 21
+        }
+      ],
+      "steps": [
+        {
+          "name": "FROM mcr.microsoft.com/playwright/python:v1.60.0-noble",
+          "startLine": 3,
+          "endLine": 3
+        },
+        {
+          "name": "WORKDIR /app",
+          "startLine": 5,
+          "endLine": 5
+        },
+        {
+          "name": "COPY requirements.txt .",
+          "startLine": 8,
+          "endLine": 8
+        },
+        {
+          "name": "RUN pip install --no-cache-dir -r requirements.txt \\",
+          "startLine": 9,
+          "endLine": 9
+        },
+        {
+          "name": "COPY . .",
+          "startLine": 12,
+          "endLine": 12
+        },
+        {
+          "name": "ENV HOST=0.0.0.0 \\",
+          "startLine": 15,
+          "endLine": 15
+        },
+        {
+          "name": "EXPOSE 8000",
+          "startLine": 18,
+          "endLine": 18
+        },
+        {
+          "name": "CMD [\"python\", \"app.py\"]",
+          "startLine": 20,
+          "endLine": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "serviceCount": 1,
+        "stepCount": 8
+      }
+    }
+  ]
+}

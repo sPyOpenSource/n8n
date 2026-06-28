@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0001: Introduction to OpenAI-Compatible API Servers</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <style>
+        :root {
+            --primary-color: #0070F3;
+            --secondary-color: #38B2AC;
+            --accent-color: #F6AD55;
+            --text-primary: #2D3748;
+            --text-secondary: #718096;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F7FAFC;
+            --border-color: #E2E8F0;
+            --success-color: #48BB78;
+            --warning-color: #ED8936;
+            --error-color: #E53E3E;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+        }
+
+        .lesson-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin: 2rem 0 1rem;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--secondary-color);
+            margin: 1.5rem 0 0.75rem;
+            font-weight: 600;
+        }
+
+        .learning-objectives {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .learning-objectives h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .learning-objectives ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .learning-objectives li {
+            padding-left: 2rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .learning-objectives li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        blockquote {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background-color: var(--bg-primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        tr:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        code {
+            background-color: var(--bg-secondary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+        }
+
+        pre {
+            background-color: #1a202c;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            color: inherit;
+        }
+
+        ul, ol {
+            margin-bottom: 1.5rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .architecture-diagram {
+            background-color: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 2rem 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .callout {
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .callout.note {
+            background-color: #EBF8FF;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .callout.tip {
+            background-color: #F0FDF4;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .callout.warning {
+            background-color: #FEF2F2;
+            border-left: 4px solid var(--error-color);
+        }
+
+        .callout h4 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .lesson-container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="lesson-container">
+        <h1>0001: Introduction to OpenAI-Compatible API Servers</h1>
+        
+        <p class="subtitle">Understanding how to build OpenAI-compatible servers using the Windows Copilot API as a reference.</p>
+        
+        <div class="learning-objectives">
+            <h2>🎯 Learning Objectives</h2>
+            <ul>
+                <li>Understand what OpenAI-compatible API servers are and why they matter</li>
+                <li>Learn the architecture patterns used in production OpenAI-compatible servers</li>
+                <li>Identify the key components needed to build such a server</li>
+                <li>Understand how protocol bridging works (OpenAI ↔ Copilot in this case)</li>
+                <li>Explore authentication, rate limiting, and streaming patterns</li>
+            </ul>
+        </div>
+        
+        <h2>📋 What Are OpenAI-Compatible API Servers?</h2>
+        
+        <p>An <strong>OpenAI-compatible API server</strong> is a web service that speaks the OpenAI protocol but supports different underlying AI providers or services. Instead of requiring clients to install different SDKs for every AI service, they can all use the same client libraries and tools.</p>
+        
+        <blockquote>
+            <p><strong>Key Insight</strong>: OpenAI-compatible servers act as <em>protocol adapters</em> - they translate between a standard client interface and a provider's unique API.</p>
+        </blockquote>
+        
+        <h3>Real-World Examples</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Standard Client</th>
+                    <th>Actual Provider</th>
+                    <th>Compatible Server Example</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>from openai import OpenAI</code></td>
+                    <td>OpenAI</td>
+                    <td><em>This repository's server</em></td>
+                </tr>
+                <tr>
+                    <td><code>from openai import OpenAI</code></td>
+                    <td>Anthropic</td>
+                    <td><code>bedrock</code> or <code>claude</code> servers</td>
+                </tr>
+                <tr>
+                    <td><code>from openai import OpenAI</code></td>
+                    <td>Azure OpenAI</td>
+                    <td>Azure's proxy server</td>
+                </tr>
+                <tr>
+                    <td><code>from openai import OpenAI</code></td>
+                    <td>Google AI</td>
+                    <td>Vertex AI proxy servers</td>
+                </tr>
+                <tr>
+                    <td><code>from openai import OpenAI</code></td>
+                    <td>Microsoft Copilot</td>
+                    <td><em>This repository</em></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <h2>🏗️ Architecture Overview: Protocol Bridging</h2>
+        
+        <div class="architecture-diagram">
+            <pre><code>┌─────────────────────┐    ┌───────────────────┐    ┌─────────────────┐
+│   OpenAI Client     │    │  OpenAI-Compatible │    │  Provider API    │
+│ (openai.OpenAI)     │    │      Server        │    │  (Copilot)       │
+│                     │    │                   │    │                 │
+│ ┌─────────────────┐ │    │ ┌─────────────────┐ │    │ ┌───────────────┐ │
+│ │   chat.completions.create │ │ │    /v1/chat/completions │ │ │ │   HTTP Driver │ │
+│ │   messages=[...]         │ │ │    prompt=...          │ │ │ │   (curl_cffi)  │ │
+│ └─────────────────┘ │    │ └─────────────────┘ │    │ └───────────────┘ │
+└─────────────────────┘    └───────────────────┘    └─────────────────┘
+                                 │
+                                 ▼
+                       ┌─────────────────┐
+                       │   Protocol      │
+                       │   Translation   │
+                       │ (server/prompt.py)│
+                       └─────────────────┘
+                                 │
+                                 ▼
+                       ┌─────────────────┐
+                       │   Session       │
+                       │   Management    │
+                       │ (copilot/auth.py)│
+                       └─────────────────┘
+                                 │
+                                 ▼
+                       ┌─────────────────┐
+                       │  Browser        │
+                       │  Automation     │
+                       │ (copilot/browser.py) │
+                       └─────────────────┘</code></pre>
+        </div>
+        
+        <h3>The Three Layers of Protocol Bridging</h3>
+        
+        <h4>1. Client Adapters Layer</h4>
+        
+        <p>Clients use <strong>standard OpenAI clients</strong> without any changes:</p>
+        
+        ```python
+        from openai import OpenAI
+
+        # Works with ANY OpenAI-compatible server
+        client = OpenAI(
+            base_url="http://localhost:8000/v1",  # Change the URL
+            api_key="your-key"  # Usually ignored
+        )
+        
+        # Same API, same authentication, same tools
+        response = client.chat.completions.create(
+            model="copilot",  # Can be anything
+            messages=[{
+                "role": "user",
+                "content": "Hello!"
+            }]
+        )
+        ```
+        
+        <h4>2. Compatible Server Layer</h4>
+        
+        <p>Our FastAPI server (server/api.py) handles the protocol translation:</p>
+        
+        <ul>
+            <li><strong>Request Parsing</strong>: Validates OpenAI protocol format</li>
+            <li><strong>Prompt Translation</strong>: Converts OpenAI messages to Copilot format</li>
+            <li><strong>Upstream Calling</strong>: Routes to the Copilot client</li>
+            <li><strong>Response Formatting</strong>: Converts Copilot responses back to OpenAI format</li>
+            <li><strong>Streaming</strong>: Supports both regular and streaming responses</li>
+        </ul>
+        
+        <h4>3. Provider Integration Layer</h4>
+        
+        <p>The Copilot library (copilot/) adapts to Microsoft's specific protocol:</p>
+        
+        <ul>
+            <li><strong>CopilotProtocol</strong>: Copilot's WebSocket-based chat protocol</li>
+            <li><strong>BrowserAutomation</strong>: Playwright-based login and clearance</li>
+            <li><strong>AuthManagement</strong>: Cookie and token storage</li>
+            <li><strong>ChallengeSolving</strong>: In-process proof-of-work solving</li>
+        </ul>
+        
+        <div class="callout note">
+            <h4>🎓 Key Learning: Protocol Agnosticism</h4>
+            <p>Notice how the server can work with ANY provider as long as it speaks the OpenAI protocol. The provider-specific logic is completely isolated in the `copilot/` directory.</p>
+        </div>
+        
+        <h2>🛠️ Key Components Explained</h2>
+        
+        <h3>1. The Translation Engine (server/prompt.py)</h3>
+        
+        <p>OpenAI's <strong>multi-message, multi-role format</strong> vs. Copilot's <strong>single-turn format</strong>:</p>
+        
+        ```python
+        # OpenAI format (what clients send)
+        messages = [{
+            "role": "system",
+            "content": "You are a helpful assistant"
+        }, {
+            "role": "user", 
+            "content": "Hello!"
+        }]
+        
+        # Copilot format (what the provider understands)
+        # -> "You are a helpful assistant\n\nUser: Hello!\n\nAssistant:"
+        ```
+        
+        <h3>2. Authentication & Session Management (copilot/auth.py)</h3>
+        
+        <p>Hands-off authentication that works across runs:</p>
+        
+        <ul>
+            <li><strong>Persistent Profiles</strong>: Browser cookies and clearance persist in `session/`</li>
+            <li><strong>Automatic Refresh</strong>: Tokens are refreshed when they're about to expire</li>
+            <li><strong>Service-to-Service</strong>: Server uses the same credentials as interactive login</li>
+        </ul>
+        
+        <h3>3. Rate Limiting (server/ratelimit.py)</h3>
+        
+        <p>Protects the paid Copilot account from abuse:</p>
+        
+        <ul>
+            <li><strong>Token Bucket</strong>: Classic rate limiting algorithm</li>
+            <li><strong>HTTP 429</strong>: Standard rate limit response with `Retry-After</li>
+            <li><strong>Configurable</strong>: Easy to tune based on your account's tolerance</li>
+        </ul>
+        
+        <h3>4. Streaming Implementation (server/api.py)</h3>
+        
+        <p>Real-time response streaming with conversation continuity:</p>
+        
+        <ul>
+            <li><strong>SSE Events</strong>: Server-Sent Events for streaming responses</li>
+            <li><strong>Conversation IDs</strong>: Continue multi-turn dialogues with `conversation_id</li>
+            <li><strong>Structured Format</strong>: Each chunk has proper OpenAI streaming format</li>
+        </ul>
+        
+        <h2>💡 Production Patterns to Learn</h2>
+        
+        <h3>Pattern 1: Protocol Isolation</h3>
+        
+        <p><strong>Key Insight</strong>: The server should be completely <em>agnostic</em> to the underlying provider. Changes to Copilot's protocol shouldn't require changes to the server.</p>
+        
+        <div class="callout tip">
+            <h4>🚀 Design Principle</h4>
+            <p>Use abstract interfaces for provider-specific code. In this repo, the `AbstractProvider` and `AbstractBrowser` patterns make it easy to swap providers.</p>
+        </div>
+        
+        <h3>Pattern 2: Authentication Abstraction</h3>
+        
+        <p>The browser automation handles all authentication details, allowing the server to work with any authentication method (Microsoft, Google, corporate SSO, etc.).</p>
+        
+        <h3>Pattern 3: Graceful Degradation</h3>
+        
+        <p><strong>Best Practice</strong>: When clearance expires, instead of failing immediately, provide helpful error messages and out-of-band recovery options.</p>
+        
+        <h3>Pattern 4: Configuration Over Code</h3>
+        
+        <p>Rate limits, timeouts, and other settings should be configurable via environment variables rather than hardcoded.</p>
+        
+        <h2>🚀 Getting Started Exercise</h2>
+        
+        <p><strong>Exercise</strong>: Try the existing examples and trace through how they use the OpenAI-compatible server.</p>
+        
+        <ol>
+            <li>Start the server: <code>python app.py</code></li>
+            <li>Run example 04: <code>python examples/04_server_http.py</code></li>
+            <li>Run example 06: <code>python examples/06_server_openai_sdk.py</code></li>
+            <li>Compare the two approaches - notice how both use the same server URL</li>
+        </ol>
+        
+        <div class="callout warning">
+            <h4>⚠️ Before You Start</h4>
+            <ul>
+                <li>Make sure you've run <code>python -m copilot login</code> to authenticate</li>
+                <li>The server will open a browser during login if needed</li>
+                <li>Close any existing browser instances to avoid conflicts</li>
+            </ul>
+        </div>
+        
+        <h2>🔄 Next Steps</h2>
+        
+        <p>Build on this foundation by exploring:</p>
+        
+        <ul>
+            <li><strong>Protocol Adapter Patterns</strong>: How to create adapters for other providers</li>
+            <li><strong>Authentication Strategies</strong>: Browser automation vs API keys</li>
+            <li><strong>Scalability Challenges</strong>: How to handle concurrent requests</li>
+            <li><strong>Error Handling</strong>: Robust error responses and recovery</li>
+            <li><strong>Monitoring & Observability</strong>: Track API usage and performance</li>
+        </ul>
+        
+        <p><strong>Remember</strong>: The key to a good OpenAI-compatible server is maintaining the OpenAI protocol while abstracting away all the provider-specific details.</p>
+        
+        <hr>
+        
+        <h2>🧩 Explore Further</h2>
+        
+        <p>Try exploring these files in the repository:</p>
+        
+        <ul>
+            <li><strong>server/api.py</strong>: The main server implementation</li>
+            <li><strong>copilot/client.py</strong>: How conversations are managed</li>
+            <li><strong>copilot/driver.py</strong>: The low-level protocol implementation</li>
+            <li><strong>examples/06_server_openai_sdk.py</strong>: Using official OpenAI SDK</li>
+        </ul>
+        
+        <p><strong>Ask me a follow-up question</strong> about any part that interests you, such as protocol translation, streaming implementation, or authentication patterns.</p>
+        
+        <div class="lesson-footer">
+            <p><em>Note: This lesson is part of a series on building OpenAI-compatible API servers. Future lessons will cover error handling, monitoring, and scaling these patterns for production use.</em></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,94 @@
+{
+  "scriptCompleted": true,
+  "stats": {
+    "filesScanned": 42,
+    "filesWithImports": 14,
+    "totalEdges": 28
+  },
+  "importMap": {
+    ".dockerignore": [],
+    ".understand-anything/.understandignore": [],
+    "app.py": [
+      "server/__init__.py"
+    ],
+    "copilot/__init__.py": [
+      "copilot/auth.py",
+      "copilot/browser.py",
+      "copilot/client.py",
+      "copilot/driver.py"
+    ],
+    "copilot/__main__.py": [],
+    "copilot/auth.py": [],
+    "copilot/browser.py": [
+      "copilot/auth.py"
+    ],
+    "copilot/challenges.py": [],
+    "copilot/client.py": [
+      "copilot/auth.py",
+      "copilot/driver.py",
+      "copilot/models.py"
+    ],
+    "copilot/driver.py": [
+      "copilot/challenges.py",
+      "copilot/models.py",
+      "copilot/protocol.py",
+      "copilot/utils.py"
+    ],
+    "copilot/models.py": [],
+    "copilot/protocol.py": [],
+    "copilot/utils.py": [
+      "copilot/models.py"
+    ],
+    "docker-compose.yml": [],
+    "Dockerfile": [],
+    "examples/01_direct_chat.py": [
+      "copilot/__init__.py"
+    ],
+    "examples/02_direct_conversation.py": [
+      "copilot/__init__.py"
+    ],
+    "examples/03_direct_stream.py": [
+      "copilot/__init__.py"
+    ],
+    "examples/04_server_http.py": [],
+    "examples/05_server_stream.py": [],
+    "examples/06_server_openai_sdk.py": [],
+    "examples/README.md": [],
+    "lessons/0001-introduction-to-openai-compatible-servers": [],
+    "lessons/0001-introduction-to-openai-compatible-servers.html": [],
+    "MISSION.md": [],
+    "README.md": [],
+    "reproduce_issue_loop.py": [],
+    "reproduce_issue.py": [],
+    "requirements.txt": [],
+    "RESOURCES.md": [],
+    "server/__init__.py": [
+      "server/api.py"
+    ],
+    "server/api.py": [
+      "copilot/__init__.py",
+      "copilot/driver.py",
+      "server/config.py",
+      "server/openai_format.py",
+      "server/prompt.py",
+      "server/ratelimit.py",
+      "server/schemas.py"
+    ],
+    "server/config.py": [],
+    "server/openai_format.py": [],
+    "server/prompt.py": [
+      "server/schemas.py"
+    ],
+    "server/ratelimit.py": [],
+    "server/schemas.py": [
+      "server/config.py"
+    ],
+    "tests/diagnostic.py": [],
+    "tests/gpqa_bench.py": [],
+    "tests/ratelimit.py": [],
+    "tests/stress.py": [],
+    "tests/test_server.py": [
+      "server/__init__.py"
+    ]
+  }
+}

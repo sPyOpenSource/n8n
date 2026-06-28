@@ -1,0 +1,70 @@
+{
+  "nodes": [
+    {
+      "id": "document:MISSION.md",
+      "type": "document",
+      "name": "MISSION.md",
+      "filePath": "MISSION.md",
+      "summary": "Learning-oriented overview that frames the Windows Copilot API as a study of production-grade OpenAI-compatible bridges, with a recommended learning path from README through server implementation to core library.",
+      "tags": ["documentation", "learning-path", "architecture-overview"],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Comprehensive project documentation covering setup, Python library and OpenAI-compatible server usage, Docker deployment, rate limiting, Cloudflare clearance, concurrency testing, troubleshooting, and project layout.",
+      "tags": ["documentation", "entry-point", "getting-started", "api-reference"],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:RESOURCES.md",
+      "type": "document",
+      "name": "RESOURCES.md",
+      "filePath": "RESOURCES.md",
+      "summary": "Curated file index mapping every source directory and its key files (server, core library, examples, tests) to their purposes, with recommended learning paths for protocol bridging and browser automation.",
+      "tags": ["documentation", "reference", "code-guide"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:requirements.txt",
+      "type": "document",
+      "name": "requirements.txt",
+      "filePath": "requirements.txt",
+      "summary": "Python dependency manifest listing the four runtime packages — curl_cffi for HTTP, playwright for browser automation, fastapi and uvicorn for the OpenAI-compatible server.",
+      "tags": ["documentation", "dependencies", "configuration"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "document:MISSION.md",
+      "target": "document:README.md",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:RESOURCES.md",
+      "target": "document:README.md",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:MISSION.md",
+      "target": "document:RESOURCES.md",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "document:requirements.txt",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}
