@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 0002: The Dynamic Config Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; line-height: 1.6; color: #334155; }
+        .concept-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 1rem; margin: 1.5rem 0; }
+        .code-block { background: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 0.5rem; font-family: 'Fira Code', monospace; font-size: 0.9rem; overflow-x: auto; margin: 1rem 0; }
+        .win-badge { background: #dcfce7; color: #166534; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: bold; display: inline-block; margin-bottom: 1rem; }
+    </style>
+</head>
+<body class="p-8 max-w-3xl mx-auto">
+    <div class="win-badge">Skill: Architecture Design</div>
+    <h1 class="text-4xl font-bold mb-4">Lesson 0002: The Dynamic Config Interface</h1>
+    <p class="text-lg text-slate-600 mb-8">Moving from a static server to one that can be managed in real-time.</p>
+
+    <div class="section mb-12">
+        <h2 class="text-2xl font-semibold mb-4">1. The Static Limitation</h2>
+        <p>In the first version of our server, settings like <code>RATE_LIMIT_RPM</code> were constants in <code>server/config.py</code>. To change them, you had to edit the file and restart the server. This is "Static Configuration".</p>
+        <p>For a tool meant to be a "bridge", this is a bottleneck. If you realize your provider is rate-limiting you, you want to change the limit <strong>now</strong>, not after a redeploy.</p>
+    </div>
+
+    <div class="section mb-12">
+        <h2 class="text-2xl font-semibold mb-4">2. The Merge Hierarchy</h2>
+        <p>To solve this, we implement a <strong>Configuration Hierarchy</strong>. Instead of one source, we use three, merged in a specific order of priority:</p>
+        
+        <div class="flex flex-col gap-4 my-6">
+            <div class="p-4 bg-blue-100 border-l-4 border-blue-600 rounded-r">
+                <strong>1. Environment Variables</strong> (Highest Priority)<br>
+                <span class="text-sm">Used for secrets (API Keys) and infrastructure-level overrides.</span>
+            </div>
+            <div class="p-4 bg-blue-50 border-l-4 border-blue-400 rounded-r">
+                <strong>2. config.json</strong> (Medium Priority)<br>
+                <span class="text-sm">User-defined settings managed via the Admin UI. Persistent across restarts.</span>
+            </div>
+            <div class="p-4 bg-slate-100 border-l-4 border-slate-400 rounded-r">
+                <strong>3. Hardcoded Defaults</strong> (Lowest Priority)<br>
+                <span class="text-sm">Sane fallbacks defined in the code.</span>
+            </div>
+        </div>
+        <p>This ensures that a developer can set a global default, but a user can override it in the UI, and a DevOps engineer can override <em>both</em> using an environment variable in a Docker container.</p>
+    </div>
+
+    <div class="section mb-12">
+        <h2 class="text-2xl font-semibold mb-4">3. The ConfigManager Singleton</h2>
+        <p>To prevent "split-brain" (where different parts of the app see different settings), we use a <strong>ConfigManager</strong>. This is a single object that handles the merge logic and provides the final value to the rest of the app.</p>
+        <div class="code-block">
+            # Conceptual Logic<br>
+            def get_setting(key):<br>
+            &nbsp;&nbsp;if os.environ.get(key): return os.environ[key]<br>
+            &nbsp;&nbsp;if config_json.get(key): return config_json[key]<br>
+            &nbsp;&nbsp;return DEFAULTS[key]
+        </div>
+    </div>
+
+    <div class="section mb-12">
+        <h2 class="text-2xl font-semibold mb-4">4. The Admin Bridge</h2>
+        <p>The Manager Interface is simply a UI that talks to this ConfigManager. When you click "Save" in the UI:</p>
+        <ol class="list-decimal ml-6 space-y-2">
+            <li>The browser sends a JSON payload to <code>POST /admin/config</code></li>
+            <li>The server validates the settings</li>
+            <li>The server writes the updated values to <code>config.json</code></li>
+            <li>The <code>Router</code> is signaled to reload its provider pool based on the new config</li>
+        </ol>
+    </div>
+
+    <div class="concept-box">
+        <h3 class="font-bold text-blue-800 mb-2">💡 Key Insight: State vs. Configuration</h3>
+        <p>Configuration is <strong>what the system should do</strong> (Priority: Copilot &gt; OpenAI). State is <strong>what the system is currently doing</strong> (e.g., "Current Active Provider: Copilot"). The Admin UI manages the configuration, and the Router translates that configuration into active state.</p>
+    </div>
+
+    <div class="mt-12 p-6 bg-slate-800 text-white rounded-xl">
+        <h3 class="text-xl font-bold mb-4">Check Your Understanding</h3>
+        <p class="mb-4">Imagine the following setup:</p>
+        <ul class="list-disc ml-6 mb-6 space-y-1">
+            <li><code>config.json</code>: <code>"PROVIDER_PRIORITY": "copilot,openai"</code></li>
+            <li><code>.env</code>: <code>PROVIDER_PRIORITY=openai,copilot</code></li>
+        </ul>
+        <p class="font-semibold">Which provider will the server try first?</p>
+        <p class="text-sm text-slate-400 mt-4 italic">Ask your teacher (the agent) to verify your answer!</p>
+    </div>
+
+    <footer class="mt-12 pt-8 border-t border-slate-200 text-slate-400 text-sm text-center">
+        Windows Copilot API Learning Workspace &bull; Lesson 0002
+        <br>
+        <a href="../reference/config-patterns.html" class="text-blue-500 underline">View Configuration Patterns Reference</a>
+    </footer>
+</body>
+</html>

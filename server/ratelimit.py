@@ -41,7 +41,7 @@ class TokenBucket:
 
     def try_acquire(self) -> tuple[bool, float]:
         """Spend one token if available.
-
+        
         Returns ``(allowed, retry_after_seconds)``. When disabled, always
         ``(True, 0.0)``. When refused, ``retry_after`` is the time until one
         token has accrued (always > 0).
@@ -58,3 +58,12 @@ class TokenBucket:
             deficit = 1.0 - self._tokens
             retry_after = deficit / self.rate if self.rate > 0 else 0.0
             return False, retry_after
+
+    def update_limits(self, rpm: float, burst: int):
+        """Dynamically update the RPM and burst capacity."""
+        with self._lock:
+            self.rpm = float(rpm)
+            self.rate = self.rpm / 60.0
+            self.capacity = max(1, int(burst))
+            self._tokens = min(self._tokens, float(self.capacity))
+

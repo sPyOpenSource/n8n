@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Patterns Reference</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; line-height: 1.6; color: #334155; }
+        .pattern-card { border-left: 4px solid #3b82f6; background: #f8fafc; padding: 1rem; margin-bottom: 1.5rem; border-radius: 0 0.5rem 0.5rem 0; }
+        .pattern-title { font-weight: bold; color: #1e293b; display: block; margin-bottom: 0.25rem; }
+        .tag { font-size: 0.75rem; padding: 0.1rem 0.4rem; border-radius: 9999px; background: #e2e8f0; color: #475569; margin-right: 0.5rem; }
+    </style>
+</head>
+<body class="p-8 max-w-3xl mx-auto">
+    <h1 class="text-3xl font-bold mb-2">Configuration Patterns</h1>
+    <p class="text-slate-500 mb-8">A reference for managing application settings across different environments.</p>
+
+    <div class="pattern-card">
+        <span class="pattern-title">1. The Configuration Hierarchy (Layering)</span>
+        <div class="mb-2">
+            <span class="tag">Fundamental</span><span class="tag">Reliability</span>
+        </div>
+        <p>The practice of sourcing settings from multiple locations with a strict priority order. Usually: <strong>CLI Args &gt; Environment Variables &gt; Config File &gt; Defaults</strong>.</p>
+        <p class="text-sm italic mt-2">Why? Allows developers to set defaults, operators to set environment-specifics, and users to override specific settings locally.</p>
+    </div>
+
+    <div class="pattern-card">
+        <span class="pattern-title">2. The Config Manager (Single Source of Truth)</span>
+        <div class="mb-2">
+            <span class="tag">Architecture</span><span class="tag">Consistency</span>
+        </div>
+        <p>Instead of reading <code>os.environ</code> throughout the code, create a single object (Singleton) that handles the merge logic and provides typed access to settings.</p>
+        <p class="text-sm italic mt-2">Why? Centralizes validation, enables dynamic reloading, and makes the code easier to test by mocking the manager.</p>
+    </div>
+
+    <div class="pattern-card">
+        <span class="pattern-title">3. Sidecar Configuration (JSON/YAML)</strong>
+        <div class="mb-2">
+            <span class="tag">Persistence</span><span class="tag">Interoperability</span>
+        </div>
+        <p>Storing user-mutable settings in a machine-readable file (like <code>config.json</code>) separate from the immutable application code.</p>
+        <p class="text-sm italic mt-2">Why? Allows non-developers to change settings without touching code and enables UI-based configuration tools.</p>
+    </div>
+
+    <div class="pattern-card">
+        <span class="pattern-title">4. Hot-Reloading / Dynamic Update</span>
+        <div class="mb-2">
+            <span class="tag">Availability</span><span class="tag">Performance</span>
+        </div>
+        <p>The ability of a running process to detect changes in its configuration and apply them without a restart.</p>
+        <p class="text-sm italic mt-2">Why? Critical for production systems where downtime for a simple config change is unacceptable.</p>
+    </div>
+
+    <footer class="mt-12 pt-8 border-t border-slate-200 text-slate-400 text-sm text-center">
+        Windows Copilot API Learning Workspace &bull; Reference Document
+    </footer>
+</body>
+</html>

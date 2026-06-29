@@ -19,10 +19,10 @@ class OpenAIProvider(AbstractProvider):
     default_model = "gpt-4o"
     needs_auth = True
 
-    def __init__(self):
+    def __init__(self, base_url: str | None = None):
         super().__init__()
         self._api_key = os.environ.get("OPENAI_API_KEY", "")
-        self._base_url = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com").rstrip("/")
+        self._base_url = (base_url or os.environ.get("OPENAI_BASE_URL", "https://api.openai.com")).rstrip("/")
         self._org_id = os.environ.get("OPENAI_ORG_ID", "")
         self._models_str = os.environ.get("OPENAI_MODELS", "gpt-4o,gpt-4o-mini,o3-mini")
         self._client = httpx.Client(timeout=120.0)

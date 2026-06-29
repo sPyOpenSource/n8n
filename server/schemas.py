@@ -4,8 +4,6 @@ from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
 
-from .config import MODEL_NAME
-
 
 class ChatMessage(BaseModel):
     role: str
@@ -16,7 +14,7 @@ class ChatMessage(BaseModel):
 
 class ChatCompletionRequest(BaseModel):
     messages: List[ChatMessage]
-    model: Optional[str] = MODEL_NAME
+    model: Optional[str] = None
     stream: bool = False
     # Copilot's own conversation id (returned in earlier responses). Pass it back
     # to continue that thread; omit it to start a fresh conversation. Outside

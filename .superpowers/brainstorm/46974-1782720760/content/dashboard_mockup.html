@@ -1,0 +1,76 @@
+<h2>Admin Dashboard Mockup</h2>
+<p class="subtitle">Configuration and Routing Control Panel</p>
+
+<div class="section">
+  <h3>1. Provider Management</h3>
+  <p>Each card represents a configured provider. Green means available, red means unavailable.</p>
+  
+  <div class="cards">
+    <!-- Copilot Card -->
+    <div class="card" data-choice="copilot" onclick="toggleSelect(this)">
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <h3>Microsoft Copilot</h3>
+          <span class="label" style="color:green">● Available</span>
+        </div>
+        <p>Type: Specialized Adapter</p>
+        <p class="subtitle">Session-based auth, browser-driven clearance</p>
+      </div>
+    </div>
+
+    <!-- Ollama Card -->
+    <div class="card" data-choice="ollama" onclick="toggleSelect(this)">
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <h3>Ollama (Local)</h3>
+          <span class="label" style="color:red">● Unavailable</span>
+        </div>
+        <p>Type: Generic OpenAI-Compatible</p>
+        <p class="subtitle">Base URL: http://localhost:11434</p>
+      </div>
+    </div>
+
+    <!-- Custom OpenAI Card -->
+    <div class="card" data-choice="openai" onclick="toggleSelect(this)">
+      <div class="card-body">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <h3>OpenAI Official</h3>
+          <span class="label" style="color:green">● Available</span>
+        </div>
+        <p>Type: Generic OpenAI-Compatible</p>
+        <p class="subtitle">Auth: API Key set in ENV</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. Routing Priority</h3>
+  <p>Order of attempt for requests without a specific model. Drag to reorder (simulated here).</p>
+  <div class="mock-nav" style="display:flex; flex-direction:column; gap:8px; padding:12px; background:#1e293b; color:white; border:1px solid #334155; border-radius:8px">
+    <div style="display:flex; align-items:center; gap:10px">
+      <span>↕️</span> <strong>1. Microsoft Copilot</strong>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px">
+      <span>↕️</span> <strong>2. Ollama (Local)</strong>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px">
+      <span>↕️</span> <strong>3. OpenAI Official</strong>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>3. Global Settings</h3>
+  <div class="mockup" style="padding:16px">
+    <div style="margin-bottom:12px">
+      <label class="label">Rate Limit (RPM)</label><br>
+      <input class="mock-input" value="12">
+    </div>
+    <div style="margin-bottom:12px">
+      <label class="label">Burst Capacity</label><br>
+      <input class="mock-input" value="4">
+    </div>
+    <button class="mock-button" style="background:#2563eb; color:white; padding:8px 16px; border-radius:4px; border:none; cursor:pointer">Save Changes</button>
+  </div>
+</div>
