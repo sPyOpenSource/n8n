@@ -19,3 +19,4 @@
 {"source":"user-event","type":"click","text":"Ollama (Local)\n          ● Unavailable\n        \n        Type: Generic OpenAI-Compatible\n        Base URL: http://localhost:11434","choice":"ollama","id":null,"timestamp":1782720928453}
 {"source":"user-event","type":"click","text":"Ollama (Local)\n          ● Unavailable\n        \n        Type: Generic OpenAI-Compatible\n        Base URL: http://localhost:11434","choice":"ollama","id":null,"timestamp":1782720928604}
 {"type":"screen-updated","file":"/Users/xuyi/Source/Python/Windows-Copilot-API/.superpowers/brainstorm/46974-1782720760/content/dashboard_mockup.html"}
+{"type":"server-stopped","reason":"owner process exited"}
