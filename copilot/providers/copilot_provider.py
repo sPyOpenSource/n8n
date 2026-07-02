@@ -50,7 +50,7 @@ class CopilotProvider(AbstractProvider):
 
     def stream(self, prompt: str, model: str, conversation_id: str | None = None):
         from server.openai_format import new_id, sse_event, stream_chunk
-
+        print(model)
         cid = new_id()
         created = int(time.time())
         with self._lock:

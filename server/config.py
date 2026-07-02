@@ -5,7 +5,7 @@ import json
 import threading
 
 class ConfigManager:
-    def __init__(self, config_path="config.json"):
+    def __init__(self, config_path="/Users/xuyi/.local/share/opencode/auth.json"):
         self.config_path = config_path
         self._lock = threading.Lock()
         self._cached_config = {}
@@ -13,11 +13,14 @@ class ConfigManager:
         
         # Define the lowest level of the hierarchy: hardcoded defaults
         self.DEFAULTS = {
-            "PROVIDER_PRIORITY": "copilot,ollama,openai",
+            "PROVIDER_PRIORITY": "openai,openrouter,google,nvidia,copilot,ollama",
             "RATE_LIMIT_RPM": 12,
             "RATE_LIMIT_BURST": 4,
             "OLLAMA_BASE_URL": "http://localhost:11434",
             "OPENAI_BASE_URL": "https://api.openai.com",
+            "OPENROUTER_BASE_URL": "https://openrouter.ai/api/v1",
+            "GOOGLE_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/openai",
+            "NVIDIA_BASE_URL": "https://integrate.api.nvidia.com/v1",
             "MODEL_NAME": "copilot",
         }
         
@@ -32,11 +35,16 @@ class ConfigManager:
         try:
             with open(self.config_path, "r") as f:
                 file_config = json.load(f)
+                self.DEFAULTS.update({"GOOGLE_API_KEY": file_config.get("google").get("key")})
+                self.DEFAULTS.update({"OPENAI_API_KEY": file_config.get("openai").get("key")})
+                self.DEFAULTS.update({"NVIDIA_API_KEY": file_config.get("nvidia").get("key")})
+                self.DEFAULTS.update({"OPENROUTER_API_KEY": file_config.get("openrouter").get("key")})
                 final.update({k: v for k, v in file_config.items() if k in self.DEFAULTS})
         except (FileNotFoundError, json.JSONDecodeError):
             pass
 
         # Layer 3: Override with Environment Variables (Highest Priority)
+        return final
         for key in self.DEFAULTS:
             env_val = os.environ.get(key)
             if env_val is not None:
@@ -62,8 +70,7 @@ class ConfigManager:
 
     def get(self, key):
         """Fast access to the merged configuration."""
-        return self._cached_config.get(key)
+        return self.DEFAULTS.get(key)
 
 # Singleton instance for the server
 config = ConfigManager()
-

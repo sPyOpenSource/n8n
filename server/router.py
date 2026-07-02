@@ -40,10 +40,11 @@ class Router:
         return result
 
     def chat(self, prompt: str, model: str | None = None, conversation_id: str | None = None) -> dict:
-        if model and model in self._model_to_provider:
-            provider = self._model_to_provider[model]
-            if provider.is_available():
-                return provider.chat(prompt, model=model, conversation_id=conversation_id)
+        #if model and model in self._model_to_provider:
+        #provider = self._model_to_provider[model]
+        provider = self._model_to_provider["nvidia/nemotron-3-ultra"]
+        if provider.is_available():
+            return provider.chat(prompt, model=model, conversation_id=conversation_id)
 
         last_err = None
         for provider in self._active_providers():
@@ -58,11 +59,13 @@ class Router:
         raise RuntimeError("No providers available")
 
     def stream(self, prompt: str, model: str | None = None, conversation_id: str | None = None) -> Generator:
-        if model and model in self._model_to_provider:
-            provider = self._model_to_provider[model]
-            if provider.is_available():
-                yield from provider.stream(prompt, model=model, conversation_id=conversation_id)
-                return
+        #if model and model in self._model_to_provider:
+        print(len(prompt)/10240)
+        prompt = prompt[-10220:]
+        provider = self._model_to_provider[model]
+        if provider.is_available():
+            yield from provider.stream(prompt, model=model, conversation_id=conversation_id)
+            return
 
         for provider in self._active_providers():
             try:

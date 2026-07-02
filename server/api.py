@@ -10,6 +10,9 @@ from copilot.driver import ClearanceRequired
 from copilot.providers.copilot_provider import CopilotProvider
 from copilot.providers.ollama_provider import OllamaProvider
 from copilot.providers.openai_provider import OpenAIProvider
+from copilot.providers.openrouter_provider import OpenRouterProvider
+from copilot.providers.google_provider import GoogleProvider
+from copilot.providers.nvidia_provider import NvidiaProvider
 
 from .config import config
 from .openai_format import completion_response, new_id, sse_event, stream_chunk
@@ -27,8 +30,11 @@ def _build_router() -> Router:
     """Instantiate providers from config and return a Router."""
     registry = {
         "copilot": lambda: CopilotProvider(interactive_clear=False, headless_clear=False),
-        "ollama": lambda: OllamaProvider(base_url=config.get("OLLAMA_BASE_URL")),
-        "openai": lambda: OpenAIProvider(base_url=config.get("OPENAI_BASE_URL")),
+        "ollama": lambda: OllamaProvider(),
+        "openai": lambda: OpenAIProvider(),
+        "openrouter": lambda: OpenRouterProvider(),
+        "google": lambda: GoogleProvider(),
+        "nvidia": lambda: NvidiaProvider(),
     }
     providers = []
     priority = config.get("PROVIDER_PRIORITY").split(",")
@@ -142,7 +148,6 @@ def chat_completions(req: ChatCompletionRequest):
             content={"error": {"message": "no text content in messages", "type": "invalid_request_error"}},
         )
     model = req.model or config.get("MODEL_NAME")
-
     limited = _rate_limited_response()
     if limited is not None:
         return limited
@@ -224,6 +229,18 @@ def admin_ui():
                     <div class="flex flex-col">
                         <label class="text-sm font-medium text-slate-400 mb-2">OpenAI Base URL</label>
                         <input type="text" name="OPENAI_BASE_URL" class="input-field p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-slate-400 mb-2">OpenRouter Base URL</label>
+                        <input type="text" name="OPENROUTER_BASE_URL" class="input-field p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-slate-400 mb-2">Google Base URL</label>
+                        <input type="text" name="GOOGLE_BASE_URL" class="input-field p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-slate-400 mb-2">NVIDIA Base URL</label>
+                        <input type="text" name="NVIDIA_BASE_URL" class="input-field p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div class="flex flex-col">
                         <label class="text-sm font-medium text-slate-400 mb-2">Ollama Base URL</label>
