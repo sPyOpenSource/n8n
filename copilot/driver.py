@@ -30,7 +30,7 @@ from .utils import drain_json, is_accepted_format, raise_for_status, to_bytes
 
 class ClearanceRequired(RuntimeError):
     """The chat socket demanded a Cloudflare Turnstile token we can't mint here.
-
+    
     Copilot gates a turn behind a ``challenge`` frame with ``method`` either
     ``null`` or ``"cloudflare"`` whenever the session's ``cf_clearance`` cookie is
     stale or missing (confirmed by capturing the real web client: it answers a
@@ -38,8 +38,12 @@ class ClearanceRequired(RuntimeError):
     Turnstile token can only be produced by executing Cloudflare's challenge JS in
     a real browser, so the pure-HTTP driver can't satisfy it. The caller should
     refresh clearance in a browser (see
-    :meth:`copilot.browser.BrowserCopilot.auto_clear`) and retry the turn.
+    :meth:`copilot.browser.BrowserCopilot.auto_clear`) and retry.
     """
+
+
+class ResourceExhausted(RuntimeError):
+    """The provider has exhausted its quota or rate limit (HTTP 429)."""
 
 
 class Copilot(AbstractProvider):

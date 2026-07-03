@@ -4,6 +4,8 @@ import threading
 from abc import ABC, abstractmethod
 from typing import Any, Generator
 
+from copilot.driver import ResourceExhausted
+
 
 class AbstractProvider(ABC):
     """Interface every provider must implement.
@@ -22,6 +24,13 @@ class AbstractProvider(ABC):
 
     def __init__(self):
         self._lock = threading.Lock()
+
+    def _handle_status(self, resp: Any):
+        """Check for 429 ResourceExhausted or other status errors."""
+        if hasattr(resp, "status_code"):
+            if resp.status_code == 429:
+                raise ResourceExhausted(f"Provider {self.label} quota exceeded (429)")
+            resp.raise_for_status()
 
     @abstractmethod
     def is_available(self) -> bool:

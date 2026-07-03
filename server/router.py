@@ -4,7 +4,7 @@ import logging
 import time as _time
 from typing import Any, Generator
 
-from copilot.driver import ClearanceRequired
+from copilot.driver import ClearanceRequired, ResourceExhausted
 from copilot.providers.base import AbstractProvider
 
 from .health_watcher import HealthWatcher
@@ -62,7 +62,7 @@ class Router:
         for provider in self._active_providers():
             try:
                 return provider.chat(messages, model=model or provider.default_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
-            except (ConnectionError, ClearanceRequired, TimeoutError) as exc:
+            except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted) as exc:
                 log.warning("Provider %s failed: %s; trying next", provider.label, exc)
                 last_err = exc
                 continue
@@ -88,7 +88,7 @@ class Router:
             try:
                 yield from provider.stream(messages, model=model or provider.default_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
                 return
-            except (ConnectionError, ClearanceRequired, TimeoutError) as exc:
+            except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted) as exc:
                 log.warning("Provider %s failed: %s; trying next", provider.label, exc)
                 continue
         raise RuntimeError("No providers available")
@@ -155,7 +155,7 @@ class FailsafeRouter:
                 self._score_keeper.record_success(chosen, elapsed)
                 self._health_watcher.record_success(chosen)
                 return result
-            except (ConnectionError, TimeoutError) as exc:
+            except (ConnectionError, TimeoutError, ResourceExhausted) as exc:
                 log.warning("Provider %s failed: %s; trying next", chosen, exc)
                 self._score_keeper.record_error(chosen)
                 self._health_watcher.record_failure(chosen, str(exc))
@@ -202,7 +202,7 @@ class FailsafeRouter:
                 self._score_keeper.record_success(chosen, elapsed)
                 self._health_watcher.record_success(chosen)
                 return
-            except (ConnectionError, TimeoutError) as exc:
+            except (ConnectionError, TimeoutError, ResourceExhausted) as exc:
                 log.warning("Provider %s stream failed: %s; trying next", chosen, exc)
                 self._score_keeper.record_error(chosen)
                 self._health_watcher.record_failure(chosen, str(exc))

@@ -67,7 +67,7 @@ class OpenAIProvider(AbstractProvider):
             headers=self._headers(),
             json=self._build_body(model, messages, tools, tool_choice),
         )
-        resp.raise_for_status()
+        self._handle_status(resp)
         return resp.json()
 
     def stream(
@@ -84,7 +84,7 @@ class OpenAIProvider(AbstractProvider):
             headers=self._headers(),
             json=self._build_body(model, messages, tools, tool_choice, stream=True),
         ) as resp:
-            resp.raise_for_status()
+            self._handle_status(resp)
             for line in resp.iter_lines():
                 if not line:
                     continue
