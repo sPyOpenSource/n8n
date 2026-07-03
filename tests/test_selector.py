@@ -52,3 +52,57 @@ def test_combination_formula():
         pick = selector.select(candidates, exclude=set())
         picks[pick] += 1
     assert picks["fast"] > picks["slow"]
+
+
+def test_validation_tau_not_positive():
+    with pytest.raises(ValueError, match="tau must be > 0"):
+        ProviderSelector(tau=0)
+
+
+def test_validation_max_latency_not_positive():
+    with pytest.raises(ValueError, match="max_latency must be > 0"):
+        ProviderSelector(max_latency=0)
+
+
+def test_all_equal_scores():
+    selector = ProviderSelector(tau=0.1)
+    candidates = {
+        "a": {"error_rate": 0.1, "latency_p99": 100.0},
+        "b": {"error_rate": 0.1, "latency_p99": 100.0},
+        "c": {"error_rate": 0.1, "latency_p99": 100.0},
+    }
+    picks = {"a": 0, "b": 0, "c": 0}
+    for _ in range(300):
+        pick = selector.select(candidates, exclude=set())
+        picks[pick] += 1
+    assert all(v > 0 for v in picks.values())
+
+
+def test_single_candidate():
+    selector = ProviderSelector(tau=0.1)
+    candidates = {"only": {"error_rate": 0.5, "latency_p99": 5000.0}}
+    for _ in range(10):
+        assert selector.select(candidates, exclude=set()) == "only"
+
+
+def test_very_small_tau():
+    selector = ProviderSelector(tau=0.001)
+    candidates = {
+        "best": {"error_rate": 0.0, "latency_p99": 10.0},
+        "worst": {"error_rate": 0.9, "latency_p99": 9000.0},
+    }
+    for _ in range(50):
+        assert selector.select(candidates, exclude=set()) == "best"
+
+
+def test_very_large_tau():
+    selector = ProviderSelector(tau=100.0)
+    candidates = {
+        "good": {"error_rate": 0.0, "latency_p99": 10.0},
+        "bad": {"error_rate": 0.9, "latency_p99": 9000.0},
+    }
+    picks = {"good": 0, "bad": 0}
+    for _ in range(200):
+        pick = selector.select(candidates, exclude=set())
+        picks[pick] += 1
+    assert picks["good"] > 0 and picks["bad"] > 0

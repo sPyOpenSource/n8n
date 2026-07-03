@@ -14,6 +14,10 @@ class ProviderSelector:
     """
 
     def __init__(self, tau: float = 0.1, w_error: float = 0.7, w_latency: float = 0.3, max_latency: float = 10000.0):
+        if tau <= 0:
+            raise ValueError(f"tau must be > 0, got {tau}")
+        if max_latency <= 0:
+            raise ValueError(f"max_latency must be > 0, got {max_latency}")
         self.tau = tau
         self.w_error = w_error
         self.w_latency = w_latency
@@ -37,9 +41,6 @@ class ProviderSelector:
         min_s = min(scores.values())
         exp_values = {name: math.exp(-(s - min_s) / self.tau) for name, s in scores.items()}
         total = sum(exp_values.values())
-
-        if total == 0:
-            return random.choice(list(available.keys()))
 
         r = random.random() * total
         cumulative = 0.0
