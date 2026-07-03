@@ -2,7 +2,13 @@
   "openai": {
     "gpt-4o": "gpt-4o"
   },
-  "anthropic": {
-    "gpt-4o": "claude-3-5-sonnet-20240620"
+  "google": {
+    "copilot": "gemini-1.5-flash"
+  },
+  "nvidia": {
+    "copilot": "nvidia/nemotron-3-ultra"
+  },
+  "openrouter": {
+    "copilot": "nvidia/nemotron-3-ultra"
   }
 }

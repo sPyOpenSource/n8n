@@ -18,7 +18,11 @@ from .config import config
 from .openai_format import completion_response, new_id, sse_event, stream_chunk
 from .prompt import messages_to_prompt
 from .ratelimit import TokenBucket
-from .router import Router
+from .model_config import ModelConfig
+from .score_keeper import ScoreKeeper
+from .selector import ProviderSelector
+from .health_watcher import HealthWatcher
+from .router import Router, FailsafeRouter
 from .schemas import ChatCompletionRequest
 
 app = FastAPI(title="Copilot OpenAI-compatible API", version="1.0.0")
@@ -26,7 +30,7 @@ app = FastAPI(title="Copilot OpenAI-compatible API", version="1.0.0")
 log = logging.getLogger(__name__)
 
 
-def _build_router() -> Router:
+def _build_router() -> Router | FailsafeRouter:
     """Instantiate providers from config and return a Router."""
     registry = {
         "copilot": lambda: CopilotProvider(interactive_clear=False, headless_clear=False),
@@ -36,6 +40,37 @@ def _build_router() -> Router:
         "google": lambda: GoogleProvider(),
         "nvidia": lambda: NvidiaProvider(),
     }
+
+    # Check for failsafe config
+    model_config_path = config.get("MODEL_CONFIG_PATH")
+    mc = ModelConfig(model_config_path) if model_config_path else ModelConfig("")
+    if mc.all_models():
+        # Failsafe mode: build provider map keyed by name
+        providers = {}
+        priority = config.get("PROVIDER_PRIORITY").split(",")
+        for name in [p.strip() for p in priority]:
+            factory = registry.get(name)
+            #if factory is None:
+            #    log.warning("Unknown provider %r; skipping", name)
+            #    continue
+            try:
+                p = factory()
+                if p.is_available():
+                    providers[name] = p
+                    log.info("Provider %s: available (%d models)", p.label, len(p.list_models()))
+                else:
+                    log.info("Provider %s: not available (skipping)", p.label)
+            except Exception as exc:
+                log.warning("Provider %s failed: %s", name, exc)
+        return FailsafeRouter(
+            providers=providers,
+            model_config=mc,
+            score_keeper=ScoreKeeper(),
+            selector=ProviderSelector(),
+            health_watcher=HealthWatcher(),
+        )
+
+    # Legacy mode: priority-ordered list
     providers = []
     priority = config.get("PROVIDER_PRIORITY").split(",")
     for name in [p.strip() for p in priority]:
@@ -262,6 +297,21 @@ def admin_ui():
                 <div class="text-slate-500 italic">Loading models...</div>
             </div>
         </div>
+
+        <div class="mt-8 card rounded-xl p-6 shadow-xl">
+            <h2 class="text-xl font-semibold mb-4 text-slate-300">Model Configuration <span class="text-sm text-slate-500">(provider-grouped JSON)</span></h2>
+            <div class="mb-2 text-sm text-slate-400" id="model-config-path"></div>
+            <textarea id="model-config-editor" class="input-field p-3 rounded-lg w-full font-mono text-sm" rows="12" spellcheck="false"></textarea>
+            <div class="flex justify-end pt-4 gap-3">
+                <button id="model-config-reload-btn" class="bg-slate-600 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded-lg transition-colors text-sm">
+                    Reload from Disk
+                </button>
+                <button id="model-config-save-btn" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                    Save Model Config
+                </button>
+            </div>
+            <div id="model-config-status" class="mt-2 text-sm"></div>
+        </div>
     </div>
 
     <script>
@@ -331,7 +381,60 @@ def admin_ui():
             }
         };
 
+        async function loadModelConfig() {
+            try {
+                const [configRes, dataRes] = await Promise.all([
+                    fetch('/admin/config'),
+                    fetch('/admin/model-config')
+                ]);
+                const config = await configRes.json();
+                const data = await dataRes.json();
+                const pathLabel = document.getElementById('model-config-path');
+                pathLabel.textContent = 'Path: ' + (config.MODEL_CONFIG_PATH || 'config/models.json');
+                document.getElementById('model-config-editor').value = JSON.stringify(data, null, 2);
+            } catch (e) {
+                document.getElementById('model-config-editor').value = '{}';
+            }
+        }
+
+        document.getElementById('model-config-save-btn').onclick = async () => {
+            const btn = document.getElementById('model-config-save-btn');
+            const status = document.getElementById('model-config-status');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            try {
+                const raw = document.getElementById('model-config-editor').value;
+                const parsed = JSON.parse(raw);
+                const res = await fetch('/admin/model-config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(parsed)
+                });
+                if (res.ok) {
+                    status.textContent = 'Saved and server reloaded ✓';
+                    status.className = 'mt-2 text-sm text-green-400';
+                    loadModels();
+                } else {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Save failed');
+                }
+            } catch (e) {
+                status.textContent = 'Error: ' + e.message;
+                status.className = 'mt-2 text-sm text-red-400';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Model Config';
+            }
+        };
+
+        document.getElementById('model-config-reload-btn').onclick = () => {
+            loadModelConfig();
+            document.getElementById('model-config-status').textContent = 'Reloaded from disk ✓';
+            document.getElementById('model-config-status').className = 'mt-2 text-sm text-green-400';
+        };
+
         loadConfig();
+        loadModelConfig();
     </script>
 </body>
 </html>
@@ -348,10 +451,38 @@ def get_config():
 def set_config(cfg: dict = Body(...)):
     """Update the JSON config and reload the server state."""
     try:
-        with open(config.config_path, "w") as f:
-            json.dump(cfg, f, indent=4)
         config.reload()
         return {"status": "ok", "config": config._cached_config}
+    except Exception as exc:
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(exc)}
+        )
+
+
+@app.get("/admin/model-config")
+def get_model_config():
+    """Return the raw provider-grouped model config JSON."""
+    path = config.get("MODEL_CONFIG_PATH")
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        return JSONResponse(data)
+    except FileNotFoundError:
+        return JSONResponse({})
+    except Exception as exc:
+        return JSONResponse(status_code=500, content={"error": str(exc)})
+
+
+@app.post("/admin/model-config")
+def set_model_config(cfg: dict = Body(...)):
+    """Write the provider-grouped model config and reload the server."""
+    path = config.get("MODEL_CONFIG_PATH")
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, indent=2)
+        reload_server_state()
+        return {"status": "ok", "path": path}
     except Exception as exc:
         return JSONResponse(
             status_code=500,

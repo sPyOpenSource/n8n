@@ -43,7 +43,7 @@ class ConfigManager:
                 final.update({k: v for k, v in file_config.items() if k in self.DEFAULTS})
         except (FileNotFoundError, json.JSONDecodeError):
             pass
-
+        return self.DEFAULTS
         # Layer 3: Override with Environment Variables (Highest Priority)
         for key in self.DEFAULTS:
             env_val = os.environ.get(key)

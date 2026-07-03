@@ -14,7 +14,7 @@ class GoogleProvider(AbstractProvider):
     url = "https://generativelanguage.googleapis.com"
     working = True
     supports_stream = True
-    default_model = "gemini-1.5-flash"
+    default_model = "gemma-4-31b-it"
     needs_auth = True
 
     def __init__(self, base_url: str | None = None):
@@ -42,7 +42,7 @@ class GoogleProvider(AbstractProvider):
             f"{self._base_url}/chat/completions",
             headers=self._headers(),
             json={
-                "model": model or self.default_model,
+                "model": self.default_model,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
             },

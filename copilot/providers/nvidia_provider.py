@@ -14,19 +14,18 @@ class NvidiaProvider(AbstractProvider):
     url = "https://integrate.api.nvidia.com"
     working = True
     supports_stream = True
-    default_model = "meta/llama-3.1-8b-instruct"
+    default_model = "nvidia/nemotron-3-ultra-550b-a55b"
     needs_auth = True
 
     def __init__(self, base_url: str | None = None):
         super().__init__()
         self._api_key = config.get("NVIDIA_API_KEY")  # os.environ.get("NVIDIA_API_KEY", "")
-        print("NVIDIA_API_KEY:", self._api_key)
         self._base_url = (base_url or os.environ.get("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1")).rstrip("/")
         self._models_str = os.environ.get("NVIDIA_MODELS", "meta/llama-3.1-8b-instruct,meta/llama-3.1-70b-instruct,nvidia/nemotron-3-ultra")
         self._client = httpx.Client(timeout=120.0)
 
     def _headers(self) -> dict:
-        return {"Authorization": f"Bearer {self._api_key}"}
+        return {"Authorization": f"Bearer {self._api_key}", "Content-Type": "application/json"}
 
     def is_available(self) -> bool:
         return bool(self._api_key)
@@ -43,7 +42,7 @@ class NvidiaProvider(AbstractProvider):
             f"{self._base_url}/chat/completions",
             headers=self._headers(),
             json={
-                "model": model or self.default_model,
+                "model": self.default_model,
                 "messages": [{"role": "user", "content": prompt}],
                 "stream": False,
             },
