@@ -1,6 +1,7 @@
 """Router — dispatches requests across a provider pool with failover."""
 
 import logging
+import time as _time
 from typing import Generator
 
 from copilot.driver import ClearanceRequired
@@ -99,9 +100,9 @@ class FailsafeRouter:
         self._health_watcher = health_watcher
 
     def _available_candidates(self, model: str, exclude: set[str]) -> dict[str, AbstractProvider]:
-        provider_names = self._model_config.providers_for_model(model)
+        provider_map = self._model_config.providers_for_model(model)
         candidates = {}
-        for name in provider_names:
+        for name, _provider_model in provider_map.items():
             if name in exclude:
                 continue
             prov = self._providers.get(name)
@@ -128,7 +129,6 @@ class FailsafeRouter:
 
             provider = self._providers[chosen]
             provider_model = self._model_config.provider_model(chosen, model) or model
-            import time as _time
             start = _time.monotonic()
             try:
                 result = provider.chat(prompt, model=provider_model, conversation_id=conversation_id)
@@ -143,39 +143,37 @@ class FailsafeRouter:
                 tried.add(chosen)
                 continue
 
+    def _error_sse(self, model: str, message: str):
+        from .openai_format import sse_event, stream_chunk, new_id
+        cid = new_id()
+        created = int(_time.time())
+        yield sse_event(stream_chunk(cid, created, model, {"content": f"\n[{message}]"}, finish="error"))
+        yield "data: [DONE]\n\n"
+
     def stream(self, prompt: str, model: str | None = None, conversation_id: str | None = None):
         if not model:
-            from .openai_format import sse_event, stream_chunk, new_id
-            cid = new_id()
-            created = int(__import__("time").time())
-            yield sse_event(stream_chunk(cid, created, "", {"content": "\n[error: no model specified]"}, finish="error"))
-            yield "data: [DONE]\n\n"
+            yield from self._error_sse("", "error: no model specified")
             return
         tried: set[str] = set()
         while True:
             candidates = self._available_candidates(model, tried)
             if not candidates:
-                from .openai_format import sse_event, stream_chunk, new_id
-                cid = new_id()
-                created = int(__import__("time").time())
-                yield sse_event(stream_chunk(cid, created, model, {"content": "\n[error: all providers unavailable]"}, finish="error"))
-                yield "data: [DONE]\n\n"
+                yield from self._error_sse(model, "error: all providers unavailable")
                 return
 
             signals = {name: self._score_keeper.scores(name) for name in candidates}
             chosen = self._selector.select(signals, exclude=tried)
             if chosen is None:
-                from .openai_format import sse_event, stream_chunk, new_id
-                cid = new_id()
-                created = int(__import__("time").time())
-                yield sse_event(stream_chunk(cid, created, model, {"content": "\n[error: all providers unavailable]"}, finish="error"))
-                yield "data: [DONE]\n\n"
+                yield from self._error_sse(model, "error: all providers unavailable")
                 return
 
             provider = self._providers[chosen]
             provider_model = self._model_config.provider_model(chosen, model) or model
             try:
+                start = _time.monotonic()
                 yield from provider.stream(prompt, model=provider_model, conversation_id=conversation_id)
+                elapsed = (_time.monotonic() - start) * 1000
+                self._score_keeper.record_success(chosen, elapsed)
                 self._health_watcher.record_success(chosen)
                 return
             except (ConnectionError, TimeoutError) as exc:
