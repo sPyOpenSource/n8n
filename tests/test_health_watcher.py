@@ -66,6 +66,25 @@ def test_should_not_probe_healthy():
     assert hw.should_probe("openai") is False
 
 
+def test_record_success_during_unhealthy():
+    hw = HealthWatcher(max_failures=1)
+    hw.record_failure("openai", "timeout")
+    assert hw.status("openai") == "UNHEALTHY"
+    hw.record_success("openai")
+    assert hw.status("openai") == "HEALTHY"
+
+
+def test_record_failure_during_probing():
+    hw = HealthWatcher(max_failures=2, recovery_probes=3)
+    hw.record_failure("openai", "timeout")
+    hw.record_failure("openai", "timeout")
+    assert hw.status("openai") == "UNHEALTHY"
+    hw.record_probe_success("openai")
+    assert hw.status("openai") == "PROBING"
+    hw.record_failure("openai", "timeout")
+    assert hw.status("openai") == "UNHEALTHY"
+
+
 def test_probe_failure_resets():
     hw = HealthWatcher(max_failures=1, recovery_probes=3)
     hw.record_failure("openai", "timeout")

@@ -27,16 +27,18 @@ class HealthWatcher:
     def record_failure(self, provider: str, reason: str):
         with self._lock:
             s = self._ensure(provider)
+            was_probing = s["status"] == self.STATUS_PROBING
             s["failures"] += 1
             s["probe_successes"] = 0
-            if s["failures"] >= self._max_failures:
+            if s["failures"] >= self._max_failures or was_probing:
                 s["status"] = self.STATUS_UNHEALTHY
-                log.info("Provider %s marked UNHEALTHY (%d failures)", provider, s["failures"])
+                log.warning("Provider %s marked UNHEALTHY (%d failures): %s", provider, s["failures"], reason)
 
     def record_success(self, provider: str):
         with self._lock:
             s = self._ensure(provider)
             s["failures"] = 0
+            s["probe_successes"] = 0
             if s["status"] != self.STATUS_PROBING:
                 s["status"] = self.STATUS_HEALTHY
 
