@@ -22,6 +22,7 @@ class ConfigManager:
             "GOOGLE_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/openai",
             "NVIDIA_BASE_URL": "https://integrate.api.nvidia.com/v1",
             "MODEL_NAME": "copilot",
+            "MODEL_CONFIG_PATH": "config/models.json",
         }
         
         # Initial load
@@ -44,7 +45,6 @@ class ConfigManager:
             pass
 
         # Layer 3: Override with Environment Variables (Highest Priority)
-        return final
         for key in self.DEFAULTS:
             env_val = os.environ.get(key)
             if env_val is not None:
@@ -70,7 +70,8 @@ class ConfigManager:
 
     def get(self, key):
         """Fast access to the merged configuration."""
-        return self.DEFAULTS.get(key)
+        with self._lock:
+            return self._cached_config.get(key)
 
 # Singleton instance for the server
 config = ConfigManager()
