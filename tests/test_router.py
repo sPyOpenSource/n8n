@@ -1,7 +1,7 @@
 """Tests for the Router."""
 
 import pytest
-from unittest.mock import MagicMock
+from typing import Any
 from server.router import Router
 from copilot.providers.base import AbstractProvider
 
@@ -28,20 +28,37 @@ class FakeProvider(AbstractProvider):
     def list_models(self):
         return self._models
 
-    def chat(self, prompt, model=None, conversation_id=None):
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ) -> dict:
         if self._chat_side_effect:
             raise self._chat_side_effect
-        return {"id": "chatcmpl-fake", "model": model or self.default_model, "choices": [{"message": {"content": prompt}}]}
+        return {"id": "chatcmpl-fake", "model": model or self.default_model, "choices": [{"message": {"content": str(messages)}}]}
 
-    def stream(self, prompt, model=None, conversation_id=None):
+    def stream(
+        self,
+        messages: list[dict[str, Any]],
+        model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ):
         yield 'data: {"choices":[]}\\n\\n'
+
+
+_MESSAGES = [{"role": "user", "content": "hello"}]
 
 
 def test_iterates_priority_order():
     p1 = FakeProvider(available=True, models=[{"id": "a", "object": "model", "created": 0, "owned_by": "x"}])
     p2 = FakeProvider(available=True, models=[{"id": "b", "object": "model", "created": 0, "owned_by": "y"}])
     r = Router([p1, p2])
-    result = r.chat("hello")
+    result = r.chat(_MESSAGES)
     assert result["model"] == "a"
 
 
@@ -49,7 +66,7 @@ def test_skips_unavailable():
     p1 = FakeProvider(available=False)
     p2 = FakeProvider(available=True, models=[{"id": "b", "object": "model", "created": 0, "owned_by": "y"}])
     r = Router([p1, p2])
-    result = r.chat("hello")
+    result = r.chat(_MESSAGES)
     assert result["model"] == "b"
 
 
@@ -57,7 +74,7 @@ def test_failover_on_connection_error():
     p1 = FakeProvider(available=True, chat_side_effect=ConnectionError("down"))
     p2 = FakeProvider(available=True, models=[{"id": "b", "object": "model", "created": 0, "owned_by": "y"}])
     r = Router([p1, p2])
-    result = r.chat("hello")
+    result = r.chat(_MESSAGES)
     assert result["model"] == "b"
 
 
@@ -66,7 +83,7 @@ def test_returns_last_error_when_all_fail():
     p2 = FakeProvider(available=True, chat_side_effect=ConnectionError("err2"))
     r = Router([p1, p2])
     with pytest.raises(ConnectionError, match="err2"):
-        r.chat("hello")
+        r.chat(_MESSAGES)
 
 
 def test_aggregates_models():
@@ -83,5 +100,5 @@ def test_model_specific_routing():
     p1 = FakeProvider(available=True, models=[{"id": "copilot", "object": "model", "created": 0, "owned_by": "microsoft"}])
     p2 = FakeProvider(available=True, models=[{"id": "llama3", "object": "model", "created": 0, "owned_by": "ollama"}])
     r = Router([p1, p2])
-    result = r.chat("hello", model="llama3")
+    result = r.chat(_MESSAGES, model="llama3")
     assert result["model"] == "llama3"

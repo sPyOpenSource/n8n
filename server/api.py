@@ -16,7 +16,6 @@ from copilot.providers.nvidia_provider import NvidiaProvider
 
 from .config import config
 from .openai_format import completion_response, new_id, sse_event, stream_chunk
-from .prompt import messages_to_prompt
 from .ratelimit import TokenBucket
 from .model_config import ModelConfig
 from .score_keeper import ScoreKeeper
@@ -129,11 +128,11 @@ def _rate_limited_response():
     )
 
 
-def _stream(prompt: str, model: str, conversation_id=None):
+def _stream(messages: list, model: str, conversation_id=None, tools=None, tool_choice=None):
     cid = new_id()
     created = int(__import__("time").time())
     try:
-        yield from router.stream(prompt, model=model or config.get("MODEL_NAME"), conversation_id=conversation_id)
+        yield from router.stream(messages, model=model or config.get("MODEL_NAME"), tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
     except ClearanceRequired:
         yield sse_event(
             stream_chunk(cid, created, model, {"content": f"\n[error: {_CLEARANCE_HELP}]"}, finish="error")
@@ -176,12 +175,22 @@ def get_models():
 
 @app.post("/v1/chat/completions")
 def chat_completions(req: ChatCompletionRequest):
-    prompt = messages_to_prompt(req.messages)
-    if not prompt.strip():
+    # Convert typed request models to plain dicts for downstream providers
+    messages = [m.model_dump(exclude_none=True) for m in req.messages]
+    tools = [t.model_dump(exclude_none=True) for t in req.tools] if req.tools else None
+    tool_choice = req.tool_choice
+
+    # Quick sanity — at least one message should have text content
+    has_text = any(
+        isinstance(m.get("content"), str) and m["content"].strip()
+        for m in messages
+    )
+    if not has_text:
         return JSONResponse(
             status_code=400,
             content={"error": {"message": "no text content in messages", "type": "invalid_request_error"}},
         )
+
     model = req.model or config.get("MODEL_NAME")
     limited = _rate_limited_response()
     if limited is not None:
@@ -189,11 +198,12 @@ def chat_completions(req: ChatCompletionRequest):
 
     if req.stream:
         return StreamingResponse(
-            _stream(prompt, model, req.conversation_id), media_type="text/event-stream"
+            _stream(messages, model, req.conversation_id, tools=tools, tool_choice=tool_choice),
+            media_type="text/event-stream",
         )
 
     try:
-        result = router.chat(prompt, model=model, conversation_id=req.conversation_id)
+        result = router.chat(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=req.conversation_id)
     except ClearanceRequired:
         return JSONResponse(
             status_code=503,

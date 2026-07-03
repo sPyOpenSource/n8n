@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 2: The Tool Calling Protocol</title>
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Lesson 2: The Tool Calling Protocol</h1>
+        <p class="subtitle">How opencode gives the LLM "hands" to act on your codebase.</p>
+
+        <div class="card">
+            <p>In Lesson 1, we identified that opencode uses <strong>Tool Calling</strong> to make decisions. Now we need to understand <em>exactly</em> how that works on the wire.</p>
+            <p>The OpenAI Chat Completions API has a simple extension for this: the <code>tools</code> parameter. But the streaming format for tool calls is complex and error-prone to implement incorrectly.</p>
+        </div>
+
+        <h2>1. How opencode Uses Tools</h2>
+        <p>Every time opencode sends a chat request, it includes a <code>tools</code> array. This array defines the actions opencode wants the LLM to be able to take:</p>
+        <pre>tools = [
+  {
+    "type": "function",
+    "function": {
+      "name": "read_file",
+      "description": "Read a file from the filesystem",
+      "parameters": { ... }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "bash",
+      "description": "Run a shell command",
+      "parameters": { ... }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "edit",
+      "description": "Edit a file with a diff",
+      "parameters": { ... }
+    }
+  }
+]</pre>
+        <p>Without this array, the LLM cannot invoke any of opencode's capabilities. Your server <em>must</em> pass <code>tools</code> through to the underlying model and process <code>tool_calls</code> in the response.</p>
+
+        <h2>2. The Decision Point</h2>
+        <p>When the model receives the <code>tools</code>, it has two options:</p>
+        <div class="card">
+            <p><strong>Option A: Answer normally</strong> — The model returns <code>finish_reason: "stop"</code> and <code>content: "text..."</code>. This means the task is complete or the model is clarifying.</p>
+            <p><strong>Option B: Call a tool</strong> — The model returns <code>finish_reason: "tool_calls"</code> and <code>tool_calls: [...]</code> with no content.</p>
+        </div>
+        <p>Your server <em>must</em> distinguish between these two cases. This is done by checking <code>finish_reason</code> in the response.</p>
+
+        <h2>3. The Streaming Challenge</h2>
+        <p>In streaming mode, tool calls arrive as incremental deltas. A single tool call like <code>{"path": "/main.py"}</code> might arrive as 20 separate chunks. The Vercel AI SDK reconstructs these, but only if the format is exact:</p>
+        <pre>// Chunk 1: declare the tool call
+data: {"choices":[{"index":0,"delta":{"role":"assistant","tool_calls":[{"index":0,"id":"call_xxx","type":"function","function":{"name":"read_file","arguments":""}}]}}]}
+
+// Chunks 2..N: stream the arguments
+data: {"choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{\""}}]}}]}
+data: {"choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"path\\\":"}}]}}]}
+// ... more chunks ...
+
+// Final chunk: signal completion
+data: {"choices":[{"index":0,"delta":{},"finish_reason":"tool_calls"}]}
+data: [DONE]</pre>
+
+        <div class="note-warning">
+            <strong>Common Mistake:</strong> Sending <code>finish_reason: "tool_calls"</code> on the wrong chunk, or omitting the <code>index</code> field inside <code>tool_calls</code>. The SDK uses <code>index</code> to group partial arguments belonging to the same tool call.
+        </div>
+
+        <h2>4. The Tool Call Loop</h2>
+        <p>After the model returns <code>tool_calls</code>, the "agent" loop happens <em>outside</em> your server:</p>
+        <ol>
+            <li><strong>opencode</strong> receives the <code>tool_calls</code> response from your server</li>
+            <li><strong>opencode</strong> executes the tools (reads files, runs bash)</li>
+            <li><strong>opencode</strong> sends a new request with <code>role: "tool"</code> messages containing the results</li>
+            <li><strong>Your server</strong> forwards these to the model so it can reason about the results</li>
+            <li><strong>Rinse and repeat</strong> until the model responds with <code>finish_reason: "stop"</code></li>
+        </ol>
+
+        <h2>5. How Your Server Fails Today</h2>
+        <div class="gap-item">
+            <span class="gap-label">server/schemas.py</span>
+            <span>No <code>tools</code> or <code>tool_choice</code> fields in <code>ChatCompletionRequest</code></span>
+        </div>
+        <div class="gap-item">
+            <span class="gap-label">server/openai_format.py</span>
+            <span><code>completion_response</code> always returns a static <code>message</code> with <code>content</code>, never <code>tool_calls</code></span>
+        </div>
+        <div class="gap-item">
+            <span class="gap-label">copilot/providers/base.py</span>
+            <span>AbstractProvider accepts a <code>prompt: str</code>, not <code>messages</code> + <code>tools</code></span>
+        </div>
+
+        <div class="win">
+            <span class="win-label">Your Tangible Win</span>
+            <p>You can now <strong>read</strong> the tool calling protocol. If you see a JSON response with <code>tool_calls</code> inside <code>choices[0].message</code>, you know exactly what's happening.</p>
+            <p>This is a skill called "wire format literacy" — the ability to look at raw API traffic and understand the agentic loop.</p>
+        </div>
+
+        <h2>Check Your Understanding</h2>
+        <div class="card">
+            <p><strong>Question:</strong> What is the <code>finish_reason</code> value when the model decides to call a tool instead of generating text?</p>
+            <p><em>Think about it, then ask your teacher to reveal the answer.</em></p>
+        </div>
+
+        <div class="footer">
+            <p><a href="../reference/openai-tool-calls.html">Reference: Full Wire Format Spec</a> · <a href="0001-the-integration-gap.html">Lesson 1: The Gap</a></p>
+            <p>Primary Source: <a href="https://platform.openai.com/docs/guides/function-calling">OpenAI Function Calling Guide</a></p>
+            <p><strong>Next Up:</strong> <em>Updating the Schemas — adding tools to ChatCompletionRequest</em></p>
+            <p><em>Questions? Ask your teacher in the terminal.</em></p>
+        </div>
+    </div>
+</body>
+</html>

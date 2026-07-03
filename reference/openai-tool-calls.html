@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reference: OpenAI Tool Calling Wire Format</title>
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Tool Calling — Wire Format</h1>
+        <p class="subtitle">The exact JSON shapes <code>opencode</code> sends and expects.</p>
+
+        <!-- 1. REQUEST: tools array -->
+        <h2>Request: <code>tools</code> array</h2>
+        <p>Sent alongside <code>messages</code> on every chat completion request.</p>
+        <pre>{
+  "model": "...",
+  "messages": [
+    {"role": "system", "content": "..."},
+    {"role": "user", "content": "..."}
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "read_file",
+        "description": "Read the contents of a file",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The file path"
+            }
+          },
+          "required": ["path"]
+        }
+      }
+    }
+  ],
+  "tool_choice": "auto"          // "auto" | "none" | "required" | {"type":"function","function":{"name":"..."}}
+}</pre>
+
+        <div class="note">
+            <strong>Key Detail:</strong> opencode always sends a <code>tools</code> array. If your server ignores it, opencode's agentic loop breaks immediately.
+        </div>
+
+        <!-- 2. RESPONSE: tool_calls -->
+        <h2>Response: <code>tool_calls</code></h2>
+        <p>When the model decides to call a tool, the response contains <code>tool_calls</code> instead of <code>content</code>.</p>
+        <h3>Non-streaming</h3>
+        <pre>{
+  "id": "chatcmpl-xxx",
+  "object": "chat.completion",
+  "choices": [{
+    "index": 0,
+    "message": {
+      "role": "assistant",
+      "content": null,
+      "tool_calls": [
+        {
+          "id": "call_abc123",
+          "type": "function",
+          "function": {
+            "name": "read_file",
+            "arguments": "{\"path\":\"/tmp/test.txt\"}"
+          }
+        }
+      ]
+    },
+    "finish_reason": "tool_calls"
+  }]
+}</pre>
+
+        <h3>Streaming (per-chunk delta)</h3>
+        <p>Each streaming chunk carries a partial <code>tool_calls</code> delta:</p>
+        <pre>data: {
+  "choices": [{
+    "index": 0,
+    "delta": {
+      "role": "assistant",
+      "content": null,
+      "tool_calls": [{
+        "index": 0,
+        "id": "call_abc123",
+        "type": "function",
+        "function": {"name": "read_file", "arguments": ""}
+      }]
+    }
+  }]
+}
+data: {
+  "choices": [{
+    "index": 0,
+    "delta": {
+      "tool_calls": [{
+        "index": 0,
+        "function": {"arguments": "{\""}
+      }]
+    }
+  }]
+}
+data: {
+  "choices": [{
+    "index": 0,
+    "delta": {
+      "tool_calls": [{
+        "index": 0,
+        "function": {"arguments": "path\":\""}
+      }]
+    }
+  }]
+}
+data: {
+  "choices": [{
+    "index": 0,
+    "delta": {
+      "tool_calls": [{
+        "index": 0,
+        "function": {"arguments": "/tmp/test.txt\"}"}
+      }]
+    }
+  }]
+}
+data: {
+  "choices": [{
+    "index": 0,
+    "delta": {},
+    "finish_reason": "tool_calls"
+  }]
+}
+data: [DONE]</pre>
+
+        <!-- 3. tool role messages -->
+        <h2>Conversation Loop: <code>tool</code> messages</h2>
+        <p>After the assistant returns <code>tool_calls</code>, the client (opencode) executes them and appends <code>tool</code> role messages with the results:</p>
+        <pre>{
+  "role": "tool",
+  "tool_call_id": "call_abc123",
+  "content": "The file /tmp/test.txt contains: hello world"
+}</pre>
+        <p>These messages must be preserved across the conversation so the model sees what tools returned.</p>
+
+        <!-- 4. finish_reason values -->
+        <h2>Streaming: <code>finish_reason</code> Values</h2>
+        <p>The last chunk (delta: {}) before <code>[DONE]</code> must carry the correct finish reason:</p>
+        <table>
+            <tr><th>Value</th><th>Meaning</th></tr>
+            <tr><td><code>"stop"</code></td><td>Model finished normally (content is complete)</td></tr>
+            <tr><td><code>"tool_calls"</code></td><td>Model decided to call one or more tools</td></tr>
+            <tr><td><code>"length"</code></td><td>Response was cut off by max_tokens</td></tr>
+            <tr><td><code>"error"</code></td><td>An error occurred mid-generation</td></tr>
+        </table>
+
+        <!-- 5. usage in streaming -->
+        <h2>Usage Metadata (Streaming)</h2>
+        <p>The Vercel AI SDK expects a final chunk with <code>usage</code> before <code>[DONE]</code>:</p>
+        <pre>data: {
+  "choices": [],
+  "usage": {
+    "prompt_tokens": 105,
+    "completion_tokens": 42,
+    "total_tokens": 147
+  }
+}</pre>
+        <p>This is <strong>not</strong> strictly required by the OpenAI spec (streaming usage is model-dependent), but the Vercel AI SDK uses it to report token consumption correctly.</p>
+
+        <div class="footer">
+            <p>Reference: <a href="https://platform.openai.com/docs/api-reference/chat/create">OpenAI Chat API</a> · <a href="../lessons/0002-tool-calls-wire-format.html">Lesson 2: Tool Calls</a></p>
+        </div>
+    </div>
+</body>
+</html>

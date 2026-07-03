@@ -1,11 +1,13 @@
 """Google Gemini provider — proxies requests to Google's Generative Language API."""
 
 import os
+from typing import Any
 
 import httpx
 
 from .base import AbstractProvider
 from server.config import config
+
 
 class GoogleProvider(AbstractProvider):
     """Provider backed by Google's Gemini API (OpenAI-compatible endpoint)."""
@@ -37,29 +39,47 @@ class GoogleProvider(AbstractProvider):
             for name in names
         ]
 
-    def chat(self, prompt: str, model: str, conversation_id: str | None = None) -> dict:
+    def _build_body(self, model: str, messages: list[dict[str, Any]], tools=None, tool_choice=None, stream=False) -> dict:
+        body: dict[str, Any] = {
+            "model": self.default_model,
+            "messages": messages,
+            "stream": stream,
+        }
+        if tools:
+            body["tools"] = tools
+        if tool_choice:
+            body["tool_choice"] = tool_choice
+        return body
+
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        model: str,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ) -> dict:
         resp = self._client.post(
             f"{self._base_url}/chat/completions",
             headers=self._headers(),
-            json={
-                "model": self.default_model,
-                "messages": [{"role": "user", "content": prompt}],
-                "stream": False,
-            },
+            json=self._build_body(model, messages, tools, tool_choice),
         )
         resp.raise_for_status()
         return resp.json()
 
-    def stream(self, prompt: str, model: str, conversation_id: str | None = None):
+    def stream(
+        self,
+        messages: list[dict[str, Any]],
+        model: str,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ):
         with self._client.stream(
             "POST",
             f"{self._base_url}/chat/completions",
             headers=self._headers(),
-            json={
-                "model": self.default_model,
-                "messages": [{"role": "user", "content": prompt}],
-                "stream": True,
-            },
+            json=self._build_body(model, messages, tools, tool_choice, stream=True),
         ) as resp:
             resp.raise_for_status()
             for line in resp.iter_lines():

@@ -3,6 +3,7 @@
 import json
 import os
 import time
+from typing import Any
 
 import httpx
 
@@ -58,7 +59,21 @@ class OllamaProvider(AbstractProvider):
             for name in names
         ]
 
-    def chat(self, prompt: str, model: str, conversation_id: str | None = None) -> dict:
+    def _messages_to_prompt(self, messages: list[dict[str, Any]]) -> str:
+        from server.prompt import messages_to_prompt
+        from server.schemas import ChatMessage
+        wrapped = [ChatMessage(**m) for m in messages]
+        return messages_to_prompt(wrapped)
+
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        model: str,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ) -> dict:
+        prompt = self._messages_to_prompt(messages)
         resp = self._post("/api/chat", {
             "model": model or self.default_model,
             "messages": [{"role": "user", "content": prompt}],
@@ -78,9 +93,17 @@ class OllamaProvider(AbstractProvider):
             "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
         }
 
-    def stream(self, prompt: str, model: str, conversation_id: str | None = None):
+    def stream(
+        self,
+        messages: list[dict[str, Any]],
+        model: str,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ):
         from server.openai_format import new_id, sse_event, stream_chunk
 
+        prompt = self._messages_to_prompt(messages)
         cid = new_id()
         created = int(time.time())
         m = model or self.default_model

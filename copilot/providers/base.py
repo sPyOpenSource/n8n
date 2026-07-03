@@ -2,7 +2,7 @@
 
 import threading
 from abc import ABC, abstractmethod
-from typing import Generator
+from typing import Any, Generator
 
 
 class AbstractProvider(ABC):
@@ -34,11 +34,33 @@ class AbstractProvider(ABC):
         ...
 
     @abstractmethod
-    def chat(self, prompt: str, model: str, conversation_id: str | None = None) -> dict:
-        """Return a non-streaming chat completion dict (OpenAI shape)."""
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        model: str,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ) -> dict:
+        """Return a non-streaming chat completion dict (OpenAI shape).
+
+        ``messages`` is the full OpenAI messages array (system, user, assistant,
+        tool). ``tools`` and ``tool_choice`` are optional tool-calling fields.
+        """
         ...
 
     @abstractmethod
-    def stream(self, prompt: str, model: str, conversation_id: str | None = None) -> Generator:
-        """Yield SSE-formatted chat completion chunk strings."""
+    def stream(
+        self,
+        messages: list[dict[str, Any]],
+        model: str,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ) -> Generator:
+        """Yield SSE-formatted chat completion chunk strings.
+
+        ``messages`` is the full OpenAI messages array. ``tools`` and
+        ``tool_choice`` are optional tool-calling fields.
+        """
         ...

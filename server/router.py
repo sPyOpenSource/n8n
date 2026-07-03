@@ -2,7 +2,7 @@
 
 import logging
 import time as _time
-from typing import Generator
+from typing import Any, Generator
 
 from copilot.driver import ClearanceRequired
 from copilot.providers.base import AbstractProvider
@@ -45,16 +45,23 @@ class Router:
                     result.append(m)
         return result
 
-    def chat(self, prompt: str, model: str | None = None, conversation_id: str | None = None) -> dict:
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ) -> dict:
         if model and model in self._model_to_provider:
             provider = self._model_to_provider[model]
             if provider.is_available():
-                return provider.chat(prompt, model=model, conversation_id=conversation_id)
+                return provider.chat(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
 
         last_err = None
         for provider in self._active_providers():
             try:
-                return provider.chat(prompt, model=model or provider.default_model, conversation_id=conversation_id)
+                return provider.chat(messages, model=model or provider.default_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
             except (ConnectionError, ClearanceRequired, TimeoutError) as exc:
                 log.warning("Provider %s failed: %s; trying next", provider.label, exc)
                 last_err = exc
@@ -63,16 +70,23 @@ class Router:
             raise last_err
         raise RuntimeError("No providers available")
 
-    def stream(self, prompt: str, model: str | None = None, conversation_id: str | None = None) -> Generator:
+    def stream(
+        self,
+        messages: list[dict[str, Any]],
+        model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ) -> Generator:
         if model and model in self._model_to_provider:
             provider = self._model_to_provider[model]
             if provider.is_available():
-                yield from provider.stream(prompt, model=model, conversation_id=conversation_id)
+                yield from provider.stream(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
                 return
 
         for provider in self._active_providers():
             try:
-                yield from provider.stream(prompt, model=model or provider.default_model, conversation_id=conversation_id)
+                yield from provider.stream(messages, model=model or provider.default_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
                 return
             except (ConnectionError, ClearanceRequired, TimeoutError) as exc:
                 log.warning("Provider %s failed: %s; trying next", provider.label, exc)
@@ -111,7 +125,14 @@ class FailsafeRouter:
     def list_models(self) -> list[dict]:
         return self._model_config.all_models()
 
-    def chat(self, prompt: str, model: str | None = None, conversation_id: str | None = None) -> dict:
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ) -> dict:
         if not model:
             return self._503_stub("no model specified")
         tried: set[str] = set()
@@ -129,7 +150,7 @@ class FailsafeRouter:
             provider_model = self._model_config.provider_model(chosen, model) or model
             start = _time.monotonic()
             try:
-                result = provider.chat(prompt, model=provider_model, conversation_id=conversation_id)
+                result = provider.chat(messages, model=provider_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
                 elapsed = (_time.monotonic() - start) * 1000
                 self._score_keeper.record_success(chosen, elapsed)
                 self._health_watcher.record_success(chosen)
@@ -148,7 +169,14 @@ class FailsafeRouter:
         yield sse_event(stream_chunk(cid, created, model, {"content": f"\n[{message}]"}, finish="error"))
         yield "data: [DONE]\n\n"
 
-    def stream(self, prompt: str, model: str | None = None, conversation_id: str | None = None):
+    def stream(
+        self,
+        messages: list[dict[str, Any]],
+        model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ):
         if not model:
             yield from self._error_sse("", "error: no model specified")
             return
@@ -169,7 +197,7 @@ class FailsafeRouter:
             provider_model = self._model_config.provider_model(chosen, model) or model
             try:
                 start = _time.monotonic()
-                yield from provider.stream(prompt, model=provider_model, conversation_id=conversation_id)
+                yield from provider.stream(messages, model=provider_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
                 elapsed = (_time.monotonic() - start) * 1000
                 self._score_keeper.record_success(chosen, elapsed)
                 self._health_watcher.record_success(chosen)

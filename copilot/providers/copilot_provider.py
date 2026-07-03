@@ -1,6 +1,7 @@
 """Copilot provider — wraps the existing CopilotClient."""
 
 import time
+from typing import Any
 
 from copilot.client import CopilotClient
 from copilot.driver import ClearanceRequired
@@ -33,7 +34,23 @@ class CopilotProvider(AbstractProvider):
             {"id": self.default_model, "object": "model", "created": 0, "owned_by": "microsoft"}
         ]
 
-    def chat(self, prompt: str, model: str, conversation_id: str | None = None) -> dict:
+    def _messages_to_prompt(self, messages: list[dict[str, Any]]) -> str:
+        """Flatten messages array to a single string for Copilot's protocol."""
+        from server.prompt import messages_to_prompt
+        # Wrap into ChatMessage objects for prompt.py compat
+        from server.schemas import ChatMessage
+        wrapped = [ChatMessage(**m) for m in messages]
+        return messages_to_prompt(wrapped)
+
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        model: str,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ) -> dict:
+        prompt = self._messages_to_prompt(messages)
         with self._lock:
             reply = self._client.chat(prompt, conversation_id=conversation_id)
         return {
@@ -48,10 +65,18 @@ class CopilotProvider(AbstractProvider):
             "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
         }
 
-    def stream(self, prompt: str, model: str, conversation_id: str | None = None):
+    def stream(
+        self,
+        messages: list[dict[str, Any]],
+        model: str,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ):
         from server.openai_format import new_id, sse_event, stream_chunk
+        prompt = self._messages_to_prompt(messages)
         prompt = prompt[-10220:]
-        
+
         cid = new_id()
         created = int(time.time())
         with self._lock:

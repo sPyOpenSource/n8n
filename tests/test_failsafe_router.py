@@ -1,6 +1,7 @@
 """Tests for FailsafeRouter dynamic failover."""
 
 import pytest
+from typing import Any
 from unittest.mock import MagicMock
 
 from server.router import FailsafeRouter
@@ -9,6 +10,9 @@ from server.score_keeper import ScoreKeeper
 from server.selector import ProviderSelector
 from server.health_watcher import HealthWatcher
 from copilot.providers.base import AbstractProvider
+
+
+_MESSAGES = [{"role": "user", "content": "hello"}]
 
 
 class FakeProvider(AbstractProvider):
@@ -35,12 +39,26 @@ class FakeProvider(AbstractProvider):
     def list_models(self):
         return self._models
 
-    def chat(self, prompt, model=None, conversation_id=None):
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ) -> dict:
         if self._chat_side_effect:
             raise self._chat_side_effect
-        return {"id": "chatcmpl-fake", "model": model or self.default_model, "choices": [{"message": {"content": prompt}}]}
+        return {"id": "chatcmpl-fake", "model": model or self.default_model, "choices": [{"message": {"content": str(messages)}}]}
 
-    def stream(self, prompt, model=None, conversation_id=None):
+    def stream(
+        self,
+        messages: list[dict[str, Any]],
+        model: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: str | dict[str, Any] | None = None,
+        conversation_id: str | None = None,
+    ):
         if self._stream_side_effect:
             raise self._stream_side_effect
         yield 'data: {"choices":[]}\n\n'
@@ -71,14 +89,14 @@ def router():
 
 
 def test_chat_success(router):
-    result = router.chat("hello", model="gpt-4o")
+    result = router.chat(_MESSAGES, model="gpt-4o")
     assert result is not None
     assert "choices" in result
 
 
 def test_failover_on_error(router):
     router._providers["openai"]._chat_side_effect = ConnectionError("down")
-    result = router.chat("hello", model="gpt-4o")
+    result = router.chat(_MESSAGES, model="gpt-4o")
     assert result is not None
     assert "choices" in result
 
@@ -86,13 +104,13 @@ def test_failover_on_error(router):
 def test_all_fail_returns_stub(router):
     router._providers["openai"]._chat_side_effect = ConnectionError("down")
     router._providers["anthropic"]._chat_side_effect = ConnectionError("down")
-    result = router.chat("hello", model="gpt-4o")
+    result = router.chat(_MESSAGES, model="gpt-4o")
     assert result["error"]["code"] == "provider_outage"
 
 
 def test_excludes_previous_failures(router):
     router._providers["openai"]._chat_side_effect = ConnectionError("down")
-    result = router.chat("hello", model="gpt-4o")
+    result = router.chat(_MESSAGES, model="gpt-4o")
     assert result is not None
 
 
@@ -102,14 +120,14 @@ def test_list_models(router):
 
 
 def test_stream_success(router):
-    chunks = list(router.stream("hello", model="gpt-4o"))
+    chunks = list(router.stream(_MESSAGES, model="gpt-4o"))
     assert len(chunks) > 0
     assert chunks[0] == 'data: {"choices":[]}\n\n'
 
 
 def test_stream_failover(router):
     router._providers["openai"]._stream_side_effect = ConnectionError("down")
-    chunks = list(router.stream("hello", model="gpt-4o"))
+    chunks = list(router.stream(_MESSAGES, model="gpt-4o"))
     assert len(chunks) > 0
     assert chunks[0] == 'data: {"choices":[]}\n\n'
 
@@ -117,14 +135,14 @@ def test_stream_failover(router):
 def test_stream_all_fail(router):
     router._providers["openai"]._stream_side_effect = ConnectionError("down")
     router._providers["anthropic"]._stream_side_effect = ConnectionError("down")
-    chunks = list(router.stream("hello", model="gpt-4o"))
+    chunks = list(router.stream(_MESSAGES, model="gpt-4o"))
     assert len(chunks) == 2
     assert "[error: all providers unavailable]" in chunks[0]
     assert "[DONE]" in chunks[1]
 
 
 def test_stream_no_model(router):
-    chunks = list(router.stream("hello", model=None))
+    chunks = list(router.stream(_MESSAGES, model=None))
     assert len(chunks) == 2
     assert "[error: no model specified]" in chunks[0]
     assert "[DONE]" in chunks[1]
@@ -136,7 +154,7 @@ def test_failover_spies(router):
 
     router._providers["openai"]._stream_side_effect = ConnectionError("down")
     router._providers["anthropic"]._stream_side_effect = ConnectionError("down")
-    list(router.stream("hello", model="gpt-4o"))
+    list(router.stream(_MESSAGES, model="gpt-4o"))
 
     assert router._score_keeper.record_error.call_count == 2
     assert router._health_watcher.record_failure.call_count == 2
