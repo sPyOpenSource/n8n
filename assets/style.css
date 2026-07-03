@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenCode Integration Course</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --success: #22c55e;
+            --error: #ef4444;
+            --border: #334155;
+            --code-bg: #000000;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+        h1, h2, h3 {
+            color: #fff;
+            margin-top: 2rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+        p {
+            margin-bottom: 1rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .gap-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-left: 4px solid var(--error);
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .gap-label {
+            font-weight: bold;
+            color: var(--error);
+            min-width: 120px;
+        }
+        code {
+            font-family: 'Fira Code', 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+        }
+        pre {
+            background: var(--code-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+        .win {
+            border-left: 4px solid var(--success);
+            background: rgba(34, 197, 94, 0.05);
+            padding: 1rem;
+            border-radius: 0 0.75rem 0.75rem 0;
+        }
+        .win-label {
+            font-weight: bold;
+            color: var(--success);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Content injected here -->
+    </div>
+</body>
+</html>

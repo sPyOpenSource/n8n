@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 1: The Integration Gap</title>
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Lesson 1: The Integration Gap</h1>
+        
+        <p>To integrate with <code>opencode</code>, your server must do more than just "return text". <code>opencode</code> is an autonomous agent; it uses the LLM as a reasoning engine to decide which tools to call, read their output, and iterate until a task is complete.</p>
+        
+        <h2>The "A-ha" Moment</h2>
+        <div class="card">
+            <p><strong>Current Server:</strong> A <em>Chat Gateway</em>. It takes a prompt $\to$ returns a string.</p>
+            <p><strong>opencode Requirements:</strong> An <em>Agent Gateway</em>. It takes a state (messages + tools) $\to$ returns a decision (content OR tool calls).</p>
+        </div>
+
+        <h2>The Gap Analysis</h2>
+        <p>Based on the audit of <code>server/api.py</code> and <code>copilot/providers/base.py</code>, here are the critical missing pieces:</p>
+
+        <div class="gap-item">
+            <span class="gap-label">Tool Calling</span>
+            <span>The server ignores the <code>tools</code> field in requests. It cannot receive or process <code>tool_calls</code> from the LLM, meaning <code>opencode</code> cannot actually use any of its capabilities (bash, read, edit) through your server.</span>
+        </div>
+
+        <div class="gap-item">
+            <span class="gap-label">State Loss</span>
+            <span>The <code>AbstractProvider</code> interface accepts a <code>prompt: str</code>. This destroys the message history and structure required for complex agentic loops. We need to pass the full <code>List[ChatMessage]</code>.</span>
+        </div>
+
+        <div class="gap-item">
+            <span class="gap-label">Blind Models</span>
+            <span><code>/v1/models</code> returns basic IDs. <code>opencode</code> needs to know if a model <em>supports tool calling</em> and what its <em>context window</em> is to avoid truncation during long coding sessions.</span>
+        </div>
+
+        <div class="gap-item">
+            <span class="gap-label">SSE Simplicity</span>
+            <span>The streaming implementation is basic. High-end agent SDKs (like Vercel AI SDK) expect usage metadata and specific <code>finish_reason</code> values (e.g., <code>tool_calls</code>) to manage the loop.</span>
+        </div>
+
+        <h2>Your First Tangible Win</h2>
+        <div class="win">
+            <span class="win-label">The Blueprint</span>
+            <p>The first step to fixing this is redefining the core contract. We must change the <code>AbstractProvider</code> from:</p>
+            <pre>def chat(self, prompt: str, ...)</pre>
+            <p>to:</p>
+            <pre>def chat(self, messages: List[ChatMessage], tools: List[Tool], ...)</pre>
+            <p>This single change unlocks the ability to support everything an agent needs.</p>
+        </div>
+
+        <h2>Deep Dive</h2>
+        <p>To understand exactly what <code>opencode</code> is sending, read the <a href="https://ai-sdk.dev/docs/reference/ai-sdk-core/openai-compatible">Vercel AI SDK OpenAI Compatible spec</a>. This is the "truth" we are targeting.</p>
+
+        <div class="footer">
+            <p>Lesson 1 of 4. <br><strong>Next: Redefining the Provider Contract.</strong></p>
+            <p><em>Questions? Ask your teacher in the terminal.</em></p>
+        </div>
+    </div>
+</body>
+</html>
