@@ -1,6 +1,7 @@
 """Load provider-grouped model mapping from JSON config."""
 
 import json
+from typing import Any
 
 
 class ModelConfig:
@@ -17,8 +18,9 @@ class ModelConfig:
 
     def _load(self):
         try:
-            with open(self._path) as f:
-                self._data = json.load(f)
+            with open(self._path, encoding="utf-8") as f:
+                data = json.load(f)
+            self._data = data if isinstance(data, dict) else {}
         except (FileNotFoundError, json.JSONDecodeError):
             self._data = {}
 
@@ -34,7 +36,7 @@ class ModelConfig:
         """Return the actual model name to use for a given (provider, model_key)."""
         return self._data.get(provider, {}).get(model_key)
 
-    def all_models(self) -> list[dict]:
+    def all_models(self) -> list[dict[str, Any]]:
         """Return OpenAI-shaped model dicts for all configured models."""
         seen = set()
         result = []
@@ -49,3 +51,6 @@ class ModelConfig:
                         "owned_by": provider,
                     })
         return result
+
+    def __repr__(self) -> str:
+        return f"<ModelConfig path={self._path!r} models={len(self._data)}>"
