@@ -75,7 +75,7 @@ class OllamaProvider(AbstractProvider):
     ) -> dict:
         prompt = self._messages_to_prompt(messages)
         resp = self._post("/api/chat", {
-            "model": model or self.default_model,
+            "model": self.default_model,
             "messages": [{"role": "user", "content": prompt}],
             "stream": False,
         })
@@ -106,7 +106,7 @@ class OllamaProvider(AbstractProvider):
         prompt = self._messages_to_prompt(messages)
         cid = new_id()
         created = int(time.time())
-        m = model or self.default_model
+        m = self.default_model
         with self._client.stream("POST", f"{self.base_url}/api/chat", json={
             "model": m,
             "messages": [{"role": "user", "content": prompt}],

@@ -23,6 +23,7 @@ class ConfigManager:
             "NVIDIA_BASE_URL": "https://integrate.api.nvidia.com/v1",
             "MODEL_NAME": "copilot",
             "MODEL_CONFIG_PATH": "config/models.json",
+            "MAX_MESSAGES": 15,
         }
         
         # Initial load

@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import patch
 
 from server import app
+from server.prompt import trim_messages
 
 
 class ServerStartupTests(unittest.TestCase):
@@ -34,6 +35,41 @@ class ServerStartupTests(unittest.TestCase):
 
         self.assertEqual(run.call_args.kwargs["host"], "localhost")
         self.assertEqual(run.call_args.kwargs["port"], 0)
+
+
+class TrimMessagesTests(unittest.TestCase):
+    def test_keeps_all_when_under_limit(self):
+        msgs = [{"role": "user", "content": "a"}, {"role": "assistant", "content": "b"}]
+        self.assertEqual(trim_messages(msgs, max_messages=5), msgs)
+
+    def test_trims_to_max(self):
+        msgs = [{"role": "user", "content": str(i)} for i in range(20)]
+        trimmed = trim_messages(msgs, max_messages=5)
+        self.assertEqual(len(trimmed), 5)
+        self.assertEqual(trimmed[-1]["content"], "19")
+
+    def test_preserves_system_prompt(self):
+        msgs = [
+            {"role": "system", "content": "you are a helpful assistant"},
+            {"role": "user", "content": "hi"},
+            {"role": "assistant", "content": "hello"},
+        ]
+        trimmed = trim_messages(msgs, max_messages=1)
+        self.assertEqual(len(trimmed), 2)
+        self.assertEqual(trimmed[0]["role"], "system")
+        self.assertEqual(trimmed[1]["role"], "assistant")
+
+    def test_empty_input(self):
+        self.assertEqual(trim_messages([]), [])
+
+    def test_max_messages_zero_returns_system_only(self):
+        msgs = [
+            {"role": "system", "content": "be helpful"},
+            {"role": "user", "content": "hi"},
+        ]
+        trimmed = trim_messages(msgs, max_messages=0)
+        self.assertEqual(len(trimmed), 1)
+        self.assertEqual(trimmed[0]["role"], "system")
 
 
 if __name__ == "__main__":

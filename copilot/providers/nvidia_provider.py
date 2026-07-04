@@ -16,7 +16,7 @@ class NvidiaProvider(AbstractProvider):
     url = "https://integrate.api.nvidia.com"
     working = True
     supports_stream = True
-    default_model = "nvidia/nemotron-3-ultra-550b-a55b"
+    default_model = "moonshotai/kimi-k2.6"
     needs_auth = True
 
     def __init__(self, base_url: str | None = None):

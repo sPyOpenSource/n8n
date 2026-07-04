@@ -16,6 +16,7 @@ from copilot.providers.nvidia_provider import NvidiaProvider
 
 from .config import config
 from .openai_format import completion_response, new_id, sse_event, stream_chunk
+from .prompt import trim_messages
 from .ratelimit import TokenBucket
 from .model_config import ModelConfig
 from .score_keeper import ScoreKeeper
@@ -177,6 +178,8 @@ def get_models():
 def chat_completions(req: ChatCompletionRequest):
     # Convert typed request models to plain dicts for downstream providers
     messages = [m.model_dump(exclude_none=True) for m in req.messages]
+    max_msgs = config.get("MAX_MESSAGES", 15)
+    messages = trim_messages(messages, max_messages=max_msgs)
     tools = [t.model_dump(exclude_none=True) for t in req.tools] if req.tools else None
     tool_choice = req.tool_choice
 
@@ -190,7 +193,7 @@ def chat_completions(req: ChatCompletionRequest):
             status_code=400,
             content={"error": {"message": "no text content in messages", "type": "invalid_request_error"}},
         )
-
+    print(f"Chat messages={messages}, tools={len(tools) if tools else 0}, tool_choice={tool_choice}")
     model = req.model or config.get("MODEL_NAME")
     limited = _rate_limited_response()
     if limited is not None:

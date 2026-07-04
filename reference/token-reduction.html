@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reference: Token Reduction — Sliding Window</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <style>
+        .algo { background: #1a1a2e; border: 1px solid #3b82f6; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; }
+        .algo-step { margin: 0.5rem 0; padding-left: 1.5rem; }
+        .algo-step::before { content: "→ "; color: #3b82f6; margin-left: -1.5rem; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #334155; }
+        th { color: #3b82f6; }
+        .cost { color: #22c55e; font-weight: bold; }
+        .warn { color: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Token Reduction — Sliding Window</h1>
+        <p class="subtitle">Keep system prompts, drop old conversation history.</p>
+
+        <h2>The Pattern</h2>
+        <p>LLM context windows fill up fast — especially with agentic loops (opencode tool calls, long system prompts). The fix: a <strong>sliding window</strong> over messages.</p>
+
+        <div class="algo">
+            <strong>Algorithm</strong>
+            <div class="algo-step">Extract all <code>system</code> role messages → always preserve</div>
+            <div class="algo-step">From the remaining <code>non_system</code> messages, keep only the last <code>N</code></div>
+            <div class="algo-step">Rejoin: <code>system + trimmed_non_system</code></div>
+        </div>
+
+        <h2>Implementation</h2>
+        <pre>def trim_messages(messages: list[dict], max_messages: int = 15) -> list[dict]:
+    if max_messages is None or not messages:
+        return messages
+
+    system = [m for m in messages if m.get("role") == "system"]
+    non_system = [m for m in messages if m.get("role") != "system"]
+
+    if len(non_system) <= max_messages:
+        return messages
+
+    trimmed = non_system[-max_messages:] if max_messages > 0 else []
+    return system + trimmed</pre>
+
+        <h2>Config</h2>
+        <pre># server/config.py DEFAULTS
+"MAX_MESSAGES": 15,   # set to 0 to drop all conversation history
+                       # set to null/None to disable trimming</pre>
+
+        <h2>Where It Runs</h2>
+        <p>In <code>server/api.py</code>, right after messages are parsed and before they reach the router:</p>
+        <pre>messages = [m.model_dump(exclude_none=True) for m in req.messages]
+max_msgs = config.get("MAX_MESSAGES", 15)
+messages = trim_messages(messages, max_messages=max_msgs)</pre>
+
+        <h2>Token Savings</h2>
+        <table>
+            <tr><th>Scenario</th><th>Messages Before</th><th>After</th><th>Tokens Saved (est.)</th></tr>
+            <tr><td>Short chat (2 turns)</td><td>6</td><td>6 (no trim)</td><td class="cost">0</td></tr>
+            <tr><td>Medium agent session</td><td>30</td><td>16 (1 sys + 15 msg)</td><td class="cost">~3,500</td></tr>
+            <tr><td>Long opencode session</td><td>100</td><td>16</td><td class="cost">~12,500</td></tr>
+            <tr><td>With tool calls (no sys)</td><td>50</td><td>15</td><td class="cost">~5,000</td></tr>
+        </table>
+
+        <div class="warn">
+            <strong>Caveat:</strong> Aggressive trimming loses context. The model won't remember
+            earlier goals or decisions. Set <code>MAX_MESSAGES</code> per use case — 
+            opencode works well with 15–30, but chat UIs may need more.
+        </div>
+
+        <h2>Edge Cases</h2>
+        <ul>
+            <li><strong>No system prompt</strong> → last N messages only</li>
+            <li><strong>max_messages=0</strong> → system prompts only, drops all conversation</li>
+            <li><strong>max_messages=None</strong> → no trimming (passthrough)</li>
+            <li><strong>Empty messages</strong> → returns empty list</li>
+        </ul>
+
+        <div class="footer">
+            <p>Reference: <a href="../server/prompt.py">server/prompt.py</a> · <a href="../lessons/0003-token-reduction.html">Lesson 3</a></p>
+        </div>
+    </div>
+</body>
+</html>

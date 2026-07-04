@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 3: Token Reduction — The Sliding Window</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <style>
+        .diagram { background: #1e293b; border: 1px solid #3b82f6; border-radius: 0.5rem; padding: 1.5rem; margin: 1.5rem 0; text-align: center; }
+        .msg { display: inline-block; padding: 0.3rem 0.6rem; margin: 0.15rem; border-radius: 0.25rem; font-size: 0.8rem; }
+        .msg-system { background: #3b82f6; color: #fff; }
+        .msg-user { background: #22c55e; color: #fff; }
+        .msg-assistant { background: #8b5cf6; color: #fff; }
+        .msg-tool { background: #f59e0b; color: #fff; }
+        .msg-dropped { background: #334155; color: #64748b; text-decoration: line-through; }
+        .window { border: 2px solid #f59e0b; border-radius: 0.5rem; padding: 0.3rem; display: inline-block; }
+        .check { color: #22c55e; font-size: 1.2rem; }
+        .cross { color: #ef4444; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Token Reduction — The Sliding Window</h1>
+
+        <div class="card">
+            <h2>Why Bother?</h2>
+            <p>Every message costs tokens. opencode's agentic loops produce <strong>a lot</strong> of messages:</p>
+            <ul>
+                <li>System prompt with AGENTS.md + LSP data: ~2,000 tokens</li>
+                <li>User asks to "fix this bug"</li>
+                <li>Assistant calls <code>read_file</code>, <code>grep</code>, <code>edit</code> — each is a message pair</li>
+                <li>Tool results come back as <code>tool</code> messages</li>
+                <li>5–10 tool calls per turn, 10–20 turns per session = <strong>50–200 messages</strong></li>
+            </ul>
+            <p>At ~100 tokens per message, that's 5,000–20,000 tokens <em>just from conversation history</em> — before the model generates a single response.</p>
+        </div>
+
+        <div class="card">
+            <h2>The Sliding Window</h2>
+            <p>We never drop system prompts. Everything else gets a <strong>max length</strong> — keep the last N messages, drop the rest.</p>
+
+            <div class="diagram">
+                <div>
+                    <span class="msg msg-system">sys: you are...</span>
+                    <span class="msg msg-dropped">user: start</span>
+                    <span class="msg msg-dropped">asst: hello</span>
+                    <span class="msg msg-dropped">user: add login</span>
+                    <span class="msg msg-dropped">asst: tool_calls</span>
+                    <span class="msg msg-dropped">tool: results</span>
+                    <span class="msg msg-dropped">asst: done</span>
+                    <span class="msg msg-dropped" style="opacity:0.3;">...</span>
+                </div>
+                <div style="margin-top:0.5rem;">
+                    <span class="window">
+                        <span class="msg msg-user">user: fix bug</span>
+                        <span class="msg msg-assistant">asst: tool_calls</span>
+                        <span class="msg msg-tool">tool: output</span>
+                        <span class="msg msg-assistant">asst: fixed</span>
+                    </span>
+                </div>
+                <p style="color:#94a3b8; font-size:0.85rem; margin-top:1rem;">
+                    ↓ Dropped ←&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Window (last 15) →
+                </p>
+            </div>
+
+            <p>The model gets the long system prompt + the last 15 messages. It can't see the old "add login" conversation — but it doesn't need to, it's already done.</p>
+        </div>
+
+        <div class="card">
+            <h2>Implementation</h2>
+            <p>In <code>server/prompt.py</code>:</p>
+            <pre>def trim_messages(messages: list[dict], max_messages: int = 15) -> list[dict]:
+    if max_messages is None or not messages:
+        return messages
+    system = [m for m in messages if m.get("role") == "system"]
+    non_system = [m for m in messages if m.get("role") != "system"]
+    if len(non_system) <= max_messages:
+        return messages
+    trimmed = non_system[-max_messages:] if max_messages > 0 else []
+    return system + trimmed</pre>
+
+            <p>Called in <code>server/api.py</code> before the router:</p>
+            <pre>max_msgs = config.get("MAX_MESSAGES", 15)
+messages = trim_messages(messages, max_messages=max_msgs)</pre>
+
+            <p>Configurable via environment or JSON config:</p>
+            <pre>MAX_MESSAGES=30 python -m server.api   # keep last 30 messages</pre>
+        </div>
+
+        <div class="card">
+            <h2>Key Insight: Why System Prompts Are Special</h2>
+            <p>System prompts carry <strong>identity + instructions</strong> — without them, the model doesn't know what tools exist or how to behave. They must never be trimmed.</p>
+            <p>Everything else is <strong>conversation history</strong> — it's context for the current turn. Old turns are already <em>done</em>, the model doesn't need to re-read them.</p>
+        </div>
+
+        <div class="card">
+            <h2>Your Turn</h2>
+            <p>Try these scenarios against the running server:</p>
+            <pre># Default (trim to 15)
+curl http://localhost:8000/v1/chat/completions \
+  -d '{"model":"copilot","messages":[{"role":"system","content":"be helpful"},{"role":"user","content":"msg1"},...40 more...]}'
+
+# Disable trimming
+MAX_MESSAGES=0 python -m server.api   # only system prompt survives
+
+# No limit
+MAX_MESSAGES= python -m server.api    # None = passthrough</pre>
+            <p>Check the server logs — you'll see the message count before and after trimming.</p>
+        </div>
+
+        <div class="card">
+            <h2>Reference</h2>
+            <ul>
+                <li><a href="../reference/token-reduction.html">Token Reduction Reference</a> — algorithm, edge cases, token savings table</li>
+                <li><a href="../reference/openai-tool-calls.html">Tool Calling Wire Format</a> — messages structure with tool calls</li>
+                <li><a href="../learning-records/0003-token-reduction.md">Learning Record 0003</a> — key insights from implementing this</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Ask follow-up questions to your agent — e.g. "how do I tune this for my use case?"</p>
+        </div>
+    </div>
+</body>
+</html>
