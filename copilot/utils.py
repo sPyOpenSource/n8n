@@ -24,6 +24,9 @@ def drain_json(buf: bytes) -> Tuple[List[dict], bytes]:
 
     WebSocket text frames can arrive fragmented or coalesced, so we parse
     greedily and keep any trailing partial object as leftover bytes.
+    
+    Validates that each extracted object is a valid JSON object (dict).
+    Raises ValueError if a complete but invalid JSON object is encountered.
     """
     out: List[dict] = []
     s = buf.decode("utf-8", errors="ignore")
@@ -37,6 +40,9 @@ def drain_json(buf: bytes) -> Tuple[List[dict], bytes]:
             obj, end = _decoder.raw_decode(rest)
         except json.JSONDecodeError:
             break  # incomplete trailing fragment
+        # Validate that the parsed object is a JSON object (dict)
+        if not isinstance(obj, dict):
+            raise ValueError(f"Invalid JSON message format: expected a JSON object, got {type(obj).__name__}")
         out.append(obj)
         idx = len(s) - len(rest) + end
     return out, s[idx:].encode("utf-8")

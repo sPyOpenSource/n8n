@@ -38,9 +38,9 @@ class ConfigManager:
             with open(self.config_path, "r") as f:
                 file_config = json.load(f)
                 self.DEFAULTS.update({"GOOGLE_API_KEY": file_config.get("google").get("key")})
-                self.DEFAULTS.update({"OPENAI_API_KEY": file_config.get("openai").get("key")})
-                self.DEFAULTS.update({"NVIDIA_API_KEY": file_config.get("nvidia").get("key")})
-                self.DEFAULTS.update({"OPENROUTER_API_KEY": file_config.get("openrouter").get("key")})
+                #self.DEFAULTS.update({"OPENAI_API_KEY": file_config.get("openai").get("key")})
+                #self.DEFAULTS.update({"NVIDIA_API_KEY": file_config.get("nvidia").get("key")})
+                #self.DEFAULTS.update({"OPENROUTER_API_KEY": file_config.get("openrouter").get("key")})
                 final.update({k: v for k, v in file_config.items() if k in self.DEFAULTS})
         except (FileNotFoundError, json.JSONDecodeError):
             pass

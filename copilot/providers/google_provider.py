@@ -7,7 +7,7 @@ import httpx
 
 from .base import AbstractProvider
 from server.config import config
-
+from ..utils import drain_json
 
 class GoogleProvider(AbstractProvider):
     """Provider backed by Google's Gemini API (OpenAI-compatible endpoint)."""
@@ -21,6 +21,8 @@ class GoogleProvider(AbstractProvider):
 
     def __init__(self, base_url: str | None = None):
         super().__init__()
+        # Lazy import to avoid circular dependency at module load time.
+        from server.config import config  # noqa: PLC0415
         self._api_key = config.get("GOOGLE_API_KEY") or os.environ.get("GOOGLE_API_KEY", "")
         self._base_url = (base_url or os.environ.get("GOOGLE_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai")).rstrip("/")
         self._models_str = os.environ.get("GOOGLE_MODELS", "gemini-1.5-flash,gemini-1.5-pro,gemini-1.0-pro")
@@ -49,6 +51,7 @@ class GoogleProvider(AbstractProvider):
             body["tools"] = tools
         if tool_choice:
             body["tool_choice"] = tool_choice
+        #print(f"Building request body: {body}")
         return body
 
     def chat(
