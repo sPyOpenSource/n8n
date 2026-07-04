@@ -178,7 +178,7 @@ def get_models():
 def chat_completions(req: ChatCompletionRequest):
     # Convert typed request models to plain dicts for downstream providers
     messages = [m.model_dump(exclude_none=True) for m in req.messages]
-    max_msgs = config.get("MAX_MESSAGES", 15)
+    max_msgs = config.get("MAX_MESSAGES") or 15
     messages = trim_messages(messages, max_messages=max_msgs)
     tools = [t.model_dump(exclude_none=True) for t in req.tools] if req.tools else None
     tool_choice = req.tool_choice
