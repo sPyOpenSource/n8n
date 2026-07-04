@@ -13,7 +13,7 @@ class ConfigManager:
         
         # Define the lowest level of the hierarchy: hardcoded defaults
         self.DEFAULTS = {
-            "PROVIDER_PRIORITY": "openai,openrouter,google,nvidia,copilot,ollama",
+            "PROVIDER_PRIORITY": "google,nvidia,openrouter,copilot,ollama,openai",
             "RATE_LIMIT_RPM": 12,
             "RATE_LIMIT_BURST": 4,
             "OLLAMA_BASE_URL": "http://localhost:11434",

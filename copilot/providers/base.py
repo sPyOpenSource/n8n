@@ -4,7 +4,7 @@ import threading
 from abc import ABC, abstractmethod
 from typing import Any, Generator
 
-from copilot.driver import ResourceExhausted
+from copilot.driver import ProviderError, ResourceExhausted
 
 
 class AbstractProvider(ABC):
@@ -26,10 +26,12 @@ class AbstractProvider(ABC):
         self._lock = threading.Lock()
 
     def _handle_status(self, resp: Any):
-        """Check for 429 ResourceExhausted or other status errors."""
+        """Check for 429 ResourceExhausted, 5xx ProviderError, or other errors."""
         if hasattr(resp, "status_code"):
             if resp.status_code == 429:
                 raise ResourceExhausted(f"Provider {self.label} quota exceeded (429)")
+            if 500 <= resp.status_code < 600:
+                raise ProviderError(f"Provider {self.label} server error ({resp.status_code})")
             resp.raise_for_status()
 
     @abstractmethod

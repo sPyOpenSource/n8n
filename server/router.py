@@ -4,7 +4,7 @@ import logging
 import time as _time
 from typing import Any, Generator
 
-from copilot.driver import ClearanceRequired, ResourceExhausted
+from copilot.driver import ClearanceRequired, ProviderError, ResourceExhausted
 from copilot.providers.base import AbstractProvider
 
 from .health_watcher import HealthWatcher
@@ -53,16 +53,26 @@ class Router:
         tool_choice: str | dict[str, Any] | None = None,
         conversation_id: str | None = None,
     ) -> dict:
+        tried: set[int] = set()
+        last_err = None
+
         if model and model in self._model_to_provider:
             provider = self._model_to_provider[model]
             if provider.is_available():
-                return provider.chat(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+                try:
+                    return provider.chat(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+                except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted, ProviderError) as exc:
+                    log.warning("Provider %s (mapped from model %s) failed: %s; trying next", provider.label, model, exc)
+                    tried.add(id(provider))
+                    last_err = exc
 
-        last_err = None
         for provider in self._active_providers():
+            if id(provider) in tried:
+                continue
+            tried.add(id(provider))
             try:
                 return provider.chat(messages, model=model or provider.default_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
-            except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted) as exc:
+            except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted, ProviderError) as exc:
                 log.warning("Provider %s failed: %s; trying next", provider.label, exc)
                 last_err = exc
                 continue
@@ -78,17 +88,26 @@ class Router:
         tool_choice: str | dict[str, Any] | None = None,
         conversation_id: str | None = None,
     ) -> Generator:
+        tried: set[int] = set()
+
         if model and model in self._model_to_provider:
             provider = self._model_to_provider[model]
             if provider.is_available():
-                yield from provider.stream(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
-                return
+                try:
+                    yield from provider.stream(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+                    return
+                except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted, ProviderError) as exc:
+                    log.warning("Provider %s (mapped from model %s) failed: %s; trying next", provider.label, model, exc)
+                    tried.add(id(provider))
 
         for provider in self._active_providers():
+            if id(provider) in tried:
+                continue
+            tried.add(id(provider))
             try:
                 yield from provider.stream(messages, model=model or provider.default_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
                 return
-            except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted) as exc:
+            except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted, ProviderError) as exc:
                 log.warning("Provider %s failed: %s; trying next", provider.label, exc)
                 continue
         raise RuntimeError("No providers available")
@@ -155,7 +174,7 @@ class FailsafeRouter:
                 self._score_keeper.record_success(chosen, elapsed)
                 self._health_watcher.record_success(chosen)
                 return result
-            except (ConnectionError, TimeoutError, ResourceExhausted) as exc:
+            except (ConnectionError, TimeoutError, ResourceExhausted, ProviderError) as exc:
                 log.warning("Provider %s failed: %s; trying next", chosen, exc)
                 self._score_keeper.record_error(chosen)
                 self._health_watcher.record_failure(chosen, str(exc))
@@ -202,7 +221,7 @@ class FailsafeRouter:
                 self._score_keeper.record_success(chosen, elapsed)
                 self._health_watcher.record_success(chosen)
                 return
-            except (ConnectionError, TimeoutError, ResourceExhausted) as exc:
+            except (ConnectionError, TimeoutError, ResourceExhausted, ProviderError) as exc:
                 log.warning("Provider %s stream failed: %s; trying next", chosen, exc)
                 self._score_keeper.record_error(chosen)
                 self._health_watcher.record_failure(chosen, str(exc))

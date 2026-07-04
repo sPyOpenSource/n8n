@@ -46,6 +46,10 @@ class ResourceExhausted(RuntimeError):
     """The provider has exhausted its quota or rate limit (HTTP 429)."""
 
 
+class ProviderError(RuntimeError):
+    """The provider returned a server error (HTTP 5xx)."""
+
+
 class Copilot(AbstractProvider):
     label = "Microsoft Copilot"
     url = "https://copilot.microsoft.com"
