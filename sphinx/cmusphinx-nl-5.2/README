@@ -1,0 +1,28 @@
+This is a continuous Dutch Voxforge acoustic model for CMUSphinx
+decoders - pocketsphinx and sphinx4 version 5prealpha. It was trained
+with SphinxTrain. The process of training is described in SphinxTrain
+tutorial.
+
+This is 16kHz model, it works for high-quality recordings. It is not
+going to work for telephone recordings, you need 8khz model then.
+
+To setup the files use build.sh script from scripts folder as a base. It
+should download required files from Voxforge, setup structure and
+extract features. Scripts are located in scripts subfolder.
+
+Testing is performed with pocketsphinx. Language model for testing is built
+from subtitles. Result of the testing should be similar to
+
+TOTAL Words: 7181 Correct: 4421 Errors: 3165
+TOTAL Percent correct = 61.57% Error = 44.07% Accuracy = 55.93%
+TOTAL Insertions: 405 Deletions: 444 Substitutions: 2316
+
+If you need serious language model you can build it yourself from your texts
+or from public corporas like Wikipedia dump. We also need more language data
+
+To use this model with pocketsphinx, pocketsphinx-android and sphinx4
+just provide it's location with -hmm pocketsphinx option. Also use the
+dictionary with dict option. For more information see the tutorial.
+
+http://cmusphinx.sourceforge.net/wiki/tutorial
+
