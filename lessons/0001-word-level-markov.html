@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1: Word-Level Markov Models</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .demo { background: var(--code-bg); padding: 1rem; border-radius: 4px; margin: 1rem 0; font-size: 0.85rem; }
+  .demo-row { display: flex; gap: 2rem; flex-wrap: wrap; margin: 0.75rem 0; }
+  .demo-state { flex: 1; min-width: 200px; }
+  .demo-state code { display: block; margin: 0.2rem 0; }
+  .arrow { color: var(--muted); font-size: 1.2rem; }
+  .exercise { background: var(--accent-light); border-radius: 6px; padding: 1rem 1.25rem; margin: 1.25rem 0; }
+  .exercise code { background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="../reference/markov-models.html">Reference</a>
+  <a href="../MISSION.md">Mission</a>
+</div>
+
+<h1>Word-Level Markov Models</h1>
+<p class="sidenote">Lesson 1 &middot; Build a text generator that creates 10K stories in under a second</p>
+
+<h2>Why This Matters</h2>
+
+<p>Your Ollama-based pipeline generates ~45 stories per minute. A word-level Markov model can generate <strong>10,000 stories in under a second</strong> — a 600,000× speedup. The trade-off? Markov models are "dumber": they can't reason, they don't understand meaning, they just replay patterns they've seen. But for augmenting SLM training data, that's often enough.</p>
+
+<p>More importantly: Markov models are the <strong>conceptual ancestor</strong> of every modern language model. GPT-4 is, at its core, a very fancy n-gram model with neural-network-shaped parameters. Understanding Markov chains gives you intuition for what all language models do: <em>predict the next token given the previous context</em>.</p>
+
+<h2>The Core Idea</h2>
+
+<p>A Markov model assumes the <strong>Markov property</strong>: the next word depends only on the previous <em>n-1</em> words, not the entire history. This is obviously false for real language (a pronoun might refer to a noun 20 sentences back), but it works surprisingly well for short text.</p>
+
+<h3>Concrete Example</h3>
+
+<p>Consider this TinyStories sentence:</p>
+
+<blockquote>The little girl went to the park. She played on the swings.</blockquote>
+
+<p>A <strong>trigram</strong> model (n=3) breaks this into overlapping triples:</p>
+
+<div class="demo">
+  <div class="demo-row">
+    <div class="demo-state">
+      <strong>Context → Next word</strong>
+      <code>(The, little) → girl</code>
+      <code>(little, girl) → went</code>
+      <code>(girl, went) → to</code>
+      <code>(went, to) → the</code>
+      <code>(to, the) → park</code>
+      <code>(the, park) → .</code>
+      <code>(park, .) → She</code>
+      <code>(., She) → played</code>
+      <code>(She, played) → on</code>
+      <code>(played, on) → the</code>
+      <code>(on, the) → swings</code>
+      <code>(the, swings) → .</code>
+    </div>
+    <div class="demo-state">
+      <strong>Frequency table</strong>
+      <code>(the, little) → {girl: 1}</code>
+      <code>(went, to) → {the: 1}</code>
+      <code>(the, park) → {.: 1}</code>
+      <code>(park, .) → {She: 1}</code>
+      <code>(She, played) → {on: 1}</code>
+      <code>(the, swings) → {.: 1}</code>
+    </div>
+  </div>
+</div>
+
+<p>When we generate, we <strong>sample</strong> from the frequency table: given a context, pick a next word proportional to how often it appeared in training. If a context appears multiple times with different continuations, the model captures the <em>distribution</em> of possibilities.</p>
+
+<h2>The Implementation</h2>
+
+<p>Here's the complete implementation. Pay attention to how simple it is — about 25 lines of core logic:</p>
+
+<pre><code>from collections import defaultdict, Counter
+import random
+
+class WordMarkov:
+    def __init__(self, n=3):
+        self.n = n
+        self.model = defaultdict(Counter)
+
+    def train(self, corpus):
+        for tokens in corpus:                         # each story = list of words
+            ctx = tuple(['&lt;BOS&gt;'] * (self.n - 1))  # pad start with BOS tokens
+            for word in tokens + ['&lt;EOS&gt;']:           # append EOS at end
+                self.model[ctx][word] += 1             # count: ctx → word
+                ctx = ctx[1:] + (word,)               # slide window
+
+    def generate(self, max_len=50):
+        ctx = tuple(['&lt;BOS&gt;'] * (self.n - 1))
+        out = []
+        for _ in range(max_len):
+            word = self._sample(ctx)
+            if word is None or word == '&lt;EOS&gt;':
+                break
+            out.append(word)
+            ctx = ctx[1:] + (word,)
+        return ' '.join(out)
+
+    def _sample(self, ctx):
+        counts = self.model.get(ctx)
+        if not counts:
+            return None
+        words, weights = zip(*counts.items())
+        return random.choices(words, weights=weights, k=1)[0]</code></pre>
+
+<p>Three methods. That's it.</p>
+
+<h2>Key Insight: Why N=3?</h2>
+
+<p>The order <em>n</em> controls the fluency-diversity trade-off:</p>
+
+<table style="width:100%; border-collapse: collapse; margin: 0.75rem 0;">
+  <tr style="border-bottom: 1px solid var(--border);">
+    <th style="text-align:left; padding:0.3rem 0.5rem;">n</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Output example</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Problem</th>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">2 (bigram)</td>
+    <td style="padding:0.3rem 0.5rem;">"the went to played the little"</td>
+    <td style="padding:0.3rem 0.5rem;">No grammar — words don't agree</td>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">3 (trigram)</td>
+    <td style="padding:0.3rem 0.5rem;">"the little girl went to the park"</td>
+    <td style="padding:0.3rem 0.5rem;">Good balance</td>
+  </tr>
+  <tr>
+    <td style="padding:0.3rem 0.5rem;">4 (4-gram)</td>
+    <td style="padding:0.3rem 0.5rem;">"the little girl went to the park and played on the swings"</td>
+    <td style="padding:0.3rem 0.5rem;">Starts copying training data verbatim</td>
+  </tr>
+</table>
+
+<p>For TinyStories, n=3 is the sweet spot. Low enough to be creative, high enough to be grammatical.</p>
+
+<h2>Exercise: Build It</h2>
+
+<div class="exercise">
+  <p><strong>Your turn.</strong> Let's build a Markov model and test it on real TinyStories data.</p>
+
+  <ol>
+    <li>Read a few hundred TinyStories from a parquet shard</li>
+    <li>Tokenize each story into words</li>
+    <li>Train a trigram model</li>
+    <li>Generate 10 stories</li>
+    <li>Inspect the output — is it grammatical? How does it compare to Ollama-generated text?</li>
+  </ol>
+
+  <p>Run this command to test the implementation:</p>
+  <pre><code>uv run python3 -c "
+import pyarrow.parquet as pq, random
+from collections import defaultdict, Counter
+
+class WordMarkov:
+    def __init__(self, n=3):
+        self.n = n
+        self.model = defaultdict(Counter)
+
+    def train(self, corpus):
+        for tokens in corpus:
+            ctx = tuple(['&lt;BOS&gt;'] * (self.n - 1))
+            for word in tokens + ['&lt;EOS&gt;']:
+                self.model[ctx][word] += 1
+                ctx = ctx[1:] + (word,)
+
+    def generate(self, max_len=40):
+        ctx = tuple(['&lt;BOS&gt;'] * (self.n - 1))
+        out = []
+        for _ in range(max_len):
+            counts = self.model.get(ctx)
+            if not counts: break
+            words, weights = zip(*counts.items())
+            word = random.choices(words, weights=weights, k=1)[0]
+            if word == '&lt;EOS&gt;': break
+            out.append(word)
+            ctx = ctx[1:] + (word,)
+        return ' '.join(out)
+
+# Load stories
+import os
+DATA = os.path.expanduser('~/.cache/autoresearch/data')
+pf = pq.ParquetFile(os.path.join(DATA, [f for f in os.listdir(DATA) if 'train' in f][0]))
+stories = pf.read().column('text').to_pylist()[:500]
+
+# Train
+m = WordMarkov(n=3)
+m.train([s.split() for s in stories])
+
+print('=== Generated stories ===')
+for i in range(10):
+    print(f'{i+1}. {m.generate()}')
+"</code></pre>
+</div>
+
+<div class="quiz">
+  <p><strong>Check your understanding</strong></p>
+
+  <div>
+    <p>1. What happens if we set n=1 (unigram)?</p>
+    <button class="quiz-option" onclick="answer(this, false)">Each word depends on the previous word</button>
+    <button class="quiz-option" onclick="answer(this, false)">Stories will be copied verbatim from training data</button>
+    <button class="quiz-option" onclick="answer(this, true)">Words are chosen independently — output is a random word soup</button>
+    <div class="quiz-feedback">Correct! A unigram model has no context — each word is sampled from the global frequency distribution.</div>
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <p>2. Why can't a trigram model handle "The cat... it" coreference?</p>
+    <button class="quiz-option" onclick="answer(this, false)">Cat is not in the vocabulary</button>
+    <button class="quiz-option" onclick="answer(this, true)">The context window is only 2 words — "cat" is too far from "it"</button>
+    <button class="quiz-option" onclick="answer(this, false)">It can, but only for female cats</button>
+    <div class="quiz-feedback">Correct! A trigram sees only 2 previous words, so it can't link a pronoun to a noun 5 words back.</div>
+  </div>
+</div>
+
+<h2>What's Next</h2>
+
+<p>In the next lesson, we'll:</p>
+<ul>
+  <li>Train this Markov model on <strong>all</strong> TinyStories (~2M documents) and measure the generation speed</li>
+  <li>Add <strong>temperature</strong> and <strong>backoff smoothing</strong> to handle unseen contexts</li>
+  <li>Integrate the generated data into the SLM training pipeline</li>
+  <li>Compare val_bpb improvement: Markov vs. Ollama vs. no synthetic data</li>
+</ul>
+
+<h2>Further Reading</h2>
+<ul>
+  <li><a href="../reference/markov-models.html">Reference: Markov Models</a> — cheat sheet with code, formulas, and parameters</li>
+  <li><a href="https://web.stanford.edu/~jurafsky/slp3/3.pdf">Jurafsky &amp; Martin Ch. 3: N-gram Language Models</a> — the definitive textbook treatment</li>
+  <li><a href="https://www.decontextualize.com/teaching/rwet/n-grams-and-markov-chains/">Allison Parrish's N-grams and Markov Chains</a> — interactive tutorial with Python examples</li>
+</ul>
+
+<p><em>Ask followup questions to your agent — anything unclear is worth discussing.</em></p>
+
+<script>
+function answer(btn, correct) {
+    var parent = btn.parentElement;
+    var buttons = parent.querySelectorAll('.quiz-option');
+    var feedback = parent.querySelector('.quiz-feedback');
+    buttons.forEach(function(b) { b.disabled = true; });
+    btn.className = 'quiz-option ' + (correct ? 'correct' : 'wrong');
+    feedback.className = 'quiz-feedback show';
+}
+</script>
+
+</body>
+</html>

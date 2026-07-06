@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Word-Level Markov Models — Reference</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .algo { background: var(--code-bg); padding: 1rem; border-radius: 4px; margin: 0.75rem 0; font-size: 0.85rem; }
+  .algo ol { margin: 0 0 0 1.2rem; }
+  .algo li { margin-bottom: 0.4rem; }
+  .formula { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; padding: 0.5rem 0; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>Word-Level Markov Models</h1>
+<p class="sidenote">Reference — n-gram language models for text generation. See <a href="../lessons/0001-word-level-markov.html">Lesson 1</a>.</p>
+
+<h2>Core Idea</h2>
+<p>A Markov model predicts the next word based on the previous <em>n-1</em> words. It assumes the <strong>Markov property</strong>: the next state depends only on the current state, not the full history.</p>
+
+<div class="formula">P(w<sub>i</sub> | w<sub>1</sub>, w<sub>2</sub>, ..., w<sub>i-1</sub>) ≈ P(w<sub>i</sub> | w<sub>i-n+1</sub>, ..., w<sub>i-1</sub>)</div>
+
+<h2>N-gram Types</h2>
+<table style="width:100%; border-collapse: collapse; margin: 0.75rem 0;">
+  <tr style="border-bottom: 1px solid var(--border);">
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Name</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">n</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Context</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Quality</th>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">Unigram</td>
+    <td style="padding:0.3rem 0.5rem;">1</td>
+    <td style="padding:0.3rem 0.5rem;">None</td>
+    <td style="padding:0.3rem 0.5rem;">Gibberish</td>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">Bigram</td>
+    <td style="padding:0.3rem 0.5rem;">2</td>
+    <td style="padding:0.3rem 0.5rem;">1 previous word</td>
+    <td style="padding:0.3rem 0.5rem;">Weak grammar</td>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">Trigram</td>
+    <td style="padding:0.3rem 0.5rem;">3</td>
+    <td style="padding:0.3rem 0.5rem;">2 previous words</td>
+    <td style="padding:0.3rem 0.5rem;">Decent fluency</td>
+  </tr>
+  <tr>
+    <td style="padding:0.3rem 0.5rem;">4-gram</td>
+    <td style="padding:0.3rem 0.5rem;">4</td>
+    <td style="padding:0.3rem 0.5rem;">3 previous words</td>
+    <td style="padding:0.3rem 0.5rem;">Nearly verbatim</td>
+  </tr>
+</table>
+
+<h2>Algorithm</h2>
+
+<div class="algo">
+<strong>Training (build the model)</strong>
+<ol>
+  <li>Tokenize corpus into word sequences</li>
+  <li>Slide a window of size <em>n</em> over each sequence</li>
+  <li>Count: for each context (first <em>n-1</em> words), how many times each next word appears</li>
+  <li>Normalize counts into probabilities (optional — sampling uses raw counts directly)</li>
+</ol>
+
+<strong>Generation (sample from the model)</strong>
+<ol>
+  <li>Pick a starting context (or use <code>BOS</code> tokens)</li>
+  <li>From current context, look up possible next words and their counts</li>
+  <li>Randomly sample one proportional to its count</li>
+  <li>Slide context: drop the first word, append the sampled word</li>
+  <li>Repeat until <code>EOS</code> or max length</li>
+</ol>
+</div>
+
+<h2>Implementation (Python)</h2>
+
+<pre><code>from collections import defaultdict, Counter
+import random
+
+class WordMarkov:
+    def __init__(self, n=3):
+        self.n = n
+        self.model = defaultdict(Counter)  # context -> {word: count}
+
+    def train(self, corpus):
+        for tokens in corpus:
+            ctx = tuple(['<BOS>'] * (self.n - 1))
+            for word in tokens + ['<EOS>']:
+                self.model[ctx][word] += 1
+                ctx = ctx[1:] + (word,)
+
+    def generate(self, max_len=50):
+        ctx = tuple(['<BOS>'] * (self.n - 1))
+        out = []
+        for _ in range(max_len):
+            counts = self.model.get(ctx, {})
+            if not counts:
+                break
+            words, weights = zip(*counts.items())
+            word = random.choices(words, weights=weights, k=1)[0]
+            if word == '<EOS>':
+                break
+            out.append(word)
+            ctx = ctx[1:] + (word,)
+        return ' '.join(out)</code></pre>
+
+<h2>Key Parameters</h2>
+
+<ul>
+  <li><strong>n</strong> (order): higher = more fluent but less diverse. n=3 is the sweet spot for story generation.</li>
+  <li><strong>Temperature</strong> (optional): flatten (<em>t</em> &gt; 1) or sharpen (<em>t</em> &lt; 1) the probability distribution.</li>
+  <li><strong>Max length</strong>: cap generation to avoid infinite loops.</li>
+</ul>
+
+<h2>Strength &amp; Weaknesses</h2>
+
+<table style="width:100%; border-collapse: collapse; margin: 0.75rem 0;">
+  <tr style="border-bottom: 1px solid var(--border);">
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Strength</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Weakness</th>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">Fast to train (seconds on 2M docs)</td>
+    <td style="padding:0.3rem 0.5rem;">No long-range dependencies</td>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">Fast to generate (10K in &lt;1s)</td>
+    <td style="padding:0.3rem 0.5rem;">Needs smoothing for unseen n-grams</td>
+  </tr>
+  <tr>
+    <td style="padding:0.3rem 0.5rem;">Interpretable and debuggable</td>
+    <td style="padding:0.3rem 0.5rem;">Cannot generalize beyond training data</td>
+  </tr>
+</table>
+
+<h2>Smoothing</h2>
+<p>When a context was never seen in training, the model returns an empty count dictionary. Solutions:</p>
+<ul>
+  <li><strong>Backoff:</strong> fall back to lower-order n-gram (e.g., n=3 → n=2)</li>
+  <li><strong>Add-k smoothing:</strong> add a small constant to all counts</li>
+  <li><strong>Interpolation:</strong> weighted average of all order predictions</li>
+</ul>
+
+<div class="footer">
+  <p>See: <a href="https://web.stanford.edu/~jurafsky/slp3/3.pdf">Jurafsky &amp; Martin Ch. 3</a> &middot; <a href="https://www.decontextualize.com/teaching/rwet/n-grams-and-markov-chains/">Allison Parrish's tutorial</a></p>
+</div>
+
+</body>
+</html>
