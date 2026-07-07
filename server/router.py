@@ -116,7 +116,7 @@ class Router:
             provider = self._model_to_provider[model]
             if provider.is_available():
                 try:
-                    yield from self._stream_with_usage(provider, messages, model, tools, tool_choice, conversation_id)
+                    yield from stream_with_usage(provider, messages, model, tools, tool_choice, conversation_id, self._token_tracker)
                     return
                 except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted, ProviderError) as exc:
                     log.warning("Provider %s (mapped from model %s) failed: %s; trying next", provider.label, model, exc)
@@ -127,46 +127,36 @@ class Router:
                 continue
             tried.add(id(provider))
             try:
-                yield from self._stream_with_usage(provider, messages, model or provider.default_model, tools, tool_choice, conversation_id)
+                yield from stream_with_usage(provider, messages, model or provider.default_model, tools, tool_choice, conversation_id, self._token_tracker)
                 return
             except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted, ProviderError) as exc:
                 log.warning("Provider %s failed: %s; trying next", provider.label, exc)
                 continue
         raise RuntimeError("No providers available")
 
-    def _stream_with_usage(self, provider: AbstractProvider, messages, model, tools, tool_choice, conversation_id):
-        """Wrapper that yields chunks and captures usage from the final chunk."""
-        usage_recorded = False
-        for chunk in provider.stream(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id):
-            yield chunk
-            if not usage_recorded and self._token_tracker:
-                # Try to parse usage from SSE chunk
-                if "usage" in chunk:
-                    # Handle dict chunk
-                    u = chunk.get("usage", {})
-                    self._token_tracker.record_usage(
-                        provider.label,
-                        u.get("prompt_tokens", 0),
-                        u.get("completion_tokens", 0)
-                    )
-                    usage_recorded = True
-                elif isinstance(chunk, str) and chunk.startswith("data: "):
-                    # Handle SSE string chunk
-                    try:
-                        import json
-                        data_str = chunk[6:].strip()
-                        if data_str != "[DONE]":
-                            data = json.loads(data_str)
-                            if "usage" in data:
-                                u = data["usage"]
-                                self._token_tracker.record_usage(
-                                    provider.label,
-                                    u.get("prompt_tokens", 0),
-                                    u.get("completion_tokens", 0)
-                                )
-                                usage_recorded = True
-                    except Exception:
-                        pass
+
+def stream_with_usage(provider: AbstractProvider, messages, model, tools, tool_choice, conversation_id, token_tracker):
+    """Wrapper that yields chunks and captures usage from the final chunk."""
+    import json
+    usage_recorded = False
+    for chunk in provider.stream(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id):
+        yield chunk
+        if not usage_recorded and token_tracker:
+            if isinstance(chunk, dict) and "usage" in chunk:
+                u = chunk["usage"]
+                token_tracker.record_usage(provider.label, u.get("prompt_tokens", 0), u.get("completion_tokens", 0))
+                usage_recorded = True
+            elif isinstance(chunk, str) and chunk.startswith("data: "):
+                try:
+                    data_str = chunk[6:].strip()
+                    if data_str != "[DONE]":
+                        data = json.loads(data_str)
+                        if isinstance(data, dict) and "usage" in data:
+                            u = data["usage"]
+                            token_tracker.record_usage(provider.label, u.get("prompt_tokens", 0), u.get("completion_tokens", 0))
+                            usage_recorded = True
+                except Exception:
+                    pass
 
 
 class FailsafeRouter:
@@ -281,7 +271,7 @@ class FailsafeRouter:
             provider_model = self._model_config.provider_model(chosen, model) or model
             try:
                 start = _time.monotonic()
-                yield from self._stream_with_usage(provider, messages, provider_model, tools, tool_choice, conversation_id)
+                yield from stream_with_usage(provider, messages, provider_model, tools, tool_choice, conversation_id, self._token_tracker)
                 elapsed = (_time.monotonic() - start) * 1000
                 self._score_keeper.record_success(chosen, elapsed)
                 self._health_watcher.record_success(chosen)
