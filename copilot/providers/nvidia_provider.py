@@ -16,7 +16,7 @@ class NvidiaProvider(AbstractProvider):
     url = "https://integrate.api.nvidia.com"
     working = True
     supports_stream = True
-    default_model = "moonshotai/kimi-k2.6"
+    default_model = "deepseek-ai/deepseek-v4-pro"
     needs_auth = True
 
     def __init__(self, base_url: str | None = None):

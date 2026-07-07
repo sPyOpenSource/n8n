@@ -25,6 +25,7 @@ from .selector import ProviderSelector
 from .health_watcher import HealthWatcher
 from .router import Router, FailsafeRouter
 from .schemas import ChatCompletionRequest
+from .token_tracker import TokenTracker
 
 app = FastAPI(title="Copilot OpenAI-compatible API", version="1.0.0")
 
@@ -70,6 +71,7 @@ def _build_router() -> Router | FailsafeRouter:
             score_keeper=ScoreKeeper(),
             selector=ProviderSelector(),
             health_watcher=HealthWatcher(),
+            token_tracker=token_tracker,
         )
 
     # Legacy mode: priority-ordered list
@@ -91,10 +93,11 @@ def _build_router() -> Router | FailsafeRouter:
             log.warning("Provider %s failed to initialize: %s; skipping", name, exc)
     if not providers:
         log.warning("No providers available — server will reject all requests")
-    return Router(providers)
+    return Router(providers, token_tracker=token_tracker)
 
 
 # Global state
+token_tracker = TokenTracker()
 router = _build_router()
 _rate_limiter = TokenBucket(config.get("RATE_LIMIT_RPM"), config.get("RATE_LIMIT_BURST"))
 
@@ -244,6 +247,7 @@ def admin_ui():
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Open Router Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; }
         .card { background-color: #1e293b; border: 1px solid #334155; }
@@ -331,6 +335,16 @@ def admin_ui():
                 </button>
             </div>
             <div id="model-config-status" class="mt-2 text-sm"></div>
+        </div>
+
+        <div class="mt-8 card rounded-xl p-6 shadow-xl">
+            <h2 class="text-xl font-semibold mb-4 text-slate-300">Token Usage <span class="text-sm text-slate-500">(per provider)</span></h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="usage-summary">
+                <div class="text-slate-500 italic col-span-3">No usage data yet</div>
+            </div>
+            <div class="w-full" style="height: 300px;">
+                <canvas id="usage-chart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -455,6 +469,81 @@ def admin_ui():
 
         loadConfig();
         loadModelConfig();
+        loadTokenUsage();
+        setInterval(loadTokenUsage, 15000);
+
+        let usageChart = null;
+
+        async function loadTokenUsage() {
+            try {
+                const res = await fetch('/admin/token-usage');
+                const stats = await res.json();
+                const summaryDiv = document.getElementById('usage-summary');
+                const labels = Object.keys(stats);
+                
+                if (labels.length === 0) {
+                    summaryDiv.innerHTML = '<div class="text-slate-500 italic col-span-3">No usage data yet</div>';
+                    return;
+                }
+
+                summaryDiv.innerHTML = labels.map(label => {
+                    const s = stats[label];
+                    return `<div class="p-3 rounded-lg bg-slate-800 border border-slate-700">
+                        <div class="text-xs text-slate-400 uppercase tracking-wide">${label}</div>
+                        <div class="text-lg font-bold text-blue-400 mt-1">${s.total_tokens.toLocaleString()}</div>
+                        <div class="text-xs text-slate-500 mt-1">${s.request_count} reqs | P:${s.prompt_tokens.toLocaleString()} C:${s.completion_tokens.toLocaleString()}</div>
+                    </div>`;
+                }).join('');
+
+                const ctx = document.getElementById('usage-chart').getContext('2d');
+                const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+                
+                if (usageChart) usageChart.destroy();
+                usageChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Prompt Tokens',
+                                data: labels.map(l => stats[l].prompt_tokens),
+                                backgroundColor: colors.slice(0, labels.length),
+                                borderRadius: 4,
+                            },
+                            {
+                                label: 'Completion Tokens',
+                                data: labels.map(l => stats[l].completion_tokens),
+                                backgroundColor: colors.slice(0, labels.length).map(c => c + '99'),
+                                borderRadius: 4,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#94a3b8' }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true,
+                                ticks: { color: '#94a3b8' },
+                                grid: { color: '#1e293b' }
+                            },
+                            y: {
+                                stacked: true,
+                                ticks: { color: '#94a3b8' },
+                                grid: { color: '#1e293b' }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Failed to load token usage', e);
+            }
+        }
     </script>
 </body>
 </html>
@@ -508,3 +597,8 @@ def set_model_config(cfg: dict = Body(...)):
             status_code=500,
             content={"error": str(exc)}
         )
+
+@app.get("/admin/token-usage")
+def get_token_usage():
+    """Return token usage stats per provider."""
+    return token_tracker.get_stats()

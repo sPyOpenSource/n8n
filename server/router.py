@@ -23,8 +23,13 @@ class Router:
     If all fail, re-raises the last error.
     """
 
-    def __init__(self, providers: list[AbstractProvider]):
+    def __init__(
+        self, 
+        providers: list[AbstractProvider], 
+        token_tracker: Any = None
+    ):
         self._providers = providers
+        self._token_tracker = token_tracker
         self._model_to_provider: dict[str, AbstractProvider] = {}
         for p in providers:
             for m in p.list_models():
@@ -60,8 +65,17 @@ class Router:
             provider = self._model_to_provider[model]
             if provider.is_available():
                 try:
-                    return provider.chat(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+                    result = provider.chat(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+                    if self._token_tracker and "usage" in result:
+                        u = result["usage"]
+                        self._token_tracker.record_usage(
+                            provider.label, 
+                            u.get("prompt_tokens", 0), 
+                            u.get("completion_tokens", 0)
+                        )
+                    return result
                 except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted, ProviderError) as exc:
+
                     log.warning("Provider %s (mapped from model %s) failed: %s; trying next", provider.label, model, exc)
                     tried.add(id(provider))
                     last_err = exc
@@ -71,7 +85,15 @@ class Router:
                 continue
             tried.add(id(provider))
             try:
-                return provider.chat(messages, model=model or provider.default_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+                result = provider.chat(messages, model=model or provider.default_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+                if self._token_tracker and "usage" in result:
+                    u = result["usage"]
+                    self._token_tracker.record_usage(
+                        provider.label, 
+                        u.get("prompt_tokens", 0), 
+                        u.get("completion_tokens", 0)
+                    )
+                return result
             except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted, ProviderError) as exc:
                 log.warning("Provider %s failed: %s; trying next", provider.label, exc)
                 last_err = exc
@@ -94,7 +116,7 @@ class Router:
             provider = self._model_to_provider[model]
             if provider.is_available():
                 try:
-                    yield from provider.stream(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+                    yield from self._stream_with_usage(provider, messages, model, tools, tool_choice, conversation_id)
                     return
                 except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted, ProviderError) as exc:
                     log.warning("Provider %s (mapped from model %s) failed: %s; trying next", provider.label, model, exc)
@@ -105,12 +127,46 @@ class Router:
                 continue
             tried.add(id(provider))
             try:
-                yield from provider.stream(messages, model=model or provider.default_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+                yield from self._stream_with_usage(provider, messages, model or provider.default_model, tools, tool_choice, conversation_id)
                 return
             except (ConnectionError, ClearanceRequired, TimeoutError, ResourceExhausted, ProviderError) as exc:
                 log.warning("Provider %s failed: %s; trying next", provider.label, exc)
                 continue
         raise RuntimeError("No providers available")
+
+    def _stream_with_usage(self, provider: AbstractProvider, messages, model, tools, tool_choice, conversation_id):
+        """Wrapper that yields chunks and captures usage from the final chunk."""
+        usage_recorded = False
+        for chunk in provider.stream(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id):
+            yield chunk
+            if not usage_recorded and self._token_tracker:
+                # Try to parse usage from SSE chunk
+                if "usage" in chunk:
+                    # Handle dict chunk
+                    u = chunk.get("usage", {})
+                    self._token_tracker.record_usage(
+                        provider.label,
+                        u.get("prompt_tokens", 0),
+                        u.get("completion_tokens", 0)
+                    )
+                    usage_recorded = True
+                elif isinstance(chunk, str) and chunk.startswith("data: "):
+                    # Handle SSE string chunk
+                    try:
+                        import json
+                        data_str = chunk[6:].strip()
+                        if data_str != "[DONE]":
+                            data = json.loads(data_str)
+                            if "usage" in data:
+                                u = data["usage"]
+                                self._token_tracker.record_usage(
+                                    provider.label,
+                                    u.get("prompt_tokens", 0),
+                                    u.get("completion_tokens", 0)
+                                )
+                                usage_recorded = True
+                    except Exception:
+                        pass
 
 
 class FailsafeRouter:
@@ -123,12 +179,14 @@ class FailsafeRouter:
         score_keeper: ScoreKeeper,
         selector: ProviderSelector,
         health_watcher: HealthWatcher,
+        token_tracker: Any = None,
     ):
         self._providers = providers
         self._model_config = model_config
         self._score_keeper = score_keeper
         self._selector = selector
         self._health_watcher = health_watcher
+        self._token_tracker = token_tracker
 
     def _available_candidates(self, model: str, exclude: set[str]) -> dict[str, AbstractProvider]:
         provider_map = self._model_config.providers_for_model(model)
@@ -173,6 +231,13 @@ class FailsafeRouter:
                 elapsed = (_time.monotonic() - start) * 1000
                 self._score_keeper.record_success(chosen, elapsed)
                 self._health_watcher.record_success(chosen)
+                if self._token_tracker and isinstance(result, dict) and "usage" in result:
+                    u = result["usage"]
+                    self._token_tracker.record_usage(
+                        provider.label,
+                        u.get("prompt_tokens", 0),
+                        u.get("completion_tokens", 0)
+                    )
                 return result
             except (ConnectionError, TimeoutError, ResourceExhausted, ProviderError) as exc:
                 log.warning("Provider %s failed: %s; trying next", chosen, exc)
@@ -216,7 +281,7 @@ class FailsafeRouter:
             provider_model = self._model_config.provider_model(chosen, model) or model
             try:
                 start = _time.monotonic()
-                yield from provider.stream(messages, model=provider_model, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+                yield from self._stream_with_usage(provider, messages, provider_model, tools, tool_choice, conversation_id)
                 elapsed = (_time.monotonic() - start) * 1000
                 self._score_keeper.record_success(chosen, elapsed)
                 self._health_watcher.record_success(chosen)
