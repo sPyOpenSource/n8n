@@ -6,7 +6,7 @@ from typing import Any
 import httpx
 
 from .base import AbstractProvider
-from config import config
+from server.config import config
 
 class OpencodeZenProvider(AbstractProvider):
     """Provider backed by the Opencode Zen API."""

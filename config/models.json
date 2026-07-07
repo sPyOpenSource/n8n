@@ -1,6 +1,6 @@
 {
   "openai": {
-    "gpt-4o": "gpt-4o"
+    "copilot": "gpt-4o"
   },
   "google": {
     "copilot": "gemini-1.5-flash"
@@ -10,5 +10,8 @@
   },
   "openrouter": {
     "copilot": "nvidia/nemotron-3-ultra"
+  },
+  "opencode": {
+    "copilot": "big-pickle"
   }
 }

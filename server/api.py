@@ -294,6 +294,10 @@ def admin_ui():
                         <input type="text" name="NVIDIA_BASE_URL" class="input-field p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div class="flex flex-col">
+                        <label class="text-sm font-medium text-slate-400 mb-2">OpenCode Zen Base URL</label>
+                        <input type="text" name="OPENCODE_ZEN_BASE_URL" class="input-field p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div class="flex flex-col">
                         <label class="text-sm font-medium text-slate-400 mb-2">Ollama Base URL</label>
                         <input type="text" name="OLLAMA_BASE_URL" class="input-field p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
