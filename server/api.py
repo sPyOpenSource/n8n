@@ -13,6 +13,7 @@ from copilot.providers.openai_provider import OpenAIProvider
 from copilot.providers.openrouter_provider import OpenRouterProvider
 from copilot.providers.google_provider import GoogleProvider
 from copilot.providers.nvidia_provider import NvidiaProvider
+from copilot.providers.opencode_zen_provider import OpencodeZenProvider
 
 from .config import config
 from .openai_format import completion_response, new_id, sse_event, stream_chunk
@@ -39,6 +40,7 @@ def _build_router() -> Router | FailsafeRouter:
         "openrouter": lambda: OpenRouterProvider(),
         "google": lambda: GoogleProvider(),
         "nvidia": lambda: NvidiaProvider(),
+        "opencode_zen": lambda: OpencodeZenProvider(),
     }
 
     # Check for failsafe config

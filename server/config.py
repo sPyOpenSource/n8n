@@ -13,7 +13,7 @@ class ConfigManager:
         
         # Define the lowest level of the hierarchy: hardcoded defaults
         self.DEFAULTS = {
-            "PROVIDER_PRIORITY": "google,nvidia,openrouter,copilot,ollama,openai",
+            "PROVIDER_PRIORITY": "openrouter,nvidia,google,opencode,openai,copilot,ollama",
             "RATE_LIMIT_RPM": 12,
             "RATE_LIMIT_BURST": 4,
             "OLLAMA_BASE_URL": "http://localhost:11434",
@@ -21,6 +21,7 @@ class ConfigManager:
             "OPENROUTER_BASE_URL": "https://openrouter.ai/api/v1",
             "GOOGLE_BASE_URL": "https://generativelanguage.googleapis.com/v1beta/openai",
             "NVIDIA_BASE_URL": "https://integrate.api.nvidia.com/v1",
+            "OPENCODE_ZEN_BASE_URL": "https://api.opencode.ai/zen/v1",
             "MODEL_NAME": "copilot",
             "MODEL_CONFIG_PATH": "config/models.json",
             "MAX_MESSAGES": 15,
@@ -41,6 +42,7 @@ class ConfigManager:
                 self.DEFAULTS.update({"OPENAI_API_KEY": file_config.get("openai").get("key")})
                 self.DEFAULTS.update({"NVIDIA_API_KEY": file_config.get("nvidia").get("key")})
                 self.DEFAULTS.update({"OPENROUTER_API_KEY": file_config.get("openrouter").get("key")})
+                self.DEFAULTS.update({"OPENCODE_ZEN_API_KEY": file_config.get("opencode").get("key")})
                 final.update({k: v for k, v in file_config.items() if k in self.DEFAULTS})
         except (FileNotFoundError, json.JSONDecodeError):
             pass

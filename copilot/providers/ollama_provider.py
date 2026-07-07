@@ -17,7 +17,7 @@ class OllamaProvider(AbstractProvider):
     url = "http://localhost:11434"
     working = True
     supports_stream = True
-    default_model = "llama3"
+    default_model = "jewelzufo/MiniCPM5-1B"
     needs_auth = False
 
     _AVAILABILITY_TTL = 30
