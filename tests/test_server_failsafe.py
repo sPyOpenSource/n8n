@@ -1,7 +1,6 @@
 """Tests for server startup with failsafe routing."""
 
 import os
-import pytest
 from unittest.mock import patch
 
 from server.api import _build_router

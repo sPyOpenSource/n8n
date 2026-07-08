@@ -1,6 +1,5 @@
 """Tests for OllamaProvider."""
 
-import os
 from unittest.mock import patch, MagicMock
 
 from copilot.providers.ollama_provider import OllamaProvider

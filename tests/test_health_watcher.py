@@ -1,8 +1,5 @@
 """Tests for HealthWatcher hybrid monitoring."""
 
-import pytest
-from unittest.mock import MagicMock
-
 from server.health_watcher import HealthWatcher
 
 

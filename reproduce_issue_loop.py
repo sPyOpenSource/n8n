@@ -4,7 +4,7 @@ from playwright.sync_api import sync_playwright
 async def main():
     print("Loop is running...")
     try:
-        with sync_playwright() as p:
+        with sync_playwright():
             print("Success!")
     except Exception as e:
         print(f"Caught: {e}")

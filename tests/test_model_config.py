@@ -4,8 +4,6 @@ import json
 import os
 import tempfile
 
-import pytest
-
 from server.model_config import ModelConfig
 
 
