@@ -5,11 +5,10 @@ import logging
 import time as _time
 from typing import Any
 
-from copilot.driver import ClearanceRequired, ProviderError, ResourceExhausted
+from copilot.driver import ProviderError, ResourceExhausted
 from copilot.providers.base import AbstractProvider
 
 from .health_watcher import HealthWatcher
-from .model_config import ModelConfig
 from .score_keeper import ScoreKeeper
 from .selector import ProviderSelector
 

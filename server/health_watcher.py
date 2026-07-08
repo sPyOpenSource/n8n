@@ -1,7 +1,6 @@
 """Hybrid health detection: passive (request outcomes) + active (probes)."""
 
 import threading
-import time
 import logging
 
 log = logging.getLogger(__name__)

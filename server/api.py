@@ -16,13 +16,9 @@ from copilot.providers.nvidia_provider import NvidiaProvider
 from copilot.providers.opencode_zen_provider import OpencodeZenProvider
 
 from .config import config
-from .openai_format import completion_response, new_id, sse_event, stream_chunk
+from .openai_format import new_id, sse_event, stream_chunk
 from .prompt import trim_messages
 from .ratelimit import TokenBucket
-from .model_config import ModelConfig
-from .score_keeper import ScoreKeeper
-from .selector import ProviderSelector
-from .health_watcher import HealthWatcher
 from .router import Router
 from .schemas import ChatCompletionRequest
 from .token_tracker import TokenTracker
@@ -62,24 +58,6 @@ def build_router() -> Router:
             log.warning("Provider %s failed to initialize: %s; skipping", name, exc)
     return Router.from_priority_list(providers, token_tracker=token_tracker)
 
-    # Check for explicit model-config file
-    model_config_path = config.get("MODEL_CONFIG_PATH")
-    mc = ModelConfig(model_config_path) if model_config_path else None
-    if mc and mc.all_models():
-        # Failsafe mode with explicit per-provider model mapping
-        prov_dict = {p.label: p for p in providers}
-        return Router(
-            providers=prov_dict,
-            model_config=mc,
-            score_keeper=ScoreKeeper(),
-            selector=ProviderSelector(),
-            health_watcher=HealthWatcher(),
-            token_tracker=token_tracker,
-        )
-
-    # Legacy mode: simple priority-ordered dispatch
-    return Router.from_priority_list(providers, token_tracker=token_tracker)
-
 
 # Global state
 token_tracker = TokenTracker()
@@ -88,7 +66,7 @@ rate_limiter = TokenBucket(config.get("RATE_LIMIT_RPM"), config.get("RATE_LIMIT_
 
 def reload_server_state():
     """Update router and rate limiter when config changes."""
-    global router, rate_limiter
+    global router
     log.info("Updating server state from new configuration...")
     router = build_router()
     rate_limiter.update_limits(config.get("RATE_LIMIT_RPM"), config.get("RATE_LIMIT_BURST"))
