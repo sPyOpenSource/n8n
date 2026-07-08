@@ -45,7 +45,6 @@ class CopilotProvider(AbstractProvider):
     def chat(
         self,
         messages: list[dict[str, Any]],
-        model: str,
         tools: list[dict[str, Any]] | None = None,
         tool_choice: str | dict[str, Any] | None = None,
         conversation_id: str | None = None,
@@ -57,7 +56,7 @@ class CopilotProvider(AbstractProvider):
             "id": "chatcmpl-copilot",
             "object": "chat.completion",
             "created": int(time.time()),
-            "model": model or self.default_model,
+            "model": self.default_model,
             "conversation_id": reply.conversation_id,
             "choices": [
                 {"index": 0, "message": {"role": "assistant", "content": reply.text}, "finish_reason": "stop"}
@@ -68,7 +67,6 @@ class CopilotProvider(AbstractProvider):
     def stream(
         self,
         messages: list[dict[str, Any]],
-        model: str,
         tools: list[dict[str, Any]] | None = None,
         tool_choice: str | dict[str, Any] | None = None,
         conversation_id: str | None = None,
@@ -81,24 +79,24 @@ class CopilotProvider(AbstractProvider):
         created = int(time.time())
         with self._lock:
             try:
-                yield sse_event(stream_chunk(cid, created, model, {"role": "assistant"}))
+                yield sse_event(stream_chunk(cid, created, self.default_model, {"role": "assistant"}))
                 stream = self._client.stream(prompt, conversation_id=conversation_id)
                 for piece in stream:
                     if isinstance(piece, str) and piece:
-                        yield sse_event(stream_chunk(cid, created, model, {"content": piece}))
+                        yield sse_event(stream_chunk(cid, created, self.default_model, {"content": piece}))
                 yield sse_event(
-                    stream_chunk(cid, created, model, {}, finish="stop",
+                    stream_chunk(cid, created, self.default_model, {}, finish="stop",
                                  conversation_id=stream.conversation_id)
                 )
             except ClearanceRequired:
                 yield sse_event(
-                    stream_chunk(cid, created, model,
+                    stream_chunk(cid, created, self.default_model,
                                  {"content": "\n[error: Cloudflare clearance expired]"},
                                  finish="error")
                 )
             except Exception as exc:
                 yield sse_event(
-                    stream_chunk(cid, created, model,
+                    stream_chunk(cid, created, self.default_model,
                                  {"content": f"\n[error: {exc}]"},
                                  finish="error")
                 )

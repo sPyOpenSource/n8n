@@ -68,7 +68,6 @@ class OllamaProvider(AbstractProvider):
     def chat(
         self,
         messages: list[dict[str, Any]],
-        model: str,
         tools: list[dict[str, Any]] | None = None,
         tool_choice: str | dict[str, Any] | None = None,
         conversation_id: str | None = None,
@@ -86,7 +85,7 @@ class OllamaProvider(AbstractProvider):
             "id": "chatcmpl-ollama",
             "object": "chat.completion",
             "created": int(time.time()),
-            "model": model or self.default_model,
+            "model": self.default_model,
             "choices": [
                 {"index": 0, "message": {"role": "assistant", "content": text}, "finish_reason": "stop"}
             ],
@@ -96,7 +95,6 @@ class OllamaProvider(AbstractProvider):
     def stream(
         self,
         messages: list[dict[str, Any]],
-        model: str,
         tools: list[dict[str, Any]] | None = None,
         tool_choice: str | dict[str, Any] | None = None,
         conversation_id: str | None = None,

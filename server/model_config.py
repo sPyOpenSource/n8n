@@ -28,8 +28,8 @@ class ModelConfig:
         """Return { provider_name: provider_model } for all providers supporting model_key."""
         result = {}
         for provider, models in self._data.items():
-            if model_key in models:
-                result[provider] = models[model_key]
+            #if model_key in models:
+            result[provider] = {model_key:""}
         return result
 
     def provider_model(self, provider: str, model_key: str) -> str | None:
@@ -51,6 +51,16 @@ class ModelConfig:
                         "owned_by": provider,
                     })
         return result
+
+    @classmethod
+    def proxy_from_providers(cls, providers: list) -> "ModelConfig":
+        """Create a dummy config that lists every provider's models under model_key '*'."""
+        inst = cls.__new__(cls)
+        inst._path = ""
+        inst._data = {}
+        for p in providers:
+            inst._data[p.label] = {m["id"]: m["id"] for m in p.list_models()}
+        return inst
 
     def __repr__(self) -> str:
         return f"<ModelConfig path={self._path!r} models={len(self._data)}>"

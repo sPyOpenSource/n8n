@@ -42,7 +42,7 @@ class OpenRouterProvider(AbstractProvider):
             for name in names
         ]
 
-    def _build_body(self, model: str, messages: list[dict[str, Any]], tools=None, tool_choice=None, stream=False) -> dict:
+    def _build_body(self, messages: list[dict[str, Any]], tools=None, tool_choice=None, stream=False) -> dict:
         body: dict[str, Any] = {
             "model": self.default_model,
             "messages": messages,
@@ -57,7 +57,6 @@ class OpenRouterProvider(AbstractProvider):
     def chat(
         self,
         messages: list[dict[str, Any]],
-        model: str,
         tools: list[dict[str, Any]] | None = None,
         tool_choice: str | dict[str, Any] | None = None,
         conversation_id: str | None = None,
@@ -65,7 +64,7 @@ class OpenRouterProvider(AbstractProvider):
         resp = self._client.post(
             f"{self._base_url}/chat/completions",
             headers=self._headers(),
-            json=self._build_body(model, messages, tools, tool_choice),
+            json=self._build_body(messages, tools, tool_choice),
         )
         self._handle_status(resp)
         return resp.json()
@@ -73,7 +72,6 @@ class OpenRouterProvider(AbstractProvider):
     def stream(
         self,
         messages: list[dict[str, Any]],
-        model: str,
         tools: list[dict[str, Any]] | None = None,
         tool_choice: str | dict[str, Any] | None = None,
         conversation_id: str | None = None,
@@ -82,7 +80,7 @@ class OpenRouterProvider(AbstractProvider):
             "POST",
             f"{self._base_url}/chat/completions",
             headers=self._headers(),
-            json=self._build_body(model, messages, tools, tool_choice, stream=True),
+            json=self._build_body(messages, tools, tool_choice, stream=True),
         ) as resp:
             self._handle_status(resp)
             for line in resp.iter_lines():

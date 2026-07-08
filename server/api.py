@@ -23,7 +23,7 @@ from .model_config import ModelConfig
 from .score_keeper import ScoreKeeper
 from .selector import ProviderSelector
 from .health_watcher import HealthWatcher
-from .router import Router, FailsafeRouter
+from .router import Router
 from .schemas import ChatCompletionRequest
 from .token_tracker import TokenTracker
 
@@ -32,7 +32,7 @@ app = FastAPI(title="Copilot OpenAI-compatible API", version="1.0.0")
 log = logging.getLogger(__name__)
 
 
-def _build_router() -> Router | FailsafeRouter:
+def build_router() -> Router:
     """Instantiate providers from config and return a Router."""
     registry = {
         "copilot": lambda: CopilotProvider(interactive_clear=False, headless_clear=False),
@@ -44,37 +44,6 @@ def _build_router() -> Router | FailsafeRouter:
         "opencode_zen": lambda: OpencodeZenProvider(),
     }
 
-    # Check for failsafe config
-    model_config_path = config.get("MODEL_CONFIG_PATH")
-    mc = ModelConfig(model_config_path) if model_config_path else ModelConfig("")
-    if mc.all_models():
-        # Failsafe mode: build provider map keyed by name
-        providers = {}
-        priority = config.get("PROVIDER_PRIORITY").split(",")
-        for name in [p.strip() for p in priority]:
-            factory = registry.get(name)
-            #if factory is None:
-            #    log.warning("Unknown provider %r; skipping", name)
-            #    continue
-            try:
-                p = factory()
-                if p.is_available():
-                    providers[name] = p
-                    log.info("Provider %s: available (%d models)", p.label, len(p.list_models()))
-                else:
-                    log.info("Provider %s: not available (skipping)", p.label)
-            except Exception as exc:
-                log.warning("Provider %s failed: %s", name, exc)
-        return FailsafeRouter(
-            providers=providers,
-            model_config=mc,
-            score_keeper=ScoreKeeper(),
-            selector=ProviderSelector(),
-            health_watcher=HealthWatcher(),
-            token_tracker=token_tracker,
-        )
-
-    # Legacy mode: priority-ordered list
     providers = []
     priority = config.get("PROVIDER_PRIORITY").split(",")
     for name in [p.strip() for p in priority]:
@@ -91,22 +60,38 @@ def _build_router() -> Router | FailsafeRouter:
                 log.info("Provider %s: not available (skipping)", p.label)
         except Exception as exc:
             log.warning("Provider %s failed to initialize: %s; skipping", name, exc)
-    if not providers:
-        log.warning("No providers available — server will reject all requests")
-    return Router(providers, token_tracker=token_tracker)
+    return Router.from_priority_list(providers, token_tracker=token_tracker)
+
+    # Check for explicit model-config file
+    model_config_path = config.get("MODEL_CONFIG_PATH")
+    mc = ModelConfig(model_config_path) if model_config_path else None
+    if mc and mc.all_models():
+        # Failsafe mode with explicit per-provider model mapping
+        prov_dict = {p.label: p for p in providers}
+        return Router(
+            providers=prov_dict,
+            model_config=mc,
+            score_keeper=ScoreKeeper(),
+            selector=ProviderSelector(),
+            health_watcher=HealthWatcher(),
+            token_tracker=token_tracker,
+        )
+
+    # Legacy mode: simple priority-ordered dispatch
+    return Router.from_priority_list(providers, token_tracker=token_tracker)
 
 
 # Global state
 token_tracker = TokenTracker()
-router = _build_router()
-_rate_limiter = TokenBucket(config.get("RATE_LIMIT_RPM"), config.get("RATE_LIMIT_BURST"))
+router = build_router()
+rate_limiter = TokenBucket(config.get("RATE_LIMIT_RPM"), config.get("RATE_LIMIT_BURST"))
 
 def reload_server_state():
     """Update router and rate limiter when config changes."""
-    global router, _rate_limiter
+    global router, rate_limiter
     log.info("Updating server state from new configuration...")
-    router = _build_router()
-    _rate_limiter.update_limits(config.get("RATE_LIMIT_RPM"), config.get("RATE_LIMIT_BURST"))
+    router = build_router()
+    rate_limiter.update_limits(config.get("RATE_LIMIT_RPM"), config.get("RATE_LIMIT_BURST"))
 
 config.on_reload(reload_server_state)
 
@@ -117,8 +102,8 @@ _CLEARANCE_HELP = (
 )
 
 
-def _rate_limited_response():
-    allowed, wait = _rate_limiter.try_acquire()
+def rate_limited_response():
+    allowed, wait = rate_limiter.try_acquire()
     if allowed:
         return None
     secs = max(1, round(wait))
@@ -134,18 +119,18 @@ def _rate_limited_response():
     )
 
 
-def _stream(messages: list, model: str, conversation_id=None, tools=None, tool_choice=None):
+def stream(messages: list, conversation_id=None, tools=None, tool_choice=None):
     cid = new_id()
     created = int(__import__("time").time())
     try:
-        yield from router.stream(messages, model=model or config.get("MODEL_NAME"), tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
+        yield from router.stream(messages, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
     except ClearanceRequired:
         yield sse_event(
-            stream_chunk(cid, created, model, {"content": f"\n[error: {_CLEARANCE_HELP}]"}, finish="error")
+            stream_chunk(cid, created, router.default_model, {"content": f"\n[error: {_CLEARANCE_HELP}]"}, finish="error")
         )
     except Exception as exc:
         yield sse_event(
-            stream_chunk(cid, created, model, {"content": f"\n[error: {exc}]"}, finish="error")
+            stream_chunk(cid, created, router.default_model, {"content": f"\n[error: {exc}]"}, finish="error")
         )
 
 
@@ -200,19 +185,18 @@ def chat_completions(req: ChatCompletionRequest):
             content={"error": {"message": "no text content in messages", "type": "invalid_request_error"}},
         )
     #print(f"Chat messages={messages}, tools={len(tools) if tools else 0}, tool_choice={tool_choice}")
-    model = req.model or config.get("MODEL_NAME")
-    limited = _rate_limited_response()
+    limited = rate_limited_response()
     if limited is not None:
         return limited
 
     if req.stream:
         return StreamingResponse(
-            _stream(messages, model, req.conversation_id, tools=tools, tool_choice=tool_choice),
+            stream(messages, req.conversation_id, tools=tools, tool_choice=tool_choice),
             media_type="text/event-stream",
         )
 
     try:
-        result = router.chat(messages, model=model, tools=tools, tool_choice=tool_choice, conversation_id=req.conversation_id)
+        result = router.chat(messages, tools=tools, tool_choice=tool_choice, conversation_id=req.conversation_id)
     except ClearanceRequired:
         return JSONResponse(
             status_code=503,
