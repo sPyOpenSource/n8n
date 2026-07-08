@@ -6,8 +6,6 @@ from typing import Any
 import httpx
 
 from .base import AbstractProvider
-from server.config import config
-from ..utils import drain_json
 
 class GoogleProvider(AbstractProvider):
     """Provider backed by Google's Gemini API (OpenAI-compatible endpoint)."""

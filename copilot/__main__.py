@@ -5,10 +5,6 @@
 """
 
 import sys
-import nest_asyncio
-
-# Sta geneste asyncio loops toe voor Playwright Sync
-#nest_asyncio.apply()
 
 def main(argv) -> int:
     cmd = argv[0] if argv else "ask"
