@@ -126,11 +126,11 @@ def stream(messages: list, conversation_id=None, tools=None, tool_choice=None):
         yield from router.stream(messages, tools=tools, tool_choice=tool_choice, conversation_id=conversation_id)
     except ClearanceRequired:
         yield sse_event(
-            stream_chunk(cid, created, router.default_model, {"content": f"\n[error: {_CLEARANCE_HELP}]"}, finish="error")
+            stream_chunk(cid, created, "copilot", {"content": f"\n[error: {_CLEARANCE_HELP}]"}, finish="error")
         )
     except Exception as exc:
         yield sse_event(
-            stream_chunk(cid, created, router.default_model, {"content": f"\n[error: {exc}]"}, finish="error")
+            stream_chunk(cid, created, "copilot", {"content": f"\n[error: {exc}]"}, finish="error")
         )
 
 
