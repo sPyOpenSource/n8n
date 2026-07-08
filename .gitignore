@@ -7,7 +7,6 @@ venv/
 # All session state: persistent browser profile (cookies, Cloudflare
 # clearance, sign-in) + cached auth token. Secret.
 session/
-docs/
 
 # Local config / secrets
 config.json
