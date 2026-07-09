@@ -21,7 +21,7 @@ class GoogleProvider(AbstractProvider):
         super().__init__()
         # Lazy import to avoid circular dependency at module load time.
         from server.config import config  # noqa: PLC0415
-        self._api_key = config.get("GOOGLE_API_KEY") or os.environ.get("GOOGLE_API_KEY", "")
+        self._api_key = os.environ.get("GOOGLE_API_KEY", config.get("GOOGLE_API_KEY"))
         self._base_url = (base_url or os.environ.get("GOOGLE_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai")).rstrip("/")
         self._models_str = os.environ.get("GOOGLE_MODELS", "gemini-1.5-flash,gemini-1.5-pro,gemini-1.0-pro")
         self._client = httpx.Client(timeout=120.0)

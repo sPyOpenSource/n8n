@@ -43,6 +43,7 @@ class ConfigManager:
                 self.DEFAULTS.update({"NVIDIA_API_KEY": file_config.get("nvidia").get("key")})
                 self.DEFAULTS.update({"OPENROUTER_API_KEY": file_config.get("openrouter").get("key")})
                 self.DEFAULTS.update({"OPENCODE_ZEN_API_KEY": file_config.get("opencode").get("key")})
+                return self.DEFAULTS
                 final.update({k: v for k, v in file_config.items() if k in self.DEFAULTS})
         except (FileNotFoundError, json.JSONDecodeError):
             pass
