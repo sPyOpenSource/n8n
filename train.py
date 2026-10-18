@@ -381,3 +381,25 @@ print(f"num_steps:        {step}")
 print(f"num_params_M:     {num_params / 1e6:.1f}")
 print(f"n_layer:          {N_LAYER}")
 print(f"n_embd:           {N_EMBD}")
+
+# Save model
+import pickle
+import json
+
+os.makedirs("saved_models", exist_ok=True)
+params = dict(tree_flatten(model.parameters()))
+with open("saved_models/model.pkl", "wb") as f:
+    pickle.dump(params, f)
+config_dict = {
+    "block_size": config.block_size,
+    "vocab_size": config.vocab_size,
+    "n_layer": config.n_layer,
+    "n_head": config.n_head,
+    "n_embd": config.n_embd,
+    "val_bpb": val_bpb,
+    "num_steps": step,
+    "total_tokens_M": total_tokens / 1e6,
+}
+with open("saved_models/config.json", "w") as f:
+    json.dump(config_dict, f, indent=2)
+print(f"Model saved to saved_models/ (val_bpb={val_bpb:.6f})")
