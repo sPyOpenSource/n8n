@@ -1,5 +1,6 @@
 """
-nanoGPT-style pretraining on TinyStories with MLX.
+Byte-level nanoGPT-style pretraining on TinyStories with MLX.
+No tokenizer — raw UTF-8 bytes are model input directly.
 """
 
 import gc
@@ -12,7 +13,7 @@ import mlx.core as mx
 import mlx.nn as nn
 from mlx.utils import tree_flatten, tree_map
 
-from prepare import MAX_SEQ_LEN, TIME_BUDGET, Tokenizer, evaluate_bpb, make_dataloader
+from prepare import MAX_SEQ_LEN, TIME_BUDGET, evaluate_bpb, make_dataloader
 
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 
@@ -20,7 +21,7 @@ os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 @dataclass
 class GPTConfig:
     block_size: int = 512
-    vocab_size: int = 4096
+    vocab_size: int = 256  # one token per raw UTF-8 byte
     n_layer: int = 6
     n_head: int = 6
     n_embd: int = 384
@@ -253,16 +254,14 @@ def get_lr_multiplier(progress):
 t_start = time.time()
 mx.random.seed(42)
 
-tokenizer = Tokenizer.from_directory()
-vocab_size = tokenizer.get_vocab_size()
-train_loader = make_dataloader(tokenizer, DEVICE_BATCH_SIZE, MAX_SEQ_LEN, "train")
+train_loader = make_dataloader(DEVICE_BATCH_SIZE, MAX_SEQ_LEN, "train")
 x, y, epoch = next(train_loader)
 t_data = time.time()
-print(f"Data/tokenizer loaded in {t_data - t_start:.1f}s")
+print(f"Data loaded in {t_data - t_start:.1f}s")
 
 config = GPTConfig(
     block_size=MAX_SEQ_LEN,
-    vocab_size=vocab_size,
+    vocab_size=256,
     n_layer=N_LAYER,
     n_head=N_HEAD,
     n_embd=N_EMBD,
@@ -288,6 +287,7 @@ loss_grad_fn = nn.value_and_grad(model, lambda model, inputs, targets: model(inp
 
 print(f"Time budget: {TIME_BUDGET}s")
 print(f"Gradient accumulation steps: {grad_accum_steps}")
+print(f"Vocab size: 256 (byte-level)")
 
 smooth_train_loss = 0.0
 total_training_time = 0.0
@@ -363,7 +363,7 @@ print(f"Training completed in {t_train - t_compiled:.1f}s")
 total_tokens = step * TOTAL_BATCH_SIZE
 print("Starting final eval...")
 print(f"Final eval batch size: {FINAL_EVAL_BATCH_SIZE}")
-val_bpb = evaluate_bpb(model, tokenizer, FINAL_EVAL_BATCH_SIZE)
+val_bpb = evaluate_bpb(model, FINAL_EVAL_BATCH_SIZE)
 t_eval = time.time()
 print(f"Final eval completed in {t_eval - t_train:.1f}s")
 
