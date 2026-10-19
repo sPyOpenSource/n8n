@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2: Byte-Level Input</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .demo { background: var(--code-bg); padding: 1rem; border-radius: 4px; margin: 1rem 0; font-size: 0.85rem; }
+  .exercise { background: var(--accent-light); border-radius: 6px; padding: 1rem 1.25rem; margin: 1.25rem 0; }
+  .exercise code { background: var(--bg); }
+  .comparison-table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+  .comparison-table th, .comparison-table td { border: 1px solid var(--border); padding: 0.5rem; text-align: left; }
+  .comparison-table tr:nth-child(even) { background: var(--accent-light); }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="../lessons/0001-word-level-markov.html">← Lesson 1: Markov Models</a>
+  <a href="../reference/byte-level-input.html">Reference</a>
+  <a href="../MISSION.md">Mission</a>
+</div>
+
+<h1>Byte-Level Input</h1>
+<p class="sidenote">Lesson 2 &middot; Raw UTF-8 bytes as language model tokens</p>
+
+<h2>Why This Matters</h2>
+
+<p>In Lesson 1, we built a Markov model to generate synthetic stories fast. But there's another speed lever: <strong>how the SLM itself reads text.</strong></p>
+
+<p>Most language models use BPE tokenization — a learned vocabulary of subword units (e.g., 4,096 tokens). This requires training and shipping a separate tokenizer. The alternative is <strong>byte-level input</strong>: every raw UTF-8 byte (0–255) is its own token. No tokenizer needed. Vocab is fixed at 256.</p>
+
+<p>This matters for your mission because byte-level input simplifies the entire pipeline — `prepare.py` drops the tokenizer entirely, and `train.py` becomes smaller and faster to train per step.</p>
+
+<h2>The Core Idea</h2>
+
+<p>Byte-level means no tokenization at all. You take the raw bytes of a text file and feed them directly to the model:</p>
+
+<div class="demo">
+<strong>"Cat"</code> → UTF-8 bytes → <code>[67, 97, 116]</code> → token IDs <code>[67, 97, 116]</code>
+</div>
+
+<p>The embedding layer (<code>wte</code>) maps each byte value 0–255 to an embedding vector, just like it would map a BPE token ID. The rest of the model (attention, MLP, LM head) is unchanged — it just sees more, smaller tokens.</p>
+
+<h2>Byte-Level vs BPE</h2>
+
+<table class="comparison-table">
+  <tr>
+    <th>Aspect</th>
+    <th>Byte-Level</th>
+    <th>BPE (4,096)</th>
+  </tr>
+  <tr>
+    <td>Vocab size</td>
+    <td><strong>256</strong> (fixed)</td>
+    <td><strong>4,096</strong> (trained)</td>
+  </tr>
+  <tr>
+    <td>Tokenizer needed?</td>
+    <td><strong>No</strong></td>
+    <td><strong>Yes</strong> — train + save + load</td>
+  </tr>
+  <tr>
+    <td>Tokens per word</td>
+    <td><strong>~3–5</strong> (one per byte)</td>
+    <td><strong>~1–2</strong> (subword units)</td>
+  </tr>
+  <tr>
+    <td>Unicode coverage</td>
+    <td><strong>Universal</strong> — any UTF-8 works</td>
+    <td><strong>Limited</strong> — unknown bytes → <code>UNK</code></td>
+  </tr>
+  <tr>
+    <td>What model learns</td>
+    <td><strong>Characters → words → grammar</strong> from scratch</td>
+    <td><strong>Subword patterns</strong> are pre-defined</td>
+  </tr>
+</table>
+
+<h2>The Trade-Off</h2>
+
+<p>Byte-level sequences are <strong>longer</strong> — a 5-word story might be 50+ bytes instead of 10–15 BPE tokens. This means more compute per story. But each step is cheaper (smaller embedding table), and you skip tokenizer overhead entirely.</p>
+
+<p>In our experiments on Apple Silicon:</p>
+
+<table class="comparison-table">
+  <tr>
+    <th>Setup</th>
+    <th>val_bpb</th>
+    <th>Steps (5 min)</th>
+    <th>tok/sec</th>
+    <th>VRAM</th>
+  </tr>
+  <tr>
+    <td>BPE (vocab=4,096)</td>
+    <td>1.592583</td>
+    <td>83</td>
+    <td>~9,600</td>
+    <td>3.8 GB</td>
+  </tr>
+  <tr>
+    <td><strong>Byte-level (vocab=256)</strong></td>
+    <td><strong>1.922753</strong></td>
+    <td><strong>203</strong></td>
+    <td><strong>~22,000</strong></td>
+    <td><strong>2.0 GB</strong></td>
+  </tr>
+</table>
+
+<p>The byte-level model fits <strong>2.4× more steps</strong> into the same 5-minute budget, uses <strong>47% less memory</strong>, but has a higher val_bpb because it must learn word structure from raw bytes. For small models on memory-constrained hardware, byte-level is often the better trade-off.</p>
+
+<h2>What Changes in the Code</h2>
+
+<p><strong>prepare.py:</strong> Remove <code>rustbpe</code>, <code>tiktoken</code>, the <code>Tokenizer</code> class, and `train_tokenizer()`. Replace with a simple <code>text.encode("utf-8")</code> → list of ints. `make_dataloader` no longer takes a tokenizer argument.</p>
+
+<p><strong>train.py:</strong> Set `vocab_size = 256`. Remove the `Tokenizer` import and instantiation. `make_dataloader(batch_size, MAX_SEQ_LEN, "train")` — no tokenizer arg. `evaluate_bpb(model, batch_size)` — no tokenizer needed; every target byte has length 1.</p>
+
+<h2>Exercise: Convert a String to Byte Tokens</h2>
+
+<div class="exercise">
+  <p><strong>Your turn.</strong> Write a function that converts text to byte-level token IDs and back. Then test it on a TinyStories sentence.</p>
+
+  <ol>
+    <li>Encode "Hello, world!" to UTF-8 bytes</li>
+    <td>Verify each value is 0–255</td>
+    <li>Decode the bytes back to text</td>
+    <td>Verify roundtrip: <code>decode(encode(s)) == s</code></li>
+  </ol>
+
+  <p>Run this to test:</p>
+  <pre><code>text = "Hello, world!"
+byte_tokens = list(text.encode("utf-8"))
+print(f"Tokens: {byte_tokens}")
+print(f"Count: {len(byte_tokens)} tokens (vs ~3 BPE tokens)")
+print(f"Range: {min(byte_tokens)}–{max(byte_tokens)}")
+
+# Roundtrip
+decoded = bytes(byte_tokens).decode("utf-8")
+print(f"Roundtrip OK: {decoded == text}")
+
+# What a BPE tokenizer might produce instead:
+# "Hello" → [15496], "," → [11], " world" → [2789], "!" → [0]
+# Total: 4 tokens vs 13 byte tokens
+</code></pre>
+</div>
+
+<div class="quiz">
+  <p><strong>Check your understanding</strong></p>
+
+  <div>
+    <p>1. What vocab size does byte-level input use?</p>
+    <button class="quiz-option" onclick="answer(this, false)">4096</button>
+    <button class="quiz-option" onclick="answer(this, true)">256</button>
+    <button class="quiz-option" onclick="answer(this, false)">65536</button>
+    <div class="quiz-feedback">Correct! One token per possible byte value (0–255).</div>
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <p>2. Byte-level sequences are typically:</p>
+    <button class="quiz-option" onclick="answer(this, true)">longer</button>
+    <button class="quiz-option" onclick="answer(this, false)">shorter</button>
+    <button class="quiz-option" onclick="answer(this, false)">same</button>
+    <div class="quiz-feedback">Correct! Each byte is a token, so a word like "hello" becomes 5 tokens instead of 1–2 BPE tokens.</div>
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <p>3. The byte-level model must learn:</p>
+    <button class="quiz-option" onclick="answer(this, true)">word structure</button>
+    <button class="quiz-option" onclick="answer(this, false)">byte patterns</button>
+    <button class="quiz-option" onclick="answer(this, false)">token rules</button>
+    <div class="quiz-feedback">Correct! With no subword units pre-defined, the model must discover word boundaries from raw bytes.</div>
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <p>4. Byte-level input eliminates the need for:</p>
+    <button class="quiz-option" onclick="answer(this, true)">tokenizer</button>
+    <button class="quiz-option" onclick="answer(this, false)">embedding</button>
+    <button class="quiz-option" onclick="answer(this, false)">attention</button>
+    <div class="quiz-feedback">Correct! No tokenizer to train, save, or load — raw bytes go straight into the embedding layer.</div>
+  </div>
+</div>
+
+<h2>What's Next</h2>
+
+<p>In the next lesson, we'll:</p>
+<ul>
+  <li>Combine byte-level input with Markov synthetic data — does the simpler input make synthetic augmentation more effective?</li>
+  <li>Explore whether byte-level models benefit more or less from synthetic data than BPE models</li>
+  <li>Look at whether temperature sampling helps byte-level generation</li>
+</ul>
+
+<h2>Further Reading</h2>
+<ul>
+  <li><a href="../reference/byte-level-input.html">Reference: Byte-Level Input</a> — cheat sheet with code, comparisons, and results</li>
+  <li><a href="https://web.stanford.edu/~jurafsky/slp3/3.pdf">Jurafsky &amp; Martin Ch. 3: N-gram Language Models</a> — covers tokenization approaches</li>
+  <li><a href="https://huggingface.co/docs/tokenizers">HuggingFace Tokenizers documentation</a> — for comparison with BPE</li>
+</ul>
+
+<p><em>Ask followup questions to your agent — anything unclear is worth discussing.</em></p>
+
+<script>
+function answer(btn, correct) {
+    var parent = btn.parentElement;
+    var buttons = parent.querySelectorAll('.quiz-option');
+    var feedback = parent.querySelector('.quiz-feedback');
+    buttons.forEach(function(b) { b.disabled = true; });
+    btn.className = 'quiz-option ' + (correct ? 'correct' : 'wrong');
+    feedback.className = 'quiz-feedback show';
+}
+</script>
+
+</body>
+</html>

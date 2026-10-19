@@ -8,6 +8,7 @@ I want to generate synthetic children's stories to augment the TinyStories datas
 - Generate 10K+ synthetic stories in under 60 seconds
 - Integrate the synthetic data into the SLM training pipeline
 - Understand when a Markov model is the right tool vs. when a neural approach is needed
+- Understand byte-level input for the SLM (raw UTF-8 bytes as tokens, vocab=256 vs BPE's 4096)
 
 ## Constraints
 - Must run on Apple Silicon (MLX ecosystem)
@@ -16,5 +17,4 @@ I want to generate synthetic children's stories to augment the TinyStories datas
 
 ## Out of scope
 - Character-level Markov models (word-level is the focus)
-- Neural language model architecture details
 - Production-grade text generation systems

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3: Bits Per Byte (bpb)</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+    text-align: center;
+    margin: 0.75rem 0;
+  }
+  .worked {
+    background: var(--accent-light);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+  }
+  .worked table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; }
+  .worked th, .worked td { border: 1px solid var(--border); padding: 0.4rem 0.6rem; text-align: left; }
+  .worked tr:nth-child(even) { background: var(--bg); }
+  .highlight { background: var(--code-bg); padding: 0.15em 0.4em; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="../lessons/0001-word-level-markov.html">← Lesson 1: Markov Models</a>
+  <a href="../lessons/0002-byte-level-input.html">Lesson 2: Byte-Level Input</a>
+  <a href="../reference/bits-per-byte.html">Reference</a>
+  <a href="../MISSION.md">Mission</a>
+</div>
+
+<h1>Bits Per Byte (bpb)</h1>
+<p class="sidenote">Lesson 3 &middot; How to measure byte-level model quality fairly</p>
+
+<h2>Why This Matters</h2>
+
+<p>In Lesson 2 you ran experiments and saw <code>val_bpb</code>: BPE = 1.59, byte-level = 1.92. But what does that number actually mean? And can you compare it directly to BPE's perplexity?</p>
+
+<p>bpb is the metric that lets you compare a byte-level model against a BPE model <strong>fairly</strong> — exactly the comparison you need to decide whether byte-level input is worth the quality trade-off for your synthetic story generator.</p>
+
+<h2>The Core Idea</h2>
+
+<p><strong>bpb (bits per byte)</strong> is the average number of bits the model needs to encode each byte of text, given its predictions. Lower is better — fewer bits means the model is less surprised by the data.</p>
+
+<p>It's the byte-level analog of perplexity. Where perplexity asks "how many tokens is the model choosing among?", bpb asks "how many bits per byte does the model need?"</p>
+
+<div class="formula">bpb = −log₂ P(x) / |bytes| = cross-entropy (bits) ÷ bytes</div>
+
+<p>In practice, training frameworks report cross-entropy loss in <em>nats</em> (natural log). For a byte-level model, every token is exactly one byte, so:</p>
+
+<div class="formula">bpb = loss_nats ÷ ln(2)</div>
+
+<h2>Worked Example — Your Own Results</h2>
+
+<div class="worked">
+<p>From your Lesson 2 experiments (Apple Silicon, 5-minute budget):</p>
+
+<table>
+  <tr><th>Setup</th><th>val_bpb</th><th>Steps</th><th>VRAM</th></tr>
+  <tr><td>BPE (vocab=4,096)</td><td>1.592583</td><td>83</td><td>3.8 GB</td></tr>
+  <tr><td>Byte-level (vocab=256)</td><td>1.922753</td><td>203</td><td>2.0 GB</td></tr>
+</table>
+
+<p>Convert bpb to "per-byte perplexity" — how many bytes the model is effectively choosing among at each position:</p>
+
+<div class="formula">perplexity per byte = 2^bpb</div>
+
+<ul>
+  <li>BPE: 2^1.59 ≈ <strong>3.0 bytes</strong></li>
+  <li>byte-level: 2^1.92 ≈ <strong>3.8 bytes</strong></li>
+</ul>
+
+<p>Interpretation: at each position, the byte-level model is about as uncertain as picking among ~4 bytes; BPE picks among ~3. The byte-level model is slightly more surprised — consistent with it having to learn word structure from raw bytes.</p>
+
+<p>Sanity check: a model that guesses uniformly at random among 256 bytes needs <strong>log₂(256) = 8 bpb</strong>. Your 1.92 is far below 8, so the model has clearly learned real structure.</p>
+</div>
+
+<h2>Why Not Just Use Perplexity?</h2>
+
+<p>Perplexity is normalized per <em>token</em>. But BPE tokens and bytes are different units: one BPE token can be 1 byte ("a") or several bytes (an emoji). Comparing raw perplexity across tokenizers is like comparing miles-per-gallon to liters-per-100km — the units differ.</p>
+
+<p>bpb normalizes by <em>bytes</em>, which is intrinsic to the text and tokenizer-independent. That's why Gao et al. (2020, <em>The Pile</em>) proposed bpb as the standard way to compare models with different tokenizations.</p>
+
+<p>In your <code>evaluate_bpb</code>, the byte-level case is simple: every target is one byte, so no byte-length lookup is needed. That's the change you made when you removed the tokenizer — <code>evaluate_bpb</code> no longer needs a <code>token_bytes</code> lookup because every target byte has length 1.</p>
+
+<h2>What bpb Tells You About Your Mission</h2>
+
+<ul>
+  <li><strong>bpb lets you compare byte-level vs BPE model quality on equal terms.</strong> You can't compare their raw perplexities, but you can compare their bpb.</li>
+  <li>Lower bpb = better compression = better next-byte prediction = generally better downstream generation.</li>
+  <li>Byte-level trades ~0.33 bpb of quality for ~2.4× more training steps per minute and half the VRAM — often worth it on memory-constrained Apple Silicon.</li>
+</ul>
+
+<h2>Check Your Understanding</h2>
+
+<div class="quiz">
+  <p><strong>Quiz</strong></p>
+
+  <div>
+    <p>1. Lower bpb means the model is:</p>
+    <button class="quiz-option" onclick="answer(this, true)">less</button>
+    <button class="quiz-option" onclick="answer(this, false)">more</button>
+    <button class="quiz-option" onclick="answer(this, false)">equal</button>
+    <div class="quiz-feedback">Correct! Fewer bits per byte = less surprise = better predictions.</div>
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <p>2. bpb normalizes perplexity by:</p>
+    <button class="quiz-option" onclick="answer(this, true)">bytes</button>
+    <button class="quiz-option" onclick="answer(this, false)">tokens</button>
+    <button class="quiz-option" onclick="answer(this, false)">chars</button>
+    <div class="quiz-feedback">Correct! bpb divides by bytes, which is intrinsic to the text and tokenizer-independent.</div>
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <p>3. Uniform random guessing over 256 bytes gives bpb:</p>
+    <button class="quiz-option" onclick="answer(this, true)">eight</button>
+    <button class="quiz-option" onclick="answer(this, false)">four</button>
+    <button class="quiz-option" onclick="answer(this, false)">sixteen</button>
+    <div class="quiz-feedback">Correct! log₂(256) = 8. Your 1.92 is far below that, so the model learned real structure.</div>
+  </div>
+
+  <div style="margin-top: 1rem;">
+    <p>4. For byte-level models, 1 token = :</p>
+    <button class="quiz-option" onclick="answer(this, true)">one</button>
+    <button class="quiz-option" onclick="answer(this, false)">two</button>
+    <button class="quiz-option" onclick="answer(this, false)">four</button>
+    <div class="quiz-feedback">Correct! One byte = one token, so no byte-length lookup is needed in <code>evaluate_bpb</code>.</div>
+  </div>
+</div>
+
+<h2>Further Reading</h2>
+
+<ul>
+  <li><a href="../reference/bits-per-byte.html">Reference: Bits Per Byte</a> — formula, worked example, quick reference</li>
+  <li><a href="https://arxiv.org/abs/2101.00027">Gao et al. (2020), The Pile</a> — primary source that introduced bpb as a tokenizer-agnostic language-model metric</li>
+  <li><a href="../reference/byte-level-input.html">Reference: Byte-Level Input</a> — your experiment setup and results</li>
+</ul>
+
+<p><em>Ask followup questions to your agent — anything unclear is worth discussing.</em></p>
+
+<script>
+function answer(btn, correct) {
+    var parent = btn.parentElement;
+    var buttons = parent.querySelectorAll('.quiz-option');
+    var feedback = parent.querySelector('.quiz-feedback');
+    buttons.forEach(function(b) { b.disabled = true; });
+    btn.className = 'quiz-option ' + (correct ? 'correct' : 'wrong');
+    feedback.className = 'quiz-feedback show';
+}
+</script>
+
+</body>
+</html>

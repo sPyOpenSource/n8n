@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bits Per Byte — Reference</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .algo { background: var(--code-bg); padding: 1rem; border-radius: 4px; margin: 0.75rem 0; font-size: 0.85rem; }
+  .algo ol { margin: 0 0 0 1.2rem; }
+  .algo li { margin-bottom: 0.4rem; }
+  .formula { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; padding: 0.5rem 0; text-align: center; }
+</style>
+</head>
+<body>
+
+<p class="sidenote">Reference — bits per byte (bpb), the tokenizer-agnostic LM quality metric. See <a href="../lessons/0003-bits-per-byte.html">Lesson 3</a>.</p>
+
+<h1>Bits Per Byte (bpb)</h1>
+
+<h2>Core Idea</h2>
+
+<p>bpb is the average number of bits needed to encode each byte of text, given the model's predictions. Lower is better. It's the byte-level analog of perplexity — tokenizer-independent, so you can fairly compare byte-level (vocab=256) and BPE (vocab=4,096) models.</p>
+
+<div class="formula">bpb = −log₂ P(x) / |bytes| = cross-entropy (bits) ÷ bytes</div>
+
+<p>With cross-entropy loss in nats (as frameworks report it):</p>
+
+<div class="formula">bpb = loss_nats ÷ ln(2) &nbsp;&nbsp;·&nbsp;&nbsp; (byte-level: 1 token = 1 byte)</div>
+
+<div class="formula">perplexity per byte = 2^bpb</div>
+
+<h2>Random-Baseline Bound</h2>
+
+<p>Uniform guessing over 256 bytes: <strong>bpb = log₂(256) = 8</strong>. Any trained model should be well below 8.</p>
+
+<h2>Why bpb, Not Perplexity?</h2>
+
+<p>Perplexity is per-token. Tokens differ across tokenizers (1 BPE token = 1–6+ bytes). bpb divides by bytes — intrinsic to the text — enabling fair cross-tokenizer comparison. Proposed by Gao et al. (2020, The Pile).</p>
+
+<h2>Your Results (Apple Silicon, 5-min budget)</h2>
+
+<table style="width:100%; border-collapse: collapse; margin: 0.75rem 0;">
+  <tr style="border-bottom: 1px solid var(--border);">
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Setup</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">val_bpb</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">2^bpb (per-byte PPL)</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Steps</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">VRAM</th>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">BPE (vocab=4,096)</td>
+    <td style="padding:0.3rem 0.5rem;">1.592583</td>
+    <td style="padding:0.3rem 0.5rem;">≈ 3.0</td>
+    <td style="padding:0.3rem 0.5rem;">83</td>
+    <td style="padding:0.3rem 0.5rem;">3.8 GB</td>
+  </tr>
+  <tr>
+    <td style="padding:0.3rem 0.5rem;">Byte-level (vocab=256)</td>
+    <td style="padding:0.3rem 0.5rem;">1.922753</td>
+    <td style="padding:0.3rem 0.5rem;">≈ 3.8</td>
+    <td style="padding:0.3rem 0.5rem;">203</td>
+    <td style="padding:0.3rem 0.5rem;">2.0 GB</td>
+  </tr>
+</table>
+
+<h2>Implementation Note</h2>
+
+<p>In <code>evaluate_bpb</code> for the byte-level model, every target token is one byte, so there's no <code>token_bytes</code> lookup — unlike BPE, where you must divide by each token's byte length.</p>
+
+<div class="footer">
+  <p>Primary source: <a href="https://arxiv.org/abs/2101.00027">Gao et al. (2020), The Pile</a> &middot; <a href="../lessons/0003-bits-per-byte.html">Lesson 3: Bits Per Byte</a></p>
+</div>
+
+</body>
+</html>

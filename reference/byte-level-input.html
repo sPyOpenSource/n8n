@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Byte-Level Input — Reference</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<div class="nav">
+  <a href="../lessons/0001-word-level-markov.html">Lesson 1</a>
+  <a href="../lessons/0002-byte-level-input.html">Lesson 2</a>
+  <a href="../MISSION.md">Mission</a>
+</div>
+
+<h1>Byte-Level Input</h1>
+<p class="sidenote">Reference — raw UTF-8 bytes as language model tokens. See <a href="../lessons/0002-byte-level-input.html">Lesson 2</a>.</p>
+
+<h2>Core Idea</h2>
+<p>Instead of tokenizing text into subword units (BPE, WordPiece, etc.), a byte-level model treats every raw UTF-8 byte (0–255) as a separate token. The vocabulary is fixed at <strong>256</strong> — one token per possible byte value.</p>
+
+<h2>Byte-Level vs BPE Tokenization</h2>
+
+<table style="width:100%; border-collapse: collapse; margin: 0.75rem 0;">
+  <tr style="border-bottom: 1px solid var(--border);">
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Aspect</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Byte-Level</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">BPE (e.g., 4096)</th>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">Vocab size</td>
+    <td style="padding:0.3rem 0.5rem;">256 (fixed)</td>
+    <td style="padding:0.3rem 0.5rem;">4,096+ (trained)</td>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">Tokenizer needed?</td>
+    <td style="padding:0.3rem 0.5rem;">No</td>
+    <td style="padding:0.3rem 0.5rem;">Yes — must train &amp; ship</td>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">Sequence length</td>
+    <td style="padding:0.3rem 0.5rem;">Longer (~3-4× more tokens per word)</td>
+    <td style="padding:0.3rem 0.5rem;">Shorter</td>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">Unicode support</td>
+    <td style="padding:0.3rem 0.5rem;">Universal — any UTF-8 text works</td>
+    <td style="padding:0.3rem 0.5rem;">Limited to training vocab</td>
+  </tr>
+  <tr>
+    <td style="padding:0.3rem 0.5rem;">What model learns</td>
+    <td style="padding:0.3rem 0.5rem;">Characters → words → grammar from scratch</td>
+    <td style="padding:0.3rem 0.5ref;">Subword patterns are pre-defined</td>
+  </tr>
+</table>
+
+<h2>How It Works</h2>
+
+<div style="background: var(--code-bg); padding: 1rem; border-radius: 4px; margin: 0.75rem 0; font-size: 0.85rem;">
+<strong>Encoding:</strong><br>
+<code>"Hi"</code> → bytes <code>[72, 105]</code> → token IDs <code>[72, 105]</code><br><br>
+<strong>Embedding:</strong><br>
+<code>wte.weight[72]</code> → 384-dim vector for 'H'<br>
+<code>wte.weight[105]</code> → 384-dim vector for 'i'
+</div>
+
+<h2>Implementation Changes</h2>
+
+<ul>
+  <li><strong>prepare.py:</strong> Remove <code>rustbpe</code>, <code>tiktoken</code>, <code>Tokenizer</code> class. Replace with <code>text.encode("utf-8")</code> → list of ints (0–255).</li>
+  <li><strong>train.py:</strong> Set <code>vocab_size = 256</code>. Remove <code>Tokenizer</code> import and instantiation. <code>make_dataloader(batch_size, seq_len, split)</code> — no tokenizer arg.</li>
+  <li><strong>evaluate_bpb:</strong> Every target token is a byte (byte length = 1). No <code>token_bytes</code> lookup needed.</li>
+</ul>
+
+<h2>Trade-Offs</h2>
+
+<table style="width:100%; border-collapse: collapse; margin: 0.75rem 0;">
+  <tr style="border-bottom: 1px solid var(--border);">
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Advantage</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Disadvantage</th>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">No tokenizer to train, save, or version</td>
+    <td style="padding:0.3rem 0.5rem;">3-4× longer sequences — more compute per story</td>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">Smaller embedding table (256 vs 4,096)</td>
+    <td style="padding:0.3rem 0.5rem;">Model must learn word boundaries from scratch</td>
+  </tr>
+  <tr>
+    <td style="padding:0.3rem 0.5rem;">Handles any Unicode without <code>UNK</code> tokens</td>
+    <td style="padding:0.3rem 0.5rem;">Higher val_bpb initially (model has more to learn)</td>
+  </tr>
+</table>
+
+<h2>Experimental Results (Apple Silicon, 5-min budget)</h2>
+
+<table style="width:100%; border-collapse: collapse; margin: 0.75rem 0;">
+  <tr style="border-bottom: 1px solid var(--border);">
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Setup</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">val_bpb</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">Steps</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">tok/sec</th>
+    <th style="text-align:left; padding:0.3rem 0.5rem;">VRAM</th>
+  </tr>
+  <tr style="border-bottom: 1px solid var(--border);">
+    <td style="padding:0.3rem 0.5rem;">BPE (vocab=4,096)</td>
+    <td style="padding:0.3rem 0.5rem;">1.592583</td>
+    <td style="padding:0.3rem 0.5rem;">83</td>
+    <td style="padding:0.3rem 0.5rem;">~9,600</td>
+    <td style="padding:0.3rem 0.5rem;">3.8 GB</td>
+  </tr>
+  <tr>
+    <td style="padding:0.3rem 0.5rem;">Byte-level (vocab=256)</td>
+    <td style="padding:0.3rem 0.5rem;">1.922753</td>
+    <td style="padding:0.3rem 0.5rem;">203</td>
+    <td style="padding:0.3rem 0.5rem;">~22,000</td>
+    <td style="padding:0.3rem 0.5rem;">2.0 GB</td>
+  </tr>
+</table>
+
+<div class="footer">
+  <p>See: <a href="https://web.stanford.edu/~jurafsky/slp3/3.pdf">Jurafsky &amp; Martin Ch. 3</a> &middot; <a href="../lessons/0002-byte-level-input.html">Lesson 2: Byte-Level Input</a></p>
+</div>
+
+</body>
+</html>
