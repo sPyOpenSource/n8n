@@ -2,9 +2,9 @@
   "block_size": 512,
   "vocab_size": 256,
   "n_layer": 6,
-  "n_head": 6,
-  "n_embd": 384,
-  "val_bpb": 2.208927926421165,
-  "num_steps": 109,
-  "total_tokens_M": 3.571712
+  "n_head": 4,
+  "n_embd": 256,
+  "val_bpb": 1.930606095095983,
+  "num_steps": 201,
+  "total_tokens_M": 6.586368
 }
